@@ -1,0 +1,29 @@
+name: tests
+
+on: [pull_request]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.8"
+
+      - name: Install dependencies
+        run: |
+          set -ex
+          curl -O -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
+          python get-poetry.py --yes
+          rm -f get-poetry.py
+          $HOME/.poetry/bin/poetry install
+
+      - name: Test with pytest
+        run: |
+          set -ex
+          $HOME/.poetry/bin/poetry run pytest
