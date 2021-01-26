@@ -1,4 +1,4 @@
-from todoist_api_python.main import run
+from todoist.main import run
 
 
 def test_run_prints(capfd):
