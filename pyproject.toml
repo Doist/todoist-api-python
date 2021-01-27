@@ -26,6 +26,7 @@ flake8 = "^3.8.4"
 pre-commit = "^2.9.0"
 isort = "^5.6.4"
 mypy = "^0.790"
+responses = "^0.12.1"
 
 [tool.isort]
 profile = "black"
