@@ -9,7 +9,7 @@ from tests.data.test_defaults import (
     DEFAULT_TASKS_DATA,
     DEFAULT_TASKS_LIST,
 )
-from todoist import TodoistAPI
+from todoist_api_python import TodoistAPI
 
 
 def assert_auth_header(request):

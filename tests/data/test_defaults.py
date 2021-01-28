@@ -1,6 +1,6 @@
 from typing import List
 
-from todoist.models import Task
+from todoist_api_python.models import Task
 
 DEFAULT_REQUEST_ID = "REQUEST12345"
 

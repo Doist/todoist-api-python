@@ -1,4 +1,4 @@
-from todoist.headers import create_headers
+from todoist_api_python.headers import create_headers
 
 
 def test_create_headers_none():

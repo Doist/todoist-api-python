@@ -1,6 +1,6 @@
 import pytest
 
-from todoist import TodoistAPI
+from todoist_api_python import TodoistAPI
 
 DEFAULT_TOKEN = "A TOKEN"
 

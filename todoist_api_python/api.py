@@ -2,10 +2,10 @@ from typing import Any, Dict, List
 
 import requests
 
-from todoist.endpoints import TASKS_ENDPOINT, get_rest_url
-from todoist.http_requests import delete, get, post
-from todoist.models import Task
-from todoist.utils import async_wrap
+from todoist_api_python.endpoints import TASKS_ENDPOINT, get_rest_url
+from todoist_api_python.http_requests import delete, get, post
+from todoist_api_python.models import Task
+from todoist_api_python.utils import async_wrap
 
 
 class TodoistAPI:

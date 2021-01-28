@@ -1,18 +1,20 @@
 [tool.poetry]
 name = "todoist_api_python"
-version = "0.1.0"
-description = "A python wrapper for the Todoist REST API."
+version = "0.1.1"
+description = "Official Python SDK for the Todoist REST API."
 readme = "README.md"
 homepage = "https://github.com/Doist/todoist-api-python"
 repository = "https://github.com/Doist/todoist-api-python"
+documentation = "https://developer.todoist.com/rest/"
 authors = ["Doist Developers <dev@doist.com>"]
+keywords = ["todoist", "rest", "api", "python"]
 license = "MIT"
 classifiers = [
     "Intended Audience :: Developers",
-    "Private :: Do Not Upload",
-    ]
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 include = [
-    "CHANGELOG.md"
+    "LICENSE",
 ]
 
 [tool.poetry.dependencies]

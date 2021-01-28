@@ -6,7 +6,7 @@ from requests import HTTPError, Session
 
 from tests.conftest import DEFAULT_TOKEN
 from tests.data.test_defaults import DEFAULT_TASK_DATA
-from todoist.http_requests import delete, get, post
+from todoist_api_python.http_requests import delete, get, post
 
 DEFAULT_URL = "https://api.todoist.com/someurl"
 
