@@ -1,24 +1,24 @@
 import json
+from typing import Any, Dict
 
 import pytest
 import responses
 from requests import HTTPError, Session
 
 from tests.conftest import DEFAULT_TOKEN
-from tests.data.test_defaults import DEFAULT_TASK_DATA
 from todoist_api_python.http_requests import delete, get, post
 
 DEFAULT_URL = "https://api.todoist.com/someurl"
 
 
 @responses.activate
-def test_get_with_params():
+def test_get_with_params(default_task_response: Dict[str, Any]):
     params = {"param1": "value1", "param2": "value2"}
 
     responses.add(
         responses.GET,
         DEFAULT_URL,
-        json=DEFAULT_TASK_DATA,
+        json=default_task_response,
         status=200,
     )
 
@@ -31,7 +31,7 @@ def test_get_with_params():
     assert (
         responses.calls[0].request.headers["Authorization"] == f"Bearer {DEFAULT_TOKEN}"
     )
-    assert response == DEFAULT_TASK_DATA
+    assert response == default_task_response
 
 
 @responses.activate
@@ -47,7 +47,7 @@ def test_get_raise_for_status():
 
 
 @responses.activate
-def test_post_with_data():
+def test_post_with_data(default_task_response: Dict[str, Any]):
     request_id = "12345"
 
     data = {"param1": "value1", "param2": "value2", "request_id": request_id}
@@ -55,7 +55,7 @@ def test_post_with_data():
     responses.add(
         responses.POST,
         DEFAULT_URL,
-        json=DEFAULT_TASK_DATA,
+        json=default_task_response,
         status=200,
     )
 
@@ -72,7 +72,7 @@ def test_post_with_data():
         == "application/json; charset=utf-8"
     )
     assert responses.calls[0].request.body == json.dumps(data)
-    assert response == DEFAULT_TASK_DATA
+    assert response == default_task_response
 
 
 @responses.activate

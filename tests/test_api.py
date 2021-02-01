@@ -1,15 +1,11 @@
 import urllib
+from typing import Any, Dict, List
 
 import responses
 
 from tests.conftest import DEFAULT_TOKEN
-from tests.data.test_defaults import (
-    DEFAULT_TASK,
-    DEFAULT_TASK_DATA,
-    DEFAULT_TASKS_DATA,
-    DEFAULT_TASKS_LIST,
-)
 from todoist_api_python import TodoistAPI
+from todoist_api_python.models import Task
 
 
 def assert_auth_header(request):
@@ -17,14 +13,16 @@ def assert_auth_header(request):
 
 
 @responses.activate
-def test_get_task(todoist_api: TodoistAPI):
+def test_get_task(
+    todoist_api: TodoistAPI, default_task_response: Dict[str, Any], default_task: Task
+):
     task_id = 1234
     expected_endpoint = f"https://api.todoist.com/rest/v1/tasks/{task_id}"
 
     responses.add(
         responses.GET,
         expected_endpoint,
-        json=DEFAULT_TASK_DATA,
+        json=default_task_response,
         status=200,
     )
 
@@ -33,25 +31,35 @@ def test_get_task(todoist_api: TodoistAPI):
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == expected_endpoint
     assert_auth_header(responses.calls[0].request)
-    assert task == DEFAULT_TASK
+    assert task == default_task
 
 
 @responses.activate
-def test_get_tasks_minimal(todoist_api: TodoistAPI):
+def test_get_tasks_minimal(
+    todoist_api: TodoistAPI,
+    default_tasks_response: List[Dict[str, Any]],
+    default_tasks_list: List[Task],
+):
     expected_endpoint = "https://api.todoist.com/rest/v1/tasks"
 
-    responses.add(responses.GET, expected_endpoint, json=DEFAULT_TASKS_DATA, status=200)
+    responses.add(
+        responses.GET, expected_endpoint, json=default_tasks_response, status=200
+    )
 
     tasks = todoist_api.get_tasks()
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == expected_endpoint
     assert_auth_header(responses.calls[0].request)
-    assert tasks == DEFAULT_TASKS_LIST
+    assert tasks == default_tasks_list
 
 
 @responses.activate
-def test_get_tasks_full(todoist_api: TodoistAPI):
+def test_get_tasks_full(
+    todoist_api: TodoistAPI,
+    default_tasks_response: List[Dict[str, Any]],
+    default_tasks_list: List[Task],
+):
     project_id = 1234
     label_id = 2345
     filter = "today"
@@ -65,7 +73,9 @@ def test_get_tasks_full(todoist_api: TodoistAPI):
         f"&filter={filter}&lang={lang}&ids={encoded_ids}"
     )
 
-    responses.add(responses.GET, expected_endpoint, json=DEFAULT_TASKS_DATA, status=200)
+    responses.add(
+        responses.GET, expected_endpoint, json=default_tasks_response, status=200
+    )
 
     tasks = todoist_api.get_tasks(
         project_id=project_id, label_id=label_id, filter=filter, lang=lang, ids=ids
@@ -74,4 +84,4 @@ def test_get_tasks_full(todoist_api: TodoistAPI):
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == expected_endpoint
     assert_auth_header(responses.calls[0].request)
-    assert tasks == DEFAULT_TASKS_LIST
+    assert tasks == default_tasks_list
