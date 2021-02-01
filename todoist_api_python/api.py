@@ -34,22 +34,22 @@ class TodoistAPI:
         task = post(self._session, self._token, endpoint, data=data)
         return Task.from_dict(task)
 
-    def update_task(self, task_id: str, **kwargs) -> Task:
+    def update_task(self, task_id: int, **kwargs) -> Task:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
-        task = post(self._session, self._token, endpoint, data=kwargs)
-        return Task.from_dict(task)
+        success = post(self._session, self._token, endpoint, data=kwargs)
+        return success
 
-    def close_task(self, task_id: str, **kwargs) -> bool:
+    def close_task(self, task_id: int, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}/close")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
 
-    def reopen_task(self, task_id: str, **kwargs) -> bool:
+    def reopen_task(self, task_id: int, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}/reopen")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
 
-    def delete_task(self, task_id: str, **kwargs) -> bool:
+    def delete_task(self, task_id: int, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success

@@ -1,3 +1,4 @@
+API_BASE_URL = "https://api.todoist.com/rest/v1"
 DEFAULT_TOKEN = "A TOKEN"
 DEFAULT_REQUEST_ID = "REQUEST12345"
 
