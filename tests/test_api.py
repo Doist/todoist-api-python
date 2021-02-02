@@ -151,7 +151,7 @@ def test_add_task_full(
 
 
 @responses.activate
-def test_update_task_full(todoist_api: TodoistAPI):
+def test_update_task(todoist_api: TodoistAPI):
     task_id = 123
 
     args = {

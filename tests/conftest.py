@@ -8,12 +8,18 @@ from tests.data.test_defaults import (
     DEFAULT_TOKEN,
 )
 from todoist_api_python import TodoistAPI
+from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Task
 
 
 @pytest.fixture()
 def todoist_api() -> TodoistAPI:
     return TodoistAPI(DEFAULT_TOKEN)
+
+
+@pytest.fixture()
+def todoist_api_async() -> TodoistAPIAsync:
+    return TodoistAPIAsync(DEFAULT_TOKEN)
 
 
 @pytest.fixture()

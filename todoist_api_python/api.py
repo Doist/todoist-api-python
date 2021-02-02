@@ -34,7 +34,7 @@ class TodoistAPI:
         task = post(self._session, self._token, endpoint, data=data)
         return Task.from_dict(task)
 
-    def update_task(self, task_id: int, **kwargs) -> Task:
+    def update_task(self, task_id: int, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
