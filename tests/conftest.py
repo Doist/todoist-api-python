@@ -1,6 +1,7 @@
 from typing import Any, Dict, List
 
 import pytest
+import responses
 
 from tests.data.test_defaults import (
     DEFAULT_TASK_RESPONSE,
@@ -10,6 +11,12 @@ from tests.data.test_defaults import (
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Task
+
+
+@pytest.fixture()
+def requests_mock() -> responses.RequestsMock:
+    with responses.RequestsMock() as requestsMock:
+        yield requestsMock
 
 
 @pytest.fixture()
