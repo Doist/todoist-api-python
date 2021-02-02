@@ -1,22 +1,16 @@
-from typing import Callable, List, Optional
+from typing import List
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from tests.data.test_defaults import DEFAULT_TOKEN
+from tests.utils.test_utils import get_todoist_api_patch
 from todoist_api_python import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Task
 
 
-def _get_todoist_api_patch(method: Optional[Callable]) -> str:
-    module = TodoistAPI.__module__
-    name = TodoistAPI.__qualname__
-
-    return f"{module}.{name}.{method.__name__}" if method else f"{module}.{name}"
-
-
-@patch(_get_todoist_api_patch(TodoistAPI.__init__))
+@patch(get_todoist_api_patch(TodoistAPI.__init__))
 @pytest.mark.asyncio
 async def test_constructs_api_with_token(sync_api_constructor: MagicMock):
     sync_api_constructor.return_value = None
@@ -25,7 +19,7 @@ async def test_constructs_api_with_token(sync_api_constructor: MagicMock):
     sync_api_constructor.assert_called_once_with(DEFAULT_TOKEN)
 
 
-@patch(_get_todoist_api_patch(TodoistAPI.get_task))
+@patch(get_todoist_api_patch(TodoistAPI.get_task))
 @pytest.mark.asyncio
 async def test_get_task(
     get_task: MagicMock, todoist_api_async: TodoistAPIAsync, default_task: Task
@@ -39,7 +33,7 @@ async def test_get_task(
     assert task == default_task
 
 
-@patch(_get_todoist_api_patch(TodoistAPI.get_tasks))
+@patch(get_todoist_api_patch(TodoistAPI.get_tasks))
 @pytest.mark.asyncio
 async def test_get_tasks(
     get_tasks: MagicMock,
@@ -61,7 +55,7 @@ async def test_get_tasks(
     assert tasks == default_tasks_list
 
 
-@patch(_get_todoist_api_patch(TodoistAPI.add_task))
+@patch(get_todoist_api_patch(TodoistAPI.add_task))
 @pytest.mark.asyncio
 async def test_add_task(
     add_task: MagicMock,
@@ -90,7 +84,7 @@ async def test_add_task(
     assert task == default_task
 
 
-@patch(_get_todoist_api_patch(TodoistAPI.update_task))
+@patch(get_todoist_api_patch(TodoistAPI.update_task))
 @pytest.mark.asyncio
 async def test_update_task(
     update_task: MagicMock,
@@ -119,7 +113,7 @@ async def test_update_task(
     assert result is True
 
 
-@patch(_get_todoist_api_patch(TodoistAPI.close_task))
+@patch(get_todoist_api_patch(TodoistAPI.close_task))
 @pytest.mark.asyncio
 async def test_close_task(close_task: MagicMock, todoist_api_async: TodoistAPIAsync):
     task_id = 123
@@ -131,7 +125,7 @@ async def test_close_task(close_task: MagicMock, todoist_api_async: TodoistAPIAs
     assert result is True
 
 
-@patch(_get_todoist_api_patch(TodoistAPI.reopen_task))
+@patch(get_todoist_api_patch(TodoistAPI.reopen_task))
 @pytest.mark.asyncio
 async def test_reopen_task(reopen_task: MagicMock, todoist_api_async: TodoistAPIAsync):
     task_id = 123
@@ -143,7 +137,7 @@ async def test_reopen_task(reopen_task: MagicMock, todoist_api_async: TodoistAPI
     assert result is True
 
 
-@patch(_get_todoist_api_patch(TodoistAPI.delete_task))
+@patch(get_todoist_api_patch(TodoistAPI.delete_task))
 @pytest.mark.asyncio
 async def test_delete_task(delete_task: MagicMock, todoist_api_async: TodoistAPIAsync):
     task_id = 123

@@ -4,18 +4,10 @@ from typing import Any, Dict, List
 
 import responses
 
-from tests.conftest import DEFAULT_TOKEN
 from tests.data.test_defaults import API_BASE_URL, DEFAULT_REQUEST_ID
+from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python import TodoistAPI
 from todoist_api_python.models import Task
-
-
-def assert_auth_header(request):
-    assert request.headers["Authorization"] == f"Bearer {DEFAULT_TOKEN}"
-
-
-def assert_request_id_header(request):
-    assert request.headers["X-Request-Id"] == DEFAULT_REQUEST_ID
 
 
 @responses.activate
