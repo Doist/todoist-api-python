@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, DEFAULT_TOKEN
-from todoist_api_python import TodoistAPI
+from todoist_api_python.api import TodoistAPI
 
 
 def assert_auth_header(request):

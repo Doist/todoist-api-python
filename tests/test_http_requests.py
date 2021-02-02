@@ -6,9 +6,10 @@ import responses
 from requests import HTTPError, Session
 
 from tests.conftest import DEFAULT_TOKEN
+from todoist_api_python.endpoints import BASE_URL, TASKS_ENDPOINT
 from todoist_api_python.http_requests import delete, get, post
 
-DEFAULT_URL = "https://api.todoist.com/someurl"
+DEFAULT_URL = f"{BASE_URL}/{TASKS_ENDPOINT}"
 
 
 @responses.activate

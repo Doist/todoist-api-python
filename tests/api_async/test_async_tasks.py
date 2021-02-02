@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from tests.utils.test_utils import get_todoist_api_patch
-from todoist_api_python import TodoistAPI
+from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Task
 

@@ -1,7 +1,7 @@
 import asyncio
 from typing import List
 
-from todoist_api_python import TodoistAPI
+from todoist_api_python.api import TodoistAPI
 from todoist_api_python.models import Task
 
 

@@ -7,7 +7,7 @@ from tests.data.test_defaults import (
     DEFAULT_TASKS_RESPONSE,
     DEFAULT_TOKEN,
 )
-from todoist_api_python import TodoistAPI
+from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Task
 

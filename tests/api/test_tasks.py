@@ -6,7 +6,7 @@ import responses
 
 from tests.data.test_defaults import API_BASE_URL, DEFAULT_REQUEST_ID
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
-from todoist_api_python import TodoistAPI
+from todoist_api_python.api import TodoistAPI
 from todoist_api_python.models import Task
 
 
