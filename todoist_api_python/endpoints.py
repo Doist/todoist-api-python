@@ -10,6 +10,7 @@ REST_API = urljoin(BASE_URL, "/rest/%s/" % REST_VERSION)
 TASKS_ENDPOINT = "tasks"
 PROJECTS_ENDPOINT = "projects"
 COLLABORATORS_ENDPOINT = "collaborators"
+SECTIONS_ENDPOINT = "sections"
 
 
 def get_rest_url(relative_path: str) -> str:
