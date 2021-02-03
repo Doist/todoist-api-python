@@ -30,7 +30,6 @@ class Project(Base):
     team_inbox: Optional[bool] = attr.ib(default=None)
     order: Optional[int] = attr.ib(default=None)
     parent_id: Optional[int] = attr.ib(default=None)
-    parent: Optional[int] = attr.ib(default=None)
 
 
 @attr.s
@@ -61,7 +60,6 @@ class Task(Base):
     label_ids: Optional[List[int]] = attr.ib(default=None)
     order: Optional[int] = attr.ib(default=None)
     parent_id: Optional[int] = attr.ib(default=None)
-    parent: Optional[int] = attr.ib(default=None)
     sync_id: Optional[int] = attr.ib(default=None)
 
     @classmethod

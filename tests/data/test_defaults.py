@@ -23,3 +23,30 @@ DEFAULT_TASKS_RESPONSE = [
     DEFAULT_TASK_RESPONSE,
     DEFAULT_TASK_RESPONSE,
 ]
+
+DEFAULT_PROJECT_RESPONSE = {
+    "id": 1234,
+    "name": "Inbox",
+    "comment_count": 10,
+    "order": 1,
+    "color": 30,
+    "shared": False,
+    "parent_id": 5678,
+    "sync_id": 0,
+    "favorite": False,
+    "inbox_project": True,
+}
+
+DEFAULT_PROJECTS_RESPONSE = [
+    DEFAULT_PROJECT_RESPONSE,
+    DEFAULT_PROJECT_RESPONSE,
+    DEFAULT_PROJECT_RESPONSE,
+]
+
+DEFAULT_COLLABORATOR_RESPONSE = {"id": 1, "name": "Alice", "email": "alice@example.com"}
+
+DEFAULT_COLLABORATORS_RESPONSE = [
+    DEFAULT_COLLABORATOR_RESPONSE,
+    DEFAULT_COLLABORATOR_RESPONSE,
+    DEFAULT_COLLABORATOR_RESPONSE,
+]
