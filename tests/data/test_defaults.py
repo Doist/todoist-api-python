@@ -16,6 +16,13 @@ DEFAULT_TASK_RESPONSE = {
     "creator": 0,
     "created": "2019-01-02T21:00:30Z",
     "url": "https://todoist.com/showTask?id=2995104339",
+    "due": {
+        "date": "2016-09-01",
+        "recurring": True,
+        "datetime": "2016-09-01T09:00:00Z",
+        "string": "tomorrow at 12",
+        "timezone": "Europe/Moscow",
+    },
 }
 
 DEFAULT_TASK_RESPONSE_2 = dict(DEFAULT_TASK_RESPONSE)
@@ -74,4 +81,23 @@ DEFAULT_SECTION_RESPONSE_2["id"] = 5678
 DEFAULT_SECTIONS_RESPONSE = [
     DEFAULT_SECTION_RESPONSE,
     DEFAULT_SECTION_RESPONSE_2,
+]
+
+DEFAULT_COMMENT_RESPONSE = {
+    "id": 1234,
+    "content": "A comment",
+    "posted": "2016-09-22T07:00:00Z",
+    "task_id": 2345,
+    "attachment": {
+        "resource_type": "file",
+        "file_name": "File.pdf",
+        "file_type": "application/pdf",
+        "file_url": "https://cdn-domain.tld/path/to/file.pdf",
+    },
+}
+
+DEFAULT_COMMENTS_RESPONSE = [
+    DEFAULT_COMMENT_RESPONSE,
+    DEFAULT_COMMENT_RESPONSE,
+    DEFAULT_COMMENT_RESPONSE,
 ]
