@@ -68,7 +68,7 @@ def default_projects_response() -> List[Dict[str, Any]]:
 
 
 @pytest.fixture()
-def default_projects_list() -> List[Task]:
+def default_projects_list() -> List[Project]:
     return [Project.from_dict(obj) for obj in DEFAULT_PROJECTS_RESPONSE]
 
 
@@ -78,5 +78,5 @@ def default_collaborators_response() -> List[Dict[str, Any]]:
 
 
 @pytest.fixture()
-def default_collaborators_list() -> List[Task]:
+def default_collaborators_list() -> List[Collaborator]:
     return [Collaborator.from_dict(obj) for obj in DEFAULT_COLLABORATORS_RESPONSE]
