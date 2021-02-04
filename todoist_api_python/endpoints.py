@@ -8,6 +8,8 @@ SYNC_API = urljoin(BASE_URL, "/sync/%s/" % SYNC_VERSION)
 REST_API = urljoin(BASE_URL, "/rest/%s/" % REST_VERSION)
 
 TASKS_ENDPOINT = "tasks"
+PROJECTS_ENDPOINT = "projects"
+COLLABORATORS_ENDPOINT = "collaborators"
 
 
 def get_rest_url(relative_path: str) -> str:

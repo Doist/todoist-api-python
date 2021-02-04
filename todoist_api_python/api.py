@@ -2,9 +2,14 @@ from typing import Any, Dict, List
 
 import requests
 
-from todoist_api_python.endpoints import TASKS_ENDPOINT, get_rest_url
+from todoist_api_python.endpoints import (
+    COLLABORATORS_ENDPOINT,
+    PROJECTS_ENDPOINT,
+    TASKS_ENDPOINT,
+    get_rest_url,
+)
 from todoist_api_python.http_requests import delete, get, post
-from todoist_api_python.models import Task
+from todoist_api_python.models import Collaborator, Project, Task
 
 
 class TodoistAPI:
@@ -53,3 +58,37 @@ class TodoistAPI:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
+
+    def get_project(self, project_id: int) -> Project:
+        endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
+        project = get(self._session, self._token, endpoint)
+        return Project.from_dict(project)
+
+    def get_projects(self) -> List[Project]:
+        endpoint = get_rest_url(PROJECTS_ENDPOINT)
+        projects = get(self._session, self._token, endpoint)
+        return [Project.from_dict(obj) for obj in projects]
+
+    def add_project(self, name: str, **kwargs) -> Project:
+        endpoint = get_rest_url(PROJECTS_ENDPOINT)
+        data: Dict[str, Any] = {"name": name}
+        data.update(kwargs)
+        project = post(self._session, self._token, endpoint, data=data)
+        return Project.from_dict(project)
+
+    def update_project(self, project_id: int, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
+        success = post(self._session, self._token, endpoint, data=kwargs)
+        return success
+
+    def delete_project(self, project_id: int, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
+        success = delete(self._session, self._token, endpoint, args=kwargs)
+        return success
+
+    def get_collaborators(self, project_id: int) -> List[Collaborator]:
+        endpoint = get_rest_url(
+            f"{PROJECTS_ENDPOINT}/{project_id}/{COLLABORATORS_ENDPOINT}"
+        )
+        collaborators = get(self._session, self._token, endpoint)
+        return [Collaborator.from_dict(obj) for obj in collaborators]
