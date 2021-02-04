@@ -3,6 +3,7 @@ from tests.data.test_defaults import (
     DEFAULT_COLLABORATOR_RESPONSE,
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_DUE_RESPONSE,
+    DEFAULT_LABEL_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_SECTION_RESPONSE,
     DEFAULT_TASK_RESPONSE,
@@ -12,6 +13,7 @@ from todoist_api_python.models import (
     Collaborator,
     Comment,
     Due,
+    Label,
     Project,
     Section,
     Task,
@@ -131,3 +133,16 @@ def test_comment_from_dict():
     assert comment.task_id == sample_data["task_id"]
     assert comment.project_id == sample_data["project_id"]
     assert comment.attachment == Attachment.from_dict(sample_data["attachment"])
+
+
+def test_label_from_dict():
+    sample_data = dict(DEFAULT_LABEL_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    label = Label.from_dict(sample_data)
+
+    assert label.id == sample_data["id"]
+    assert label.name == sample_data["name"]
+    assert label.color == sample_data["color"]
+    assert label.order == sample_data["order"]
+    assert label.favorite == sample_data["favorite"]

@@ -2,7 +2,14 @@ import asyncio
 from typing import List
 
 from todoist_api_python.api import TodoistAPI
-from todoist_api_python.models import Collaborator, Comment, Project, Section, Task
+from todoist_api_python.models import (
+    Collaborator,
+    Comment,
+    Label,
+    Project,
+    Section,
+    Task,
+)
 
 
 async def run_async(func):
@@ -88,3 +95,18 @@ class TodoistAPIAsync:
 
     async def delete_comment(self, comment_id: int, **kwargs) -> bool:
         return await run_async(lambda: self._api.delete_comment(comment_id, **kwargs))
+
+    async def get_label(self, label_id: int) -> Label:
+        return await run_async(lambda: self._api.get_label(label_id))
+
+    async def get_labels(self) -> List[Label]:
+        return await run_async(lambda: self._api.get_labels())
+
+    async def add_label(self, name: str, **kwargs) -> Label:
+        return await run_async(lambda: self._api.add_label(name, **kwargs))
+
+    async def update_label(self, label_id: int, **kwargs) -> bool:
+        return await run_async(lambda: self._api.update_label(label_id, **kwargs))
+
+    async def delete_label(self, label_id: int, **kwargs) -> bool:
+        return await run_async(lambda: self._api.delete_label(label_id, **kwargs))
