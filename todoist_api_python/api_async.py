@@ -2,7 +2,7 @@ import asyncio
 from typing import List
 
 from todoist_api_python.api import TodoistAPI
-from todoist_api_python.models import Collaborator, Project, Task
+from todoist_api_python.models import Collaborator, Project, Section, Task
 
 
 async def run_async(func):
@@ -52,3 +52,22 @@ class TodoistAPIAsync:
 
     async def get_collaborators(self, project_id: int) -> List[Collaborator]:
         return await run_async(lambda: self._api.get_collaborators(project_id))
+
+    async def get_section(self, section_id: int) -> Section:
+        return await run_async(lambda: self._api.get_section(section_id))
+
+    async def get_sections(self, **kwargs) -> List[Section]:
+        return await run_async(lambda: self._api.get_sections(**kwargs))
+
+    async def add_section(self, name: str, project_id: int, **kwargs) -> Section:
+        return await run_async(
+            lambda: self._api.add_section(name, project_id, **kwargs)
+        )
+
+    async def update_section(self, section_id: int, name: str, **kwargs) -> bool:
+        return await run_async(
+            lambda: self._api.update_section(section_id, name, **kwargs)
+        )
+
+    async def delete_section(self, section_id: int, **kwargs) -> bool:
+        return await run_async(lambda: self._api.delete_section(section_id, **kwargs))

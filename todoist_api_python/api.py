@@ -5,11 +5,12 @@ import requests
 from todoist_api_python.endpoints import (
     COLLABORATORS_ENDPOINT,
     PROJECTS_ENDPOINT,
+    SECTIONS_ENDPOINT,
     TASKS_ENDPOINT,
     get_rest_url,
 )
 from todoist_api_python.http_requests import delete, get, post
-from todoist_api_python.models import Collaborator, Project, Task
+from todoist_api_python.models import Collaborator, Project, Section, Task
 
 
 class TodoistAPI:
@@ -92,3 +93,32 @@ class TodoistAPI:
         )
         collaborators = get(self._session, self._token, endpoint)
         return [Collaborator.from_dict(obj) for obj in collaborators]
+
+    def get_section(self, section_id: int) -> Section:
+        endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
+        section = get(self._session, self._token, endpoint)
+        return Section.from_dict(section)
+
+    def get_sections(self, **kwargs) -> List[Section]:
+        endpoint = get_rest_url(SECTIONS_ENDPOINT)
+        sections = get(self._session, self._token, endpoint, kwargs)
+        return [Section.from_dict(obj) for obj in sections]
+
+    def add_section(self, name: str, project_id: int, **kwargs) -> Section:
+        endpoint = get_rest_url(SECTIONS_ENDPOINT)
+        data = {"name": name, "project_id": project_id}
+        data.update(kwargs)
+        section = post(self._session, self._token, endpoint, data=data)
+        return Section.from_dict(section)
+
+    def update_section(self, section_id: int, name: str, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
+        data: Dict[str, Any] = {"name": name}
+        data.update(kwargs)
+        success = post(self._session, self._token, endpoint, data=data)
+        return success
+
+    def delete_section(self, section_id: int, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
+        success = delete(self._session, self._token, endpoint, args=kwargs)
+        return success

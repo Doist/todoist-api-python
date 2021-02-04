@@ -33,6 +33,14 @@ class Project(Base):
 
 
 @attr.s
+class Section(Base):
+    id: int = attr.ib()
+    name: str = attr.ib()
+    order: int = attr.ib()
+    project_id: int = attr.ib()
+
+
+@attr.s
 class Due(Base):
     date: str = attr.ib()
     recurring: bool = attr.ib()
