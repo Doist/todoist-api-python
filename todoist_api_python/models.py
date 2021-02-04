@@ -27,7 +27,7 @@ class Project:
             favorite=obj["favorite"],
             name=obj["name"],
             shared=obj["shared"],
-            sync_id=obj["id"],
+            sync_id=obj["sync_id"],
             inbox_project=obj.get("inbox_project"),
             team_inbox=obj.get("team_inbox"),
             order=obj.get("order"),
