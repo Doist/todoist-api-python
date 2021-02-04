@@ -4,7 +4,7 @@ import attr
 
 
 @attr.s
-class Project:
+class Project(object):
     id: int = attr.ib()
     color: int = attr.ib()
     comment_count: int = attr.ib()
@@ -36,7 +36,7 @@ class Project:
 
 
 @attr.s
-class Section:
+class Section(object):
     id: int = attr.ib()
     name: str = attr.ib()
     order: int = attr.ib()
@@ -53,7 +53,7 @@ class Section:
 
 
 @attr.s
-class Due:
+class Due(object):
     date: str = attr.ib()
     recurring: bool = attr.ib()
     string: str = attr.ib()
@@ -72,7 +72,7 @@ class Due:
 
 
 @attr.s
-class Task:
+class Task(object):
     comment_count: int = attr.ib()
     completed: bool = attr.ib()
     content: str = attr.ib()
@@ -116,7 +116,7 @@ class Task:
 
 
 @attr.s
-class Collaborator:
+class Collaborator(object):
     id: int = attr.ib()
     email: str = attr.ib()
     name: str = attr.ib()
@@ -131,7 +131,7 @@ class Collaborator:
 
 
 @attr.s
-class Attachment:
+class Attachment(object):
     resource_type: str = attr.ib()
 
     file_name: Optional[str] = attr.ib(default=None)
@@ -165,7 +165,7 @@ class Attachment:
 
 
 @attr.s
-class Comment:
+class Comment(object):
     id: int = attr.ib()
     content: str = attr.ib()
     posted: str = attr.ib()
