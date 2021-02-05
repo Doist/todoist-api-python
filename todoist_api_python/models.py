@@ -186,3 +186,22 @@ class Comment(object):
             if "attachment" in obj
             else None,
         )
+
+
+@attr.s
+class Label:
+    id: int = attr.ib()
+    name: str = attr.ib()
+    color: int = attr.ib()
+    order: int = attr.ib()
+    favorite: bool = attr.ib()
+
+    @classmethod
+    def from_dict(cls, obj):
+        return cls(
+            id=obj["id"],
+            name=obj["name"],
+            color=obj["color"],
+            order=obj["order"],
+            favorite=obj["favorite"],
+        )

@@ -5,13 +5,21 @@ import requests
 from todoist_api_python.endpoints import (
     COLLABORATORS_ENDPOINT,
     COMMENTS_ENDPOINT,
+    LABELS_ENDPOINT,
     PROJECTS_ENDPOINT,
     SECTIONS_ENDPOINT,
     TASKS_ENDPOINT,
     get_rest_url,
 )
 from todoist_api_python.http_requests import delete, get, post
-from todoist_api_python.models import Collaborator, Comment, Project, Section, Task
+from todoist_api_python.models import (
+    Collaborator,
+    Comment,
+    Label,
+    Project,
+    Section,
+    Task,
+)
 
 
 class TodoistAPI:
@@ -150,5 +158,32 @@ class TodoistAPI:
 
     def delete_comment(self, comment_id: int, **kwargs) -> bool:
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
+        success = delete(self._session, self._token, endpoint, args=kwargs)
+        return success
+
+    def get_label(self, label_id: int) -> Label:
+        endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
+        label = get(self._session, self._token, endpoint)
+        return Label.from_dict(label)
+
+    def get_labels(self) -> List[Label]:
+        endpoint = get_rest_url(LABELS_ENDPOINT)
+        labels = get(self._session, self._token, endpoint)
+        return [Label.from_dict(obj) for obj in labels]
+
+    def add_label(self, name: str, **kwargs) -> Label:
+        endpoint = get_rest_url(LABELS_ENDPOINT)
+        data = {"name": name}
+        data.update(kwargs)
+        label = post(self._session, self._token, endpoint, data=data)
+        return Label.from_dict(label)
+
+    def update_label(self, label_id: int, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
+        success = post(self._session, self._token, endpoint, data=kwargs)
+        return success
+
+    def delete_label(self, label_id: int, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
