@@ -202,6 +202,6 @@ class Label:
             id=obj["id"],
             name=obj["name"],
             color=obj["color"],
-            order=obj.get("order"),
-            favorite=obj.get("favorite"),
+            order=obj["order"],
+            favorite=obj["favorite"],
         )
