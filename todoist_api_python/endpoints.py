@@ -11,6 +11,7 @@ TASKS_ENDPOINT = "tasks"
 PROJECTS_ENDPOINT = "projects"
 COLLABORATORS_ENDPOINT = "collaborators"
 SECTIONS_ENDPOINT = "sections"
+COMMENTS_ENDPOINT = "comments"
 
 
 def get_rest_url(relative_path: str) -> str:

@@ -4,13 +4,14 @@ import requests
 
 from todoist_api_python.endpoints import (
     COLLABORATORS_ENDPOINT,
+    COMMENTS_ENDPOINT,
     PROJECTS_ENDPOINT,
     SECTIONS_ENDPOINT,
     TASKS_ENDPOINT,
     get_rest_url,
 )
 from todoist_api_python.http_requests import delete, get, post
-from todoist_api_python.models import Collaborator, Project, Section, Task
+from todoist_api_python.models import Collaborator, Comment, Project, Section, Task
 
 
 class TodoistAPI:
@@ -120,5 +121,34 @@ class TodoistAPI:
 
     def delete_section(self, section_id: int, **kwargs) -> bool:
         endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
+        success = delete(self._session, self._token, endpoint, args=kwargs)
+        return success
+
+    def get_comment(self, comment_id: int) -> Comment:
+        endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
+        comment = get(self._session, self._token, endpoint)
+        return Comment.from_dict(comment)
+
+    def get_comments(self, **kwargs) -> List[Comment]:
+        endpoint = get_rest_url(COMMENTS_ENDPOINT)
+        comments = get(self._session, self._token, endpoint, kwargs)
+        return [Comment.from_dict(obj) for obj in comments]
+
+    def add_comment(self, content: str, **kwargs) -> Comment:
+        endpoint = get_rest_url(COMMENTS_ENDPOINT)
+        data = {"content": content}
+        data.update(kwargs)
+        comment = post(self._session, self._token, endpoint, data=data)
+        return Comment.from_dict(comment)
+
+    def update_comment(self, comment_id: int, content: str, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
+        data: Dict[str, Any] = {"content": content}
+        data.update(kwargs)
+        success = post(self._session, self._token, endpoint, data=data)
+        return success
+
+    def delete_comment(self, comment_id: int, **kwargs) -> bool:
+        endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success

@@ -5,6 +5,8 @@ import responses
 
 from tests.data.test_defaults import (
     DEFAULT_COLLABORATORS_RESPONSE,
+    DEFAULT_COMMENT_RESPONSE,
+    DEFAULT_COMMENTS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_PROJECTS_RESPONSE,
     DEFAULT_SECTION_RESPONSE,
@@ -15,7 +17,7 @@ from tests.data.test_defaults import (
 )
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
-from todoist_api_python.models import Collaborator, Project, Section, Task
+from todoist_api_python.models import Collaborator, Comment, Project, Section, Task
 
 
 @pytest.fixture()
@@ -102,3 +104,23 @@ def default_sections_response() -> List[Dict[str, Any]]:
 @pytest.fixture()
 def default_sections_list() -> List[Section]:
     return [Section.from_dict(obj) for obj in DEFAULT_SECTIONS_RESPONSE]
+
+
+@pytest.fixture()
+def default_comment_response() -> Dict[str, Any]:
+    return DEFAULT_COMMENT_RESPONSE
+
+
+@pytest.fixture()
+def default_comment() -> Comment:
+    return Comment.from_dict(DEFAULT_COMMENT_RESPONSE)
+
+
+@pytest.fixture()
+def default_comments_response() -> List[Dict[str, Any]]:
+    return DEFAULT_COMMENTS_RESPONSE
+
+
+@pytest.fixture()
+def default_comments_list() -> List[Comment]:
+    return [Comment.from_dict(obj) for obj in DEFAULT_COMMENTS_RESPONSE]

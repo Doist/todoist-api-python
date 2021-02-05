@@ -2,7 +2,7 @@ import asyncio
 from typing import List
 
 from todoist_api_python.api import TodoistAPI
-from todoist_api_python.models import Collaborator, Project, Section, Task
+from todoist_api_python.models import Collaborator, Comment, Project, Section, Task
 
 
 async def run_async(func):
@@ -71,3 +71,20 @@ class TodoistAPIAsync:
 
     async def delete_section(self, section_id: int, **kwargs) -> bool:
         return await run_async(lambda: self._api.delete_section(section_id, **kwargs))
+
+    async def get_comment(self, comment_id: int) -> Comment:
+        return await run_async(lambda: self._api.get_comment(comment_id))
+
+    async def get_comments(self, **kwargs) -> List[Comment]:
+        return await run_async(lambda: self._api.get_comments(**kwargs))
+
+    async def add_comment(self, content: str, **kwargs) -> Comment:
+        return await run_async(lambda: self._api.add_comment(content, **kwargs))
+
+    async def update_comment(self, comment_id: int, content: str, **kwargs) -> bool:
+        return await run_async(
+            lambda: self._api.update_comment(comment_id, content, **kwargs)
+        )
+
+    async def delete_comment(self, comment_id: int, **kwargs) -> bool:
+        return await run_async(lambda: self._api.delete_comment(comment_id, **kwargs))
