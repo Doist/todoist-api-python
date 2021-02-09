@@ -5,11 +5,15 @@ from typing import Any, Dict, List
 import pytest
 import responses
 
-from tests.data.test_defaults import API_BASE_URL, DEFAULT_REQUEST_ID
+from tests.data.test_defaults import (
+    DEFAULT_REQUEST_ID,
+    REST_API_BASE_URL,
+    SYNC_API_BASE_URL,
+)
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
-from todoist_api_python.models import Task
+from todoist_api_python.models import QuickAddResult, Task
 
 
 @pytest.mark.asyncio
@@ -21,7 +25,7 @@ async def test_get_task(
     default_task: Task,
 ):
     task_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/tasks/{task_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}"
 
     requests_mock.add(
         responses.GET,
@@ -52,7 +56,10 @@ async def test_get_tasks_minimal(
     default_tasks_list: List[Task],
 ):
     requests_mock.add(
-        responses.GET, f"{API_BASE_URL}/tasks", json=default_tasks_response, status=200
+        responses.GET,
+        f"{REST_API_BASE_URL}/tasks",
+        json=default_tasks_response,
+        status=200,
     )
 
     tasks = todoist_api.get_tasks()
@@ -84,7 +91,7 @@ async def test_get_tasks_full(
 
     encoded_ids = urllib.parse.quote(",".join(str(x) for x in ids))
     expected_endpoint = (
-        f"{API_BASE_URL}/tasks"
+        f"{REST_API_BASE_URL}/tasks"
         f"?project_id={project_id}&label_id={label_id}"
         f"&filter={filter}&lang={lang}&ids={encoded_ids}"
     )
@@ -122,7 +129,10 @@ async def test_add_task_minimal(
     expected_payload = {"content": task_content}
 
     requests_mock.add(
-        responses.POST, f"{API_BASE_URL}/tasks", json=default_task_response, status=200
+        responses.POST,
+        f"{REST_API_BASE_URL}/tasks",
+        json=default_task_response,
+        status=200,
     )
 
     new_task = todoist_api.add_task(content=task_content, request_id=DEFAULT_REQUEST_ID)
@@ -172,7 +182,10 @@ async def test_add_task_full(
     expected_payload.update(optional_args)
 
     requests_mock.add(
-        responses.POST, f"{API_BASE_URL}/tasks", json=default_task_response, status=200
+        responses.POST,
+        f"{REST_API_BASE_URL}/tasks",
+        json=default_task_response,
+        status=200,
     )
 
     new_task = todoist_api.add_task(
@@ -215,7 +228,9 @@ async def test_update_task(
         "assignee": 321,
     }
 
-    requests_mock.add(responses.POST, f"{API_BASE_URL}/tasks/{task_id}", status=204)
+    requests_mock.add(
+        responses.POST, f"{REST_API_BASE_URL}/tasks/{task_id}", status=204
+    )
 
     response = todoist_api.update_task(
         task_id=task_id, request_id=DEFAULT_REQUEST_ID, **args
@@ -245,7 +260,7 @@ async def test_close_task(
     requests_mock: responses.RequestsMock,
 ):
     task_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/tasks/{task_id}/close"
+    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}/close"
 
     requests_mock.add(
         responses.POST,
@@ -273,7 +288,7 @@ async def test_reopen_task(
     requests_mock: responses.RequestsMock,
 ):
     task_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/tasks/{task_id}/reopen"
+    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}/reopen"
 
     requests_mock.add(
         responses.POST,
@@ -301,7 +316,7 @@ async def test_delete_task(
     requests_mock: responses.RequestsMock,
 ):
     task_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/tasks/{task_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}"
 
     requests_mock.add(
         responses.DELETE,
@@ -320,3 +335,36 @@ async def test_delete_task(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert response is True
+
+
+@pytest.mark.asyncio
+async def test_quick_add_task(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_quick_add_response: Dict[str, Any],
+    default_quick_add_result: QuickAddResult,
+):
+    text = "some task"
+    expected_payload = {"text": text, "meta": True, "auto_reminder": True}
+
+    requests_mock.add(
+        responses.POST,
+        f"{SYNC_API_BASE_URL}/quick/add",
+        json=default_quick_add_response,
+        status=200,
+    )
+
+    response = todoist_api.quick_add_task(text=text)
+
+    assert len(requests_mock.calls) == 1
+    assert_auth_header(requests_mock.calls[0].request)
+    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
+    assert response == default_quick_add_result
+
+    response = await todoist_api_async.quick_add_task(text=text)
+
+    assert len(requests_mock.calls) == 2
+    assert_auth_header(requests_mock.calls[1].request)
+    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
+    assert response == default_quick_add_result

@@ -1,4 +1,5 @@
-API_BASE_URL = "https://api.todoist.com/rest/v1"
+REST_API_BASE_URL = "https://api.todoist.com/rest/v1"
+SYNC_API_BASE_URL = "https://api.todoist.com/sync/v8"
 DEFAULT_TOKEN = "A TOKEN"
 DEFAULT_REQUEST_ID = "REQUEST12345"
 

@@ -1,3 +1,7 @@
+from tests.data.quick_add_responses import (
+    QUICK_ADD_RESPONSE_FULL,
+    QUICK_ADD_RESPONSE_MINIMAL,
+)
 from tests.data.test_defaults import (
     DEFAULT_ATTACHMENT_RESPONSE,
     DEFAULT_COLLABORATOR_RESPONSE,
@@ -15,6 +19,7 @@ from todoist_api_python.models import (
     Due,
     Label,
     Project,
+    QuickAddResult,
     Section,
     Task,
 )
@@ -146,3 +151,70 @@ def test_label_from_dict():
     assert label.color == sample_data["color"]
     assert label.order == sample_data["order"]
     assert label.favorite == sample_data["favorite"]
+
+
+def test_quick_add_result_minimal():
+    sample_data = dict(QUICK_ADD_RESPONSE_MINIMAL)
+    sample_data.update(unexpected_data)
+
+    quick_add_result = QuickAddResult.from_quick_add_response(sample_data)
+
+    assert quick_add_result.task.comment_count == 0
+    assert quick_add_result.task.completed is False
+    assert quick_add_result.task.content == "some task"
+    assert quick_add_result.task.created == "2021-02-05T11:02:56Z"
+    assert quick_add_result.task.creator == 21180723
+    assert quick_add_result.task.id == 4554989047
+    assert quick_add_result.task.project_id == 2203108698
+    assert quick_add_result.task.section_id == 0
+    assert quick_add_result.task.priority == 1
+    assert quick_add_result.task.url == "https://todoist.com/showTask?id=4554989047"
+    assert quick_add_result.task.assignee is None
+    assert quick_add_result.task.assigner is None
+    assert quick_add_result.task.due is None
+    assert quick_add_result.task.label_ids == []
+    assert quick_add_result.task.order == 6
+    assert quick_add_result.task.parent_id == 0
+    assert quick_add_result.task.sync_id is None
+
+    assert quick_add_result.resolved_assignee_name is None
+    assert quick_add_result.resolved_label_names == []
+    assert quick_add_result.resolved_project_name is None
+    assert quick_add_result.resolved_section_name is None
+
+
+def test_quick_add_result_full():
+    sample_data = dict(QUICK_ADD_RESPONSE_FULL)
+    sample_data.update(unexpected_data)
+
+    quick_add_result = QuickAddResult.from_quick_add_response(sample_data)
+
+    assert quick_add_result.task.comment_count == 0
+    assert quick_add_result.task.completed is False
+    assert quick_add_result.task.content == "some task"
+    assert quick_add_result.task.created == "2021-02-05T11:04:54Z"
+    assert quick_add_result.task.creator == 21180723
+    assert quick_add_result.task.id == 4554993687
+    assert quick_add_result.task.project_id == 2257514220
+    assert quick_add_result.task.section_id == 2232454220
+    assert quick_add_result.task.priority == 1
+    assert (
+        quick_add_result.task.url
+        == "https://todoist.com/showTask?id=4554993687&sync_id=4554993687"
+    )
+    assert quick_add_result.task.assignee == 29172386
+    assert quick_add_result.task.assigner == 21180723
+    assert quick_add_result.task.due.date == "2021-02-06T00:00:00Z"
+    assert quick_add_result.task.due.recurring is False
+    assert quick_add_result.task.due.string == "Feb 6 11:00 AM"
+    assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00Z"
+    assert quick_add_result.task.due.timezone == "Europe/London"
+    assert quick_add_result.task.label_ids == [2156154810, 2156154812]
+    assert quick_add_result.task.order == 1
+    assert quick_add_result.task.parent_id == 0
+    assert quick_add_result.task.sync_id == 4554993687
+
+    assert quick_add_result.resolved_assignee_name == "Some Guy"
+    assert quick_add_result.resolved_label_names == ["Label1", "Label2"]
+    assert quick_add_result.resolved_project_name == "test"
+    assert quick_add_result.resolved_section_name == "A section"

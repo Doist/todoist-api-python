@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import pytest
 import responses
 
-from tests.data.test_defaults import API_BASE_URL, DEFAULT_REQUEST_ID
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
@@ -20,7 +20,7 @@ async def test_get_section(
     default_section: Section,
 ):
     section_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/sections/{section_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/sections/{section_id}"
 
     requests_mock.add(
         responses.GET,
@@ -52,7 +52,7 @@ async def test_get_all_sections(
 ):
     requests_mock.add(
         responses.GET,
-        f"{API_BASE_URL}/sections",
+        f"{REST_API_BASE_URL}/sections",
         json=default_sections_response,
         status=200,
     )
@@ -81,7 +81,7 @@ async def test_get_project_sections(
 
     requests_mock.add(
         responses.GET,
-        f"{API_BASE_URL}/sections?project_id={project_id}",
+        f"{REST_API_BASE_URL}/sections?project_id={project_id}",
         json=default_sections_response,
         status=200,
     )
@@ -112,7 +112,7 @@ async def test_add_section(
 
     requests_mock.add(
         responses.POST,
-        f"{API_BASE_URL}/sections",
+        f"{REST_API_BASE_URL}/sections",
         json=default_section_response,
         status=200,
     )
@@ -157,7 +157,7 @@ async def test_update_section(
     }
 
     requests_mock.add(
-        responses.POST, f"{API_BASE_URL}/sections/{section_id}", status=204
+        responses.POST, f"{REST_API_BASE_URL}/sections/{section_id}", status=204
     )
 
     response = todoist_api.update_section(
@@ -188,7 +188,7 @@ async def test_delete_section(
     requests_mock: responses.RequestsMock,
 ):
     section_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/sections/{section_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/sections/{section_id}"
 
     requests_mock.add(
         responses.DELETE,
