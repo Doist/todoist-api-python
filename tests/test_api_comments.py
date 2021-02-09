@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import pytest
 import responses
 
-from tests.data.test_defaults import API_BASE_URL, DEFAULT_REQUEST_ID
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
@@ -20,7 +20,7 @@ async def test_get_comment(
     default_comment: Comment,
 ):
     comment_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/comments/{comment_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
 
     requests_mock.add(
         responses.GET,
@@ -54,7 +54,7 @@ async def test_get_comments(
 
     requests_mock.add(
         responses.GET,
-        f"{API_BASE_URL}/comments?task_id={task_id}",
+        f"{REST_API_BASE_URL}/comments?task_id={task_id}",
         json=default_comments_response,
         status=200,
     )
@@ -97,7 +97,7 @@ async def test_add_comment(
 
     requests_mock.add(
         responses.POST,
-        f"{API_BASE_URL}/comments",
+        f"{REST_API_BASE_URL}/comments",
         json=default_comment_response,
         status=200,
     )
@@ -142,7 +142,7 @@ async def test_update_comment(
     }
 
     requests_mock.add(
-        responses.POST, f"{API_BASE_URL}/comments/{comment_id}", status=204
+        responses.POST, f"{REST_API_BASE_URL}/comments/{comment_id}", status=204
     )
 
     response = todoist_api.update_comment(
@@ -173,7 +173,7 @@ async def test_delete_comment(
     requests_mock: responses.RequestsMock,
 ):
     comment_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/comments/{comment_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
 
     requests_mock.add(
         responses.DELETE,

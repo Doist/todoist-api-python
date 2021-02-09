@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import pytest
 import responses
 
-from tests.data.test_defaults import API_BASE_URL, DEFAULT_REQUEST_ID
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
@@ -20,7 +20,7 @@ async def test_get_project(
     default_project: Project,
 ):
     project_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/projects/{project_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
 
     requests_mock.add(
         responses.GET,
@@ -52,7 +52,7 @@ async def test_get_projects(
 ):
     requests_mock.add(
         responses.GET,
-        f"{API_BASE_URL}/projects",
+        f"{REST_API_BASE_URL}/projects",
         json=default_projects_response,
         status=200,
     )
@@ -83,7 +83,7 @@ async def test_add_project_minimal(
 
     requests_mock.add(
         responses.POST,
-        f"{API_BASE_URL}/projects",
+        f"{REST_API_BASE_URL}/projects",
         json=default_project_response,
         status=200,
     )
@@ -131,7 +131,7 @@ async def test_add_project_full(
 
     requests_mock.add(
         responses.POST,
-        f"{API_BASE_URL}/projects",
+        f"{REST_API_BASE_URL}/projects",
         json=default_project_response,
         status=200,
     )
@@ -172,7 +172,7 @@ async def test_update_project(
     }
 
     requests_mock.add(
-        responses.POST, f"{API_BASE_URL}/projects/{project_id}", status=204
+        responses.POST, f"{REST_API_BASE_URL}/projects/{project_id}", status=204
     )
 
     response = todoist_api.update_project(
@@ -203,7 +203,7 @@ async def test_delete_project(
     requests_mock: responses.RequestsMock,
 ):
     project_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/projects/{project_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
 
     requests_mock.add(
         responses.DELETE,
@@ -233,7 +233,7 @@ async def test_get_collaborators(
     default_collaborators_list: List[Project],
 ):
     project_id = 123
-    expected_endpoint = f"{API_BASE_URL}/projects/{project_id}/collaborators"
+    expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}/collaborators"
 
     requests_mock.add(
         responses.GET,
