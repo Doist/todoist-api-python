@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import pytest
 import responses
 
-from tests.data.test_defaults import API_BASE_URL, DEFAULT_REQUEST_ID
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
@@ -20,7 +20,7 @@ async def test_get_label(
     default_label: Label,
 ):
     label_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/labels/{label_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/labels/{label_id}"
 
     requests_mock.add(
         responses.GET,
@@ -52,7 +52,7 @@ async def test_get_labels(
 ):
     requests_mock.add(
         responses.GET,
-        f"{API_BASE_URL}/labels",
+        f"{REST_API_BASE_URL}/labels",
         json=default_labels_response,
         status=200,
     )
@@ -83,7 +83,7 @@ async def test_add_label_minimal(
 
     requests_mock.add(
         responses.POST,
-        f"{API_BASE_URL}/labels",
+        f"{REST_API_BASE_URL}/labels",
         json=default_label_response,
         status=200,
     )
@@ -128,7 +128,7 @@ async def test_add_label_full(
 
     requests_mock.add(
         responses.POST,
-        f"{API_BASE_URL}/labels",
+        f"{REST_API_BASE_URL}/labels",
         json=default_label_response,
         status=200,
     )
@@ -169,7 +169,9 @@ async def test_update_label(
         "favorite": False,
     }
 
-    requests_mock.add(responses.POST, f"{API_BASE_URL}/labels/{label_id}", status=204)
+    requests_mock.add(
+        responses.POST, f"{REST_API_BASE_URL}/labels/{label_id}", status=204
+    )
 
     response = todoist_api.update_label(
         label_id=label_id, request_id=DEFAULT_REQUEST_ID, **args
@@ -199,7 +201,7 @@ async def test_delete_label(
     requests_mock: responses.RequestsMock,
 ):
     label_id = 1234
-    expected_endpoint = f"{API_BASE_URL}/labels/{label_id}"
+    expected_endpoint = f"{REST_API_BASE_URL}/labels/{label_id}"
 
     requests_mock.add(
         responses.DELETE,

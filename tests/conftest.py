@@ -3,6 +3,7 @@ from typing import Any, Dict, List
 import pytest
 import responses
 
+from tests.data.quick_add_responses import QUICK_ADD_RESPONSE_FULL
 from tests.data.test_defaults import (
     DEFAULT_COLLABORATORS_RESPONSE,
     DEFAULT_COMMENT_RESPONSE,
@@ -24,6 +25,7 @@ from todoist_api_python.models import (
     Comment,
     Label,
     Project,
+    QuickAddResult,
     Section,
     Task,
 )
@@ -153,3 +155,13 @@ def default_labels_response() -> List[Dict[str, Any]]:
 @pytest.fixture()
 def default_labels_list() -> List[Label]:
     return [Label.from_dict(obj) for obj in DEFAULT_LABELS_RESPONSE]
+
+
+@pytest.fixture()
+def default_quick_add_response() -> Dict[str, Any]:
+    return QUICK_ADD_RESPONSE_FULL
+
+
+@pytest.fixture()
+def default_quick_add_result() -> QuickAddResult:
+    return QuickAddResult.from_quick_add_response(QUICK_ADD_RESPONSE_FULL)

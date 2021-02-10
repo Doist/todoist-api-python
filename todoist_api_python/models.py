@@ -2,6 +2,8 @@ from typing import List, Optional
 
 import attr
 
+from todoist_api_python.utils import get_url_for_task
+
 
 @attr.s
 class Project(object):
@@ -70,6 +72,16 @@ class Due(object):
             timezone=obj.get("timezone"),
         )
 
+    @classmethod
+    def from_quick_add_response(cls, obj):
+        return cls(
+            date=obj["meta"]["due"]["date_local"],
+            recurring=obj["meta"]["due"]["is_recurring"],
+            string=obj["meta"]["due"]["string"],
+            datetime=obj["meta"]["due"]["datetime_local"],
+            timezone=obj["meta"]["due"]["timezone_name"],
+        )
+
 
 @attr.s
 class Task(object):
@@ -111,7 +123,66 @@ class Task(object):
             order=obj.get("order"),
             parent_id=obj.get("parent_id"),
             sync_id=obj.get("sync_id"),
-            due=Due.from_dict(obj["due"]) if "due" in obj else None,
+            due=Due.from_dict(obj["due"]) if obj.get("due") else None,
+        )
+
+    @classmethod
+    def from_quick_add_response(cls, obj):
+        return cls(
+            comment_count=0,
+            completed=False,
+            content=obj["content"],
+            created=obj["date_added"],
+            creator=obj["added_by_uid"],
+            id=obj["id"],
+            project_id=obj["project_id"],
+            section_id=obj["section_id"] or 0,
+            priority=obj["priority"],
+            url=get_url_for_task(obj["id"], obj["sync_id"]),
+            assignee=obj.get("responsible_uid"),
+            assigner=obj.get("assigned_by_uid"),
+            label_ids=obj["labels"],
+            order=obj["child_order"],
+            parent_id=obj["parent_id"] or 0,
+            sync_id=obj.get("sync_id"),
+            due=Due.from_quick_add_response(obj) if obj.get("due") else None,
+        )
+
+
+@attr.s
+class QuickAddResult:
+    task: Task = attr.ib()
+
+    resolved_project_name: Optional[str] = attr.ib(default=None)
+    resolved_assignee_name: Optional[str] = attr.ib(default=None)
+    resolved_label_names: Optional[List[str]] = attr.ib(default=None)
+    resolved_section_name: Optional[str] = attr.ib(default=None)
+
+    @classmethod
+    def from_quick_add_response(cls, obj):
+        project_data = obj["meta"].get("project", {})
+        assignee_data = obj["meta"].get("assignee", {})
+        section_data = obj["meta"].get("section", {})
+
+        resolved_project_name = None
+        resolved_assignee_name = None
+        resolved_section_name = None
+
+        if project_data and len(project_data) == 2:
+            resolved_project_name = obj["meta"]["project"][1]
+
+        if assignee_data and len(assignee_data) == 2:
+            resolved_assignee_name = obj["meta"]["assignee"][1]
+
+        if section_data and len(section_data) == 2:
+            resolved_section_name = obj["meta"]["section"][1]
+
+        return cls(
+            task=Task.from_quick_add_response(obj),
+            resolved_project_name=resolved_project_name,
+            resolved_assignee_name=resolved_assignee_name,
+            resolved_label_names=list(obj["meta"]["labels"].values()),
+            resolved_section_name=resolved_section_name,
         )
 
 

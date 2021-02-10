@@ -7,9 +7,11 @@ from todoist_api_python.endpoints import (
     COMMENTS_ENDPOINT,
     LABELS_ENDPOINT,
     PROJECTS_ENDPOINT,
+    QUICK_ADD_ENDPOINT,
     SECTIONS_ENDPOINT,
     TASKS_ENDPOINT,
     get_rest_url,
+    get_sync_url,
 )
 from todoist_api_python.http_requests import delete, get, post
 from todoist_api_python.models import (
@@ -17,6 +19,7 @@ from todoist_api_python.models import (
     Comment,
     Label,
     Project,
+    QuickAddResult,
     Section,
     Task,
 )
@@ -68,6 +71,16 @@ class TodoistAPI:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
+
+    def quick_add_task(self, text: str) -> QuickAddResult:
+        endpoint = get_sync_url(QUICK_ADD_ENDPOINT)
+        data = {
+            "text": text,
+            "meta": True,
+            "auto_reminder": True,
+        }
+        task_data = post(self._session, self._token, endpoint, data=data)
+        return QuickAddResult.from_quick_add_response(task_data)
 
     def get_project(self, project_id: int) -> Project:
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")

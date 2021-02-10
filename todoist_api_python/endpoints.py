@@ -13,7 +13,12 @@ COLLABORATORS_ENDPOINT = "collaborators"
 SECTIONS_ENDPOINT = "sections"
 COMMENTS_ENDPOINT = "comments"
 LABELS_ENDPOINT = "labels"
+QUICK_ADD_ENDPOINT = "quick/add"
 
 
 def get_rest_url(relative_path: str) -> str:
     return urljoin(REST_API, relative_path)
+
+
+def get_sync_url(relative_path: str) -> str:
+    return urljoin(SYNC_API, relative_path)

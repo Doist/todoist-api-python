@@ -7,6 +7,7 @@ from todoist_api_python.models import (
     Comment,
     Label,
     Project,
+    QuickAddResult,
     Section,
     Task,
 )
@@ -41,6 +42,9 @@ class TodoistAPIAsync:
 
     async def delete_task(self, task_id: int, **kwargs) -> bool:
         return await run_async(lambda: self._api.delete_task(task_id, **kwargs))
+
+    async def quick_add_task(self, text: str) -> QuickAddResult:
+        return await run_async(lambda: self._api.quick_add_task(text))
 
     async def get_project(self, project_id: int) -> Project:
         return await run_async(lambda: self._api.get_project(project_id))
