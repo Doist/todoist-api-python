@@ -276,3 +276,16 @@ class Label:
             order=obj["order"],
             favorite=obj["favorite"],
         )
+
+
+@attr.s
+class AuthResult:
+    access_token: str = attr.ib()
+    state: str = attr.ib()
+
+    @classmethod
+    def from_dict(cls, obj):
+        return cls(
+            access_token=obj["access_token"],
+            state=obj["state"],
+        )

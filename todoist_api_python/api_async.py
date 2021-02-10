@@ -1,4 +1,3 @@
-import asyncio
 from typing import List
 
 from todoist_api_python.api import TodoistAPI
@@ -11,11 +10,7 @@ from todoist_api_python.models import (
     Section,
     Task,
 )
-
-
-async def run_async(func):
-    loop = asyncio.get_event_loop()
-    return await loop.run_in_executor(None, func)
+from todoist_api_python.utils import run_async
 
 
 class TodoistAPIAsync:

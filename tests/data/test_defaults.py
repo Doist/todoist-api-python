@@ -1,5 +1,6 @@
 REST_API_BASE_URL = "https://api.todoist.com/rest/v1"
 SYNC_API_BASE_URL = "https://api.todoist.com/sync/v8"
+AUTH_BASE_URL = "https://todoist.com"
 DEFAULT_TOKEN = "A TOKEN"
 DEFAULT_REQUEST_ID = "REQUEST12345"
 
@@ -136,3 +137,8 @@ DEFAULT_LABELS_RESPONSE = [
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_LABEL_RESPONSE_2,
 ]
+
+DEFAULT_AUTH_RESPONSE = {
+    "access_token": "1234",
+    "state": "somestate",
+}

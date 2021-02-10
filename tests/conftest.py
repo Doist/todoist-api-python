@@ -5,6 +5,7 @@ import responses
 
 from tests.data.quick_add_responses import QUICK_ADD_RESPONSE_FULL
 from tests.data.test_defaults import (
+    DEFAULT_AUTH_RESPONSE,
     DEFAULT_COLLABORATORS_RESPONSE,
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_COMMENTS_RESPONSE,
@@ -21,6 +22,7 @@ from tests.data.test_defaults import (
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import (
+    AuthResult,
     Collaborator,
     Comment,
     Label,
@@ -165,3 +167,13 @@ def default_quick_add_response() -> Dict[str, Any]:
 @pytest.fixture()
 def default_quick_add_result() -> QuickAddResult:
     return QuickAddResult.from_quick_add_response(QUICK_ADD_RESPONSE_FULL)
+
+
+@pytest.fixture()
+def default_auth_response() -> Dict[str, Any]:
+    return DEFAULT_AUTH_RESPONSE
+
+
+@pytest.fixture()
+def default_auth_result() -> AuthResult:
+    return AuthResult.from_dict(DEFAULT_AUTH_RESPONSE)
