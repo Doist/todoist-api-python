@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import attr
 
-from todoist_api_python.utilities import get_url_for_task
+from todoist_api_python.utils import get_url_for_task
 
 
 @attr.s
@@ -136,14 +136,14 @@ class Task(object):
             creator=obj["added_by_uid"],
             id=obj["id"],
             project_id=obj["project_id"],
-            section_id=obj["section_id"] if obj["section_id"] else 0,
+            section_id=obj["section_id"] or 0,
             priority=obj["priority"],
             url=get_url_for_task(obj["id"], obj["sync_id"]),
             assignee=obj.get("responsible_uid"),
             assigner=obj.get("assigned_by_uid"),
             label_ids=obj["labels"],
             order=obj["child_order"],
-            parent_id=obj["parent_id"] if obj["parent_id"] else 0,
+            parent_id=obj["parent_id"] or 0,
             sync_id=obj.get("sync_id"),
             due=Due.from_quick_add_response(obj) if obj.get("due") else None,
         )
@@ -162,10 +162,16 @@ class QuickAddResult:
     def from_quick_add_response(cls, obj):
         return cls(
             task=Task.from_quick_add_response(obj),
-            resolved_project_name=obj["meta"]["project"][1],
-            resolved_assignee_name=obj["meta"]["assignee"][1],
-            resolved_label_names=[x[1] for x in list(obj["meta"]["labels"].items())],
-            resolved_section_name=obj["meta"]["section"][1],
+            resolved_project_name=obj["meta"]["project"][1]
+            if "project" in obj["meta"]
+            else None,
+            resolved_assignee_name=obj["meta"]["assignee"][1]
+            if "assignee" in obj["meta"]
+            else None,
+            resolved_label_names=list(obj["meta"]["labels"].values()),
+            resolved_section_name=obj["meta"]["section"][1]
+            if "section" in obj["meta"]
+            else None,
         )
 
 
