@@ -23,7 +23,7 @@ def test_get_with_params(default_task_response: Dict[str, Any]):
         status=200,
     )
 
-    response = get(Session(), DEFAULT_TOKEN, DEFAULT_URL, params)
+    response = get(Session(), DEFAULT_URL, DEFAULT_TOKEN, params)
 
     assert len(responses.calls) == 1
     assert (
@@ -44,7 +44,7 @@ def test_get_raise_for_status():
             status=500,
         )
 
-        get(Session(), DEFAULT_TOKEN, DEFAULT_URL)
+        get(Session(), DEFAULT_URL, DEFAULT_TOKEN)
 
 
 @responses.activate
@@ -60,7 +60,7 @@ def test_post_with_data(default_task_response: Dict[str, Any]):
         status=200,
     )
 
-    response = post(Session(), DEFAULT_TOKEN, DEFAULT_URL, data)
+    response = post(Session(), DEFAULT_URL, DEFAULT_TOKEN, data)
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == DEFAULT_URL
@@ -84,7 +84,7 @@ def test_post_return_ok_when_no_response_body():
         status=204,
     )
 
-    result = post(Session(), DEFAULT_TOKEN, DEFAULT_URL)
+    result = post(Session(), DEFAULT_URL, DEFAULT_TOKEN)
 
     assert result is True
 
@@ -98,7 +98,7 @@ def test_post_raise_for_status():
             status=500,
         )
 
-        post(Session(), DEFAULT_TOKEN, DEFAULT_URL)
+        post(Session(), DEFAULT_URL, DEFAULT_TOKEN)
 
 
 @responses.activate
@@ -111,7 +111,7 @@ def test_delete_with_request_id():
         status=204,
     )
 
-    result = delete(Session(), DEFAULT_TOKEN, DEFAULT_URL, {"request_id": request_id})
+    result = delete(Session(), DEFAULT_URL, DEFAULT_TOKEN, {"request_id": request_id})
 
     assert len(responses.calls) == 1
     assert responses.calls[0].request.url == DEFAULT_URL
@@ -131,4 +131,4 @@ def test_delete_raise_for_status():
             status=500,
         )
 
-        delete(Session(), DEFAULT_TOKEN, DEFAULT_URL)
+        delete(Session(), DEFAULT_URL, DEFAULT_TOKEN)
