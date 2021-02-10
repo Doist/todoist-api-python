@@ -1,3 +1,4 @@
+import urllib
 from typing import List, Optional
 
 import requests
@@ -34,6 +35,8 @@ def get_authentication_url(client_id: str, scopes: List[str], state: str) -> str
     if len(scopes) == 0:
         raise Exception("At least one authorization scope should be requested.")
 
-    scope = ",".join(scopes)
+    query = {"client_id": client_id, "scope": ",".join(scopes), "state": state}
+
     auth_url = get_auth_url(AUTHORIZE_ENDPOINT)
-    return f"{auth_url}?client_id={client_id}&scope={scope}&state={state}"
+
+    return f"{auth_url}?{urllib.parse.urlencode(query)}"
