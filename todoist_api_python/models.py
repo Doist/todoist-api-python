@@ -160,18 +160,29 @@ class QuickAddResult:
 
     @classmethod
     def from_quick_add_response(cls, obj):
+        project_data = obj["meta"].get("project", {})
+        assignee_data = obj["meta"].get("assignee", {})
+        section_data = obj["meta"].get("section", {})
+
+        resolved_project_name = None
+        resolved_assignee_name = None
+        resolved_section_name = None
+
+        if project_data and len(project_data) == 2:
+            resolved_project_name = obj["meta"]["project"][1]
+
+        if assignee_data and len(assignee_data) == 2:
+            resolved_assignee_name = obj["meta"]["assignee"][1]
+
+        if section_data and len(section_data) == 2:
+            resolved_section_name = obj["meta"]["section"][1]
+
         return cls(
             task=Task.from_quick_add_response(obj),
-            resolved_project_name=obj["meta"]["project"][1]
-            if "project" in obj["meta"]
-            else None,
-            resolved_assignee_name=obj["meta"]["assignee"][1]
-            if "assignee" in obj["meta"]
-            else None,
+            resolved_project_name=resolved_project_name,
+            resolved_assignee_name=resolved_assignee_name,
             resolved_label_names=list(obj["meta"]["labels"].values()),
-            resolved_section_name=obj["meta"]["section"][1]
-            if "section" in obj["meta"]
-            else None,
+            resolved_section_name=resolved_section_name,
         )
 
 
