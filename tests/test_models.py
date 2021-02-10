@@ -218,3 +218,52 @@ def test_quick_add_result_full():
     assert quick_add_result.resolved_label_names == ["Label1", "Label2"]
     assert quick_add_result.resolved_project_name == "test"
     assert quick_add_result.resolved_section_name == "A section"
+
+
+def test_quick_add_broken_data():
+    none_attribute = QUICK_ADD_RESPONSE_FULL.copy()
+    missing_attribute = QUICK_ADD_RESPONSE_FULL.copy()
+
+    none_attribute["meta"]["project"] = None
+    none_attribute["meta"]["assignee"] = None
+    none_attribute["meta"]["section"] = None
+
+    del missing_attribute["meta"]["project"]
+    del missing_attribute["meta"]["assignee"]
+    del missing_attribute["meta"]["section"]
+
+    for quick_add_responses in [none_attribute, missing_attribute]:
+        sample_data = dict(quick_add_responses)
+        sample_data.update(unexpected_data)
+
+        quick_add_result = QuickAddResult.from_quick_add_response(sample_data)
+
+        assert quick_add_result.task.comment_count == 0
+        assert quick_add_result.task.completed is False
+        assert quick_add_result.task.content == "some task"
+        assert quick_add_result.task.created == "2021-02-05T11:04:54Z"
+        assert quick_add_result.task.creator == 21180723
+        assert quick_add_result.task.id == 4554993687
+        assert quick_add_result.task.project_id == 2257514220
+        assert quick_add_result.task.section_id == 2232454220
+        assert quick_add_result.task.priority == 1
+        assert (
+            quick_add_result.task.url
+            == "https://todoist.com/showTask?id=4554993687&sync_id=4554993687"
+        )
+        assert quick_add_result.task.assignee == 29172386
+        assert quick_add_result.task.assigner == 21180723
+        assert quick_add_result.task.due.date == "2021-02-06T00:00:00Z"
+        assert quick_add_result.task.due.recurring is False
+        assert quick_add_result.task.due.string == "Feb 6 11:00 AM"
+        assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00Z"
+        assert quick_add_result.task.due.timezone == "Europe/London"
+        assert quick_add_result.task.label_ids == [2156154810, 2156154812]
+        assert quick_add_result.task.order == 1
+        assert quick_add_result.task.parent_id == 0
+        assert quick_add_result.task.sync_id == 4554993687
+
+        assert quick_add_result.resolved_assignee_name is None
+        assert quick_add_result.resolved_label_names == ["Label1", "Label2"]
+        assert quick_add_result.resolved_project_name is None
+        assert quick_add_result.resolved_section_name is None
