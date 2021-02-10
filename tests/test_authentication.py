@@ -1,4 +1,5 @@
 import json
+import urllib
 from typing import Any, Dict
 
 import pytest
@@ -17,10 +18,11 @@ def test_get_authentication_url():
     client_id = "123"
     scopes = ["task:add", "data:read", "project:delete"]
     state = "456"
-    expected_url = (
-        f"{AUTH_BASE_URL}/oauth/authorize?"
+    params = (
         f"client_id={client_id}&scope={scopes[0]},{scopes[1]},{scopes[2]}&state={state}"
     )
+    query = urllib.parse.quote(params, safe="=&")
+    expected_url = f"{AUTH_BASE_URL}/oauth/authorize?{query}"
 
     url = get_authentication_url(client_id, scopes, state)
 
