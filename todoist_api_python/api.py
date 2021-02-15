@@ -25,12 +25,20 @@ from todoist_api_python.models import (
 )
 
 
+def _validate_entity_id(value: int):
+    if not isinstance(value, int):
+        raise ValueError(
+            f"'{value}' is not a valid entity id. Should be an integer value."
+        )
+
+
 class TodoistAPI:
     def __init__(self, token: str, session=None):
         self._token: str = token
         self._session = session or requests.Session()
 
     def get_task(self, task_id: int) -> Task:
+        _validate_entity_id(task_id)
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         task = get(self._session, self._token, endpoint)
         return Task.from_dict(task)
@@ -53,21 +61,25 @@ class TodoistAPI:
         return Task.from_dict(task)
 
     def update_task(self, task_id: int, **kwargs) -> bool:
+        _validate_entity_id(task_id)
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
 
     def close_task(self, task_id: int, **kwargs) -> bool:
+        _validate_entity_id(task_id)
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}/close")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
 
     def reopen_task(self, task_id: int, **kwargs) -> bool:
+        _validate_entity_id(task_id)
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}/reopen")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
 
     def delete_task(self, task_id: int, **kwargs) -> bool:
+        _validate_entity_id(task_id)
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
@@ -83,6 +95,7 @@ class TodoistAPI:
         return QuickAddResult.from_quick_add_response(task_data)
 
     def get_project(self, project_id: int) -> Project:
+        _validate_entity_id(project_id)
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
         project = get(self._session, self._token, endpoint)
         return Project.from_dict(project)
@@ -100,16 +113,19 @@ class TodoistAPI:
         return Project.from_dict(project)
 
     def update_project(self, project_id: int, **kwargs) -> bool:
+        _validate_entity_id(project_id)
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
 
     def delete_project(self, project_id: int, **kwargs) -> bool:
+        _validate_entity_id(project_id)
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
 
     def get_collaborators(self, project_id: int) -> List[Collaborator]:
+        _validate_entity_id(project_id)
         endpoint = get_rest_url(
             f"{PROJECTS_ENDPOINT}/{project_id}/{COLLABORATORS_ENDPOINT}"
         )
@@ -117,6 +133,7 @@ class TodoistAPI:
         return [Collaborator.from_dict(obj) for obj in collaborators]
 
     def get_section(self, section_id: int) -> Section:
+        _validate_entity_id(section_id)
         endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
         section = get(self._session, self._token, endpoint)
         return Section.from_dict(section)
@@ -134,6 +151,7 @@ class TodoistAPI:
         return Section.from_dict(section)
 
     def update_section(self, section_id: int, name: str, **kwargs) -> bool:
+        _validate_entity_id(section_id)
         endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
         data: Dict[str, Any] = {"name": name}
         data.update(kwargs)
@@ -141,11 +159,13 @@ class TodoistAPI:
         return success
 
     def delete_section(self, section_id: int, **kwargs) -> bool:
+        _validate_entity_id(section_id)
         endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
 
     def get_comment(self, comment_id: int) -> Comment:
+        _validate_entity_id(comment_id)
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
         comment = get(self._session, self._token, endpoint)
         return Comment.from_dict(comment)
@@ -163,6 +183,7 @@ class TodoistAPI:
         return Comment.from_dict(comment)
 
     def update_comment(self, comment_id: int, content: str, **kwargs) -> bool:
+        _validate_entity_id(comment_id)
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
         data: Dict[str, Any] = {"content": content}
         data.update(kwargs)
@@ -170,11 +191,13 @@ class TodoistAPI:
         return success
 
     def delete_comment(self, comment_id: int, **kwargs) -> bool:
+        _validate_entity_id(comment_id)
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
 
     def get_label(self, label_id: int) -> Label:
+        _validate_entity_id(label_id)
         endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
         label = get(self._session, self._token, endpoint)
         return Label.from_dict(label)
@@ -192,11 +215,13 @@ class TodoistAPI:
         return Label.from_dict(label)
 
     def update_label(self, label_id: int, **kwargs) -> bool:
+        _validate_entity_id(label_id)
         endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
         success = post(self._session, self._token, endpoint, data=kwargs)
         return success
 
     def delete_label(self, label_id: int, **kwargs) -> bool:
+        _validate_entity_id(label_id)
         endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
         success = delete(self._session, self._token, endpoint, args=kwargs)
         return success
