@@ -3,6 +3,8 @@ SYNC_API_BASE_URL = "https://api.todoist.com/sync/v8"
 DEFAULT_TOKEN = "A TOKEN"
 DEFAULT_REQUEST_ID = "REQUEST12345"
 
+INVALID_ENTITY_ID = "1234/not_a_valid_id"
+
 DEFAULT_DUE_RESPONSE = {
     "date": "2016-09-01",
     "recurring": True,

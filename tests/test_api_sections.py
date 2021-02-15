@@ -1,11 +1,20 @@
 import json
+import typing
 from typing import Any, Dict, List
 
 import pytest
 import responses
 
-from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
-from tests.utils.test_utils import assert_auth_header, assert_request_id_header
+from tests.data.test_defaults import (
+    DEFAULT_REQUEST_ID,
+    INVALID_ENTITY_ID,
+    REST_API_BASE_URL,
+)
+from tests.utils.test_utils import (
+    assert_auth_header,
+    assert_id_validation,
+    assert_request_id_header,
+)
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Section
@@ -40,6 +49,17 @@ async def test_get_section(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert section == default_section
+
+
+@typing.no_type_check
+def test_get_section_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(
+        lambda: todoist_api.get_section(INVALID_ENTITY_ID),
+        requests_mock,
+    )
 
 
 @pytest.mark.asyncio
@@ -181,6 +201,17 @@ async def test_update_section(
     assert response is True
 
 
+@typing.no_type_check
+def test_update_section_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(
+        lambda: todoist_api.update_section(INVALID_ENTITY_ID, "an update"),
+        requests_mock,
+    )
+
+
 @pytest.mark.asyncio
 async def test_delete_section(
     todoist_api: TodoistAPI,
@@ -207,3 +238,14 @@ async def test_delete_section(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert response is True
+
+
+@typing.no_type_check
+def test_delete_section_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(
+        lambda: todoist_api.delete_section(INVALID_ENTITY_ID),
+        requests_mock,
+    )
