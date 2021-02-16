@@ -1,4 +1,5 @@
 import json
+import typing
 import urllib
 from typing import Any, Dict, List
 
@@ -7,10 +8,15 @@ import responses
 
 from tests.data.test_defaults import (
     DEFAULT_REQUEST_ID,
+    INVALID_ENTITY_ID,
     REST_API_BASE_URL,
     SYNC_API_BASE_URL,
 )
-from tests.utils.test_utils import assert_auth_header, assert_request_id_header
+from tests.utils.test_utils import (
+    assert_auth_header,
+    assert_id_validation,
+    assert_request_id_header,
+)
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import QuickAddResult, Task
@@ -45,6 +51,14 @@ async def test_get_task(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert task == default_task
+
+
+@typing.no_type_check
+def test_get_task_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(lambda: todoist_api.get_task(INVALID_ENTITY_ID), requests_mock)
 
 
 @pytest.mark.asyncio
@@ -253,6 +267,17 @@ async def test_update_task(
     assert response is True
 
 
+@typing.no_type_check
+def test_update_task_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(
+        lambda: todoist_api.update_task(INVALID_ENTITY_ID),
+        requests_mock,
+    )
+
+
 @pytest.mark.asyncio
 async def test_close_task(
     todoist_api: TodoistAPI,
@@ -279,6 +304,16 @@ async def test_close_task(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert response is True
+
+
+@typing.no_type_check
+def test_close_task_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(
+        lambda: todoist_api.close_task(INVALID_ENTITY_ID), requests_mock
+    )
 
 
 @pytest.mark.asyncio
@@ -309,6 +344,17 @@ async def test_reopen_task(
     assert response is True
 
 
+@typing.no_type_check
+def test_reopen_task_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(
+        lambda: todoist_api.reopen_task(INVALID_ENTITY_ID),
+        requests_mock,
+    )
+
+
 @pytest.mark.asyncio
 async def test_delete_task(
     todoist_api: TodoistAPI,
@@ -335,6 +381,17 @@ async def test_delete_task(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert response is True
+
+
+@typing.no_type_check
+def test_delete_task_invalid_id(
+    todoist_api: TodoistAPI,
+    requests_mock: responses.RequestsMock,
+):
+    assert_id_validation(
+        lambda: todoist_api.delete_task(INVALID_ENTITY_ID),
+        requests_mock,
+    )
 
 
 @pytest.mark.asyncio
