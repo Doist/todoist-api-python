@@ -209,6 +209,7 @@ class Attachment(object):
     file_size: Optional[int] = attr.ib(default=None)
     file_type: Optional[str] = attr.ib(default=None)
     file_url: Optional[str] = attr.ib(default=None)
+    file_duration: Optional[int] = attr.ib(default=None)
     upload_state: Optional[str] = attr.ib(default=None)
 
     image: Optional[str] = attr.ib(default=None)
