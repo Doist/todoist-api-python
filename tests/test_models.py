@@ -14,6 +14,7 @@ from tests.data.test_defaults import (
 )
 from todoist_api_python.models import (
     Attachment,
+    AuthResult,
     Collaborator,
     Comment,
     Due,
@@ -267,3 +268,15 @@ def test_quick_add_broken_data():
         assert quick_add_result.resolved_label_names == ["Label1", "Label2"]
         assert quick_add_result.resolved_project_name is None
         assert quick_add_result.resolved_section_name is None
+
+
+def test_auth_result_from_dict():
+    token = "123"
+    state = "456"
+    sample_data = {"access_token": token, "state": state}
+    sample_data.update(unexpected_data)
+
+    auth_result = AuthResult.from_dict(sample_data)
+
+    assert auth_result.access_token == token
+    assert auth_result.state == state

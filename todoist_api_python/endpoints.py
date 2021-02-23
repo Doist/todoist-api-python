@@ -1,6 +1,7 @@
 from urllib.parse import urljoin
 
 BASE_URL = "https://api.todoist.com"
+AUTH_BASE_URL = "https://todoist.com"
 SYNC_VERSION = "v8"
 REST_VERSION = "v1"
 
@@ -15,6 +16,9 @@ COMMENTS_ENDPOINT = "comments"
 LABELS_ENDPOINT = "labels"
 QUICK_ADD_ENDPOINT = "quick/add"
 
+AUTHORIZE_ENDPOINT = "oauth/authorize"
+TOKEN_ENDPOINT = "oauth/access_token"
+
 
 def get_rest_url(relative_path: str) -> str:
     return urljoin(REST_API, relative_path)
@@ -22,3 +26,7 @@ def get_rest_url(relative_path: str) -> str:
 
 def get_sync_url(relative_path: str) -> str:
     return urljoin(SYNC_API, relative_path)
+
+
+def get_auth_url(relative_path: str) -> str:
+    return urljoin(AUTH_BASE_URL, relative_path)
