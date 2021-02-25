@@ -10,7 +10,10 @@ from todoist_api_python.authentication import (
     get_auth_token,
     get_auth_token_async,
     get_authentication_url,
+    revoke_auth_token,
+    revoke_auth_token_async,
 )
+from todoist_api_python.endpoints import SYNC_API
 from todoist_api_python.models import AuthResult
 
 
@@ -61,3 +64,34 @@ async def test_get_auth_token(
     assert len(requests_mock.calls) == 2
     assert requests_mock.calls[1].request.body == expected_payload
     assert auth_result == default_auth_result
+
+
+@pytest.mark.asyncio
+async def test_revoke_auth_token(
+    requests_mock: responses.RequestsMock,
+):
+    client_id = "123"
+    client_secret = "456"
+    token = "AToken"
+
+    expected_payload = json.dumps(
+        {"client_id": client_id, "client_secret": client_secret, "access_token": token}
+    )
+
+    requests_mock.add(
+        responses.POST,
+        f"{SYNC_API}access_tokens/revoke",
+        status=204,
+    )
+
+    result = revoke_auth_token(client_id, client_secret, token)
+
+    assert len(requests_mock.calls) == 1
+    assert requests_mock.calls[0].request.body == expected_payload
+    assert result is True
+
+    result = await revoke_auth_token_async(client_id, client_secret, token)
+
+    assert len(requests_mock.calls) == 2
+    assert requests_mock.calls[1].request.body == expected_payload
+    assert result is True
