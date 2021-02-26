@@ -72,6 +72,15 @@ class Due(object):
             timezone=obj.get("timezone"),
         )
 
+    def to_dict(self):
+        return {
+            "date": self.date,
+            "recurring": self.recurring,
+            "string": self.string,
+            "datetime": self.datetime,
+            "timezone": self.timezone,
+        }
+
     @classmethod
     def from_quick_add_response(cls, obj):
         return cls(
@@ -125,6 +134,27 @@ class Task(object):
             sync_id=obj.get("sync_id"),
             due=Due.from_dict(obj["due"]) if obj.get("due") else None,
         )
+
+    def to_dict(self):
+        return {
+            "comment_count": self.comment_count,
+            "completed": self.completed,
+            "content": self.content,
+            "created": self.created,
+            "creator": self.creator,
+            "id": self.id,
+            "project_id": self.project_id,
+            "section_id": self.section_id,
+            "priority": self.priority,
+            "url": self.url,
+            "assignee": self.assignee,
+            "assigner": self.assigner,
+            "label_ids": self.label_ids,
+            "order": self.order,
+            "parent_id": self.parent_id,
+            "sync_id": self.sync_id,
+            "due": self.due.to_dict() if self.due else None,
+        }
 
     @classmethod
     def from_quick_add_response(cls, obj):
