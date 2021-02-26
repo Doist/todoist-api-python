@@ -83,12 +83,19 @@ class Due(object):
 
     @classmethod
     def from_quick_add_response(cls, obj):
+        due = obj.get("due")
+
+        if not due:
+            return None
+
+        timezone = due.get("timezone")
+
         return cls(
-            date=obj["meta"]["due"]["date_local"],
-            recurring=obj["meta"]["due"]["is_recurring"],
-            string=obj["meta"]["due"]["string"],
-            datetime=obj["meta"]["due"]["datetime_local"],
-            timezone=obj["meta"]["due"]["timezone_name"],
+            date=due["date"],
+            recurring=due["is_recurring"],
+            string=due["string"],
+            datetime=due["date"] if timezone else None,
+            timezone=timezone,
         )
 
 
