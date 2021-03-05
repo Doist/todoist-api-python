@@ -205,7 +205,7 @@ def test_quick_add_result_full():
     )
     assert quick_add_result.task.assignee == 29172386
     assert quick_add_result.task.assigner == 21180723
-    assert quick_add_result.task.due.date == "2021-02-06T00:00:00Z"
+    assert quick_add_result.task.due.date == "2021-02-06T11:00:00Z"
     assert quick_add_result.task.due.recurring is False
     assert quick_add_result.task.due.string == "Feb 6 11:00 AM"
     assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00Z"
@@ -254,7 +254,7 @@ def test_quick_add_broken_data():
         )
         assert quick_add_result.task.assignee == 29172386
         assert quick_add_result.task.assigner == 21180723
-        assert quick_add_result.task.due.date == "2021-02-06T00:00:00Z"
+        assert quick_add_result.task.due.date == "2021-02-06T11:00:00Z"
         assert quick_add_result.task.due.recurring is False
         assert quick_add_result.task.due.string == "Feb 6 11:00 AM"
         assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00Z"

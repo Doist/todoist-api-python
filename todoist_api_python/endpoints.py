@@ -18,6 +18,7 @@ QUICK_ADD_ENDPOINT = "quick/add"
 
 AUTHORIZE_ENDPOINT = "oauth/authorize"
 TOKEN_ENDPOINT = "oauth/access_token"
+REVOKE_TOKEN_ENDPOINT = "access_tokens/revoke"
 
 
 def get_rest_url(relative_path: str) -> str:

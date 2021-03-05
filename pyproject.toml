@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "todoist_api_python"
-version = "0.1.1"
+version = "0.1.4"
 description = "Official Python SDK for the Todoist REST API."
 readme = "README.md"
 homepage = "https://github.com/Doist/todoist-api-python"
@@ -19,7 +19,7 @@ include = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-requests = "^2.25.1"
+requests = "^2.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.3.2"
