@@ -90,11 +90,16 @@ class Due(object):
 
         timezone = due.get("timezone")
 
+        datetime: Optional[str] = None
+
+        if timezone:
+            datetime = due["date"]
+
         return cls(
             date=due["date"],
             recurring=due["is_recurring"],
             string=due["string"],
-            datetime=due["date"] if timezone else None,
+            datetime=datetime,
             timezone=timezone,
         )
 
@@ -122,6 +127,11 @@ class Task(object):
 
     @classmethod
     def from_dict(cls, obj):
+        due: Optional[Due] = None
+
+        if obj.get("due"):
+            due = Due.from_dict(obj["due"])
+
         return cls(
             comment_count=obj["comment_count"],
             completed=obj["completed"],
@@ -139,10 +149,15 @@ class Task(object):
             order=obj.get("order"),
             parent_id=obj.get("parent_id"),
             sync_id=obj.get("sync_id"),
-            due=Due.from_dict(obj["due"]) if obj.get("due") else None,
+            due=due,
         )
 
     def to_dict(self):
+        due: Optional[dict] = None
+
+        if self.due:
+            due = self.due.to_dict()
+
         return {
             "comment_count": self.comment_count,
             "completed": self.completed,
@@ -160,11 +175,16 @@ class Task(object):
             "order": self.order,
             "parent_id": self.parent_id,
             "sync_id": self.sync_id,
-            "due": self.due.to_dict() if self.due else None,
+            "due": due,
         }
 
     @classmethod
     def from_quick_add_response(cls, obj):
+        due: Optional[Due] = None
+
+        if obj.get("due"):
+            due = Due.from_quick_add_response(obj)
+
         return cls(
             comment_count=0,
             completed=False,
@@ -182,7 +202,7 @@ class Task(object):
             order=obj["child_order"],
             parent_id=obj["parent_id"] or 0,
             sync_id=obj.get("sync_id"),
-            due=Due.from_quick_add_response(obj) if obj.get("due") else None,
+            due=due,
         )
 
 
@@ -285,15 +305,18 @@ class Comment(object):
 
     @classmethod
     def from_dict(cls, obj):
+        attachment: Optional[Attachment] = None
+
+        if "attachment" in obj:
+            attachment = Attachment.from_dict(obj["attachment"])
+
         return cls(
             id=obj["id"],
             content=obj["content"],
             posted=obj["posted"],
             task_id=obj.get("task_id"),
             project_id=obj.get("project_id"),
-            attachment=Attachment.from_dict(obj["attachment"])
-            if "attachment" in obj
-            else None,
+            attachment=attachment,
         )
 
 
