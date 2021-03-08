@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "todoist_api_python"
-version = "0.1.4"
+version = "0.1.5"
 description = "Official Python SDK for the Todoist REST API."
 readme = "README.md"
 homepage = "https://github.com/Doist/todoist-api-python"

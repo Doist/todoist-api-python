@@ -14,6 +14,7 @@ class Project(object):
     name: str = attr.ib()
     shared: bool = attr.ib()
     sync_id: int = attr.ib()
+    url: str = attr.ib()
 
     inbox_project: Optional[bool] = attr.ib(default=None)
     team_inbox: Optional[bool] = attr.ib(default=None)
@@ -30,6 +31,7 @@ class Project(object):
             name=obj["name"],
             shared=obj["shared"],
             sync_id=obj["sync_id"],
+            url=obj["url"],
             inbox_project=obj.get("inbox_project"),
             team_inbox=obj.get("team_inbox"),
             order=obj.get("order"),

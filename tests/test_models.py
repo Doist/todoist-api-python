@@ -41,6 +41,7 @@ def test_project_from_dict():
     assert project.name == sample_data["name"]
     assert project.shared == sample_data["shared"]
     assert project.sync_id == sample_data["sync_id"]
+    assert project.url == sample_data["url"]
     assert project.inbox_project == sample_data["inbox_project"]
     assert project.team_inbox == sample_data["team_inbox"]
     assert project.order == sample_data["order"]
