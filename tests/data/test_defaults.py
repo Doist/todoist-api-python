@@ -54,7 +54,6 @@ DEFAULT_PROJECT_RESPONSE = {
     "favorite": False,
     "inbox_project": True,
     "team_inbox": True,
-    "url": "https://todoist.com/showProject?id=1234",
 }
 
 DEFAULT_PROJECT_RESPONSE_2 = dict(DEFAULT_PROJECT_RESPONSE)
