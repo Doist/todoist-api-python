@@ -7,6 +7,7 @@ QUICK_ADD_RESPONSE_MINIMAL: Dict[str, Any] = {
     "child_order": 6,
     "collapsed": 0,
     "content": "some task",
+    "description": "",
     "date_added": "2021-02-05T11:02:56Z",
     "date_completed": None,
     "due": None,
@@ -49,6 +50,7 @@ QUICK_ADD_RESPONSE_FULL: Dict[str, Any] = {
     "child_order": 1,
     "collapsed": 0,
     "content": "some task",
+    "description": "a description",
     "date_added": "2021-02-05T11:04:54Z",
     "date_completed": None,
     "due": {

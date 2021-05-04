@@ -24,6 +24,7 @@ DEFAULT_TASK_RESPONSE = {
     "section_id": 7025,
     "order": 3,
     "content": "Some Task Content",
+    "description": "A description",
     "completed": False,
     "label_ids": [],
     "priority": 1,

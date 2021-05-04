@@ -179,6 +179,7 @@ async def test_add_task_full(
     task_content = "Some content"
 
     optional_args = {
+        "description": "A description",
         "project_id": 123,
         "section_id": 456,
         "parent_id": 789,
@@ -233,6 +234,7 @@ async def test_update_task(
 
     args = {
         "content": "Some updated content",
+        "description": "An updated description",
         "label_ids": [123, 456],
         "priority": 4,
         "due_string": "today",

@@ -113,6 +113,7 @@ class Task(object):
     content: str = attr.ib()
     created: str = attr.ib()
     creator: int = attr.ib()
+    description: str = attr.ib()
     id: int = attr.ib()
     project_id: int = attr.ib()
     section_id: int = attr.ib()
@@ -140,6 +141,7 @@ class Task(object):
             content=obj["content"],
             created=obj["created"],
             creator=obj["creator"],
+            description=obj["description"],
             id=obj["id"],
             project_id=obj["project_id"],
             section_id=obj["section_id"],
@@ -166,6 +168,7 @@ class Task(object):
             "content": self.content,
             "created": self.created,
             "creator": self.creator,
+            "description": self.description,
             "id": self.id,
             "project_id": self.project_id,
             "section_id": self.section_id,
@@ -193,6 +196,7 @@ class Task(object):
             content=obj["content"],
             created=obj["date_added"],
             creator=obj["added_by_uid"],
+            description=obj["description"],
             id=obj["id"],
             project_id=obj["project_id"],
             section_id=obj["section_id"] or 0,
