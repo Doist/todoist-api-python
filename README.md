@@ -51,6 +51,17 @@ To install pre-commit:
 $ poetry run pre-commit install
 ```
 
+You can try your changes via REPL by running:
+
+```sh
+$ poetry run python
+```
+
+You can then import the library as describe in [Usage)(#usage) without having to
+create a file. Keep in mind that you have to `import asyncio` and run
+`asyncio.run(yourmethod())` to make your async methods run as expected if you
+decide to use `TodoistAPIAsync`.
+
 ### Releasing
 
 The SDK is currently private so it not published to PyPI. To release a new update just create a release with a tag
