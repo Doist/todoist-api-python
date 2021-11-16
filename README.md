@@ -1,5 +1,6 @@
-# todoist-api-python
-A python wrapper for the Todoist REST API.
+# Todoist API Python Client
+
+This is the official Python API client for the Todoist REST API.
 
 ### Installation
 
@@ -7,8 +8,12 @@ The repository can be included as a Poetry dependency in `pyproject.toml`, it is
 
 ```
 [tool.poetry.dependencies]
-todoist-api-python = { git = "ssh://git@github.com/Doist/todoist-api-python.git", tag = "v1.x.x" }
+todoist-api-python = "^v2.0.0"
 ```
+
+### Supported Python Versions
+
+Python 3.8 is fully supported and tested, and while it may work with other Python 3 versions, we do not test for them.
 
 ### Usage
 
@@ -20,7 +25,7 @@ from todoist_api_python.api import TodoistAPI
 
 # Fetch tasks asynchronously
 async def get_tasks_async():
-    api = TodoistAPIAsync("my token")
+    api = TodoistAPIAsync("YOURTOKEN")
     try:
         tasks = await api.get_tasks()
         print(tasks)
@@ -36,6 +41,10 @@ def get_tasks_sync():
     except Exception as error:
         print(error)
 ```
+
+### Documentation
+
+For more detailed reference documentation, have a look at the [API documentation with Python examples](https://developer.todoist.com/rest/v1/?python).
 
 ### Development
 
@@ -57,12 +66,20 @@ You can try your changes via REPL by running:
 $ poetry run python
 ```
 
-You can then import the library as describe in [Usage)(#usage) without having to
-create a file. Keep in mind that you have to `import asyncio` and run
-`asyncio.run(yourmethod())` to make your async methods run as expected if you
-decide to use `TodoistAPIAsync`.
+You can then import the library as describe in [Usage](#usage) without having to create a file. Keep in mind that you have to `import asyncio` and run `asyncio.run(yourmethod())` to make your async methods run as expected if you decide to use `TodoistAPIAsync`.
 
-### Releasing
+### Releases
 
-The SDK is currently private so it not published to PyPI. To release a new update just create a release with a tag
-in the format `v1.x.x` and any consumers can update to this tag in their `pyproject.toml`.
+This API client is public, and available in a PyPI repository.
+
+A new update is automatically released by GitHub Actions, by creating a release with a tag in the format `vX.Y.Z` (`v<Major>.<Minor>.<Patch>`).
+
+Users of the API client can then update to the new version in their `pyproject.toml` file.
+
+### Feedback
+
+Any feedback, such as bugs, questions, comments, etc. can be reported as *Issues* in this repository, and will be handled by Doist.
+
+### Contributions
+
+We would love contributions in the form of *Pull requests* in this repository.
