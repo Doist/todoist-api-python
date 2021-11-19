@@ -367,7 +367,7 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)", "win-inet-pton"]
 
 [[package]]
 name = "responses"
-version = "0.12.1"
+version = "0.16.0"
 description = "A utility library for mocking out the `requests` Python library."
 category = "dev"
 optional = false
@@ -379,7 +379,7 @@ six = "*"
 urllib3 = ">=1.25.10"
 
 [package.extras]
-tests = ["coverage (>=3.7.1,<6.0.0)", "pytest-cov", "pytest-localserver", "flake8", "pytest (>=4.6,<5.0)", "pytest (>=4.6)"]
+tests = ["coverage (>=3.7.1,<6.0.0)", "pytest-cov", "pytest-localserver", "flake8", "types-mock", "types-requests", "types-six", "pytest (>=4.6,<5.0)", "pytest (>=4.6)", "mypy"]
 
 [[package]]
 name = "six"
@@ -404,14 +404,6 @@ description = "A lil' TOML parser"
 category = "dev"
 optional = false
 python-versions = ">=3.6"
-
-[[package]]
-name = "typing-extensions"
-version = "3.7.4.3"
-description = "Backported and Experimental Type Hints for Python 3.5+"
-category = "dev"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "typing-extensions"
@@ -463,7 +455,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "f6b70acde1be7ffbe7631fa4e5b366edc184b881bbe172538d1e0062a52fb348"
+content-hash = "9bc8448e77dc22ae8c74eee1b200a3c5bec9ea44f5cb057e5eda68078803819e"
 
 [metadata.files]
 appdirs = [
@@ -698,8 +690,8 @@ requests = [
     {file = "requests-2.25.1.tar.gz", hash = "sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804"},
 ]
 responses = [
-    {file = "responses-0.12.1-py2.py3-none-any.whl", hash = "sha256:ef265bd3200bdef5ec17912fc64a23570ba23597fd54ca75c18650fa1699213d"},
-    {file = "responses-0.12.1.tar.gz", hash = "sha256:2e5764325c6b624e42b428688f2111fea166af46623cb0127c05f6afb14d3457"},
+    {file = "responses-0.16.0-py2.py3-none-any.whl", hash = "sha256:f358ef75e8bf431b0aa203cc62625c3a1c80a600dbe9de91b944bf4e9c600b92"},
+    {file = "responses-0.16.0.tar.gz", hash = "sha256:a2e3aca2a8277e61257cd3b1c154b1dd0d782b1ae3d38b7fa37cbe3feb531791"},
 ]
 six = [
     {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
@@ -714,9 +706,6 @@ tomli = [
     {file = "tomli-1.2.2.tar.gz", hash = "sha256:c6ce0015eb38820eaf32b5db832dbc26deb3dd427bd5f6556cf0acac2c214fee"},
 ]
 typing-extensions = [
-    {file = "typing_extensions-3.7.4.3-py2-none-any.whl", hash = "sha256:dafc7639cde7f1b6e1acc0f457842a83e722ccca8eef5270af2d74792619a89f"},
-    {file = "typing_extensions-3.7.4.3-py3-none-any.whl", hash = "sha256:7cb407020f00f7bfc3cb3e7881628838e69d8f3fcab2f64742a5e76b2f841918"},
-    {file = "typing_extensions-3.7.4.3.tar.gz", hash = "sha256:99d4073b617d30288f569d3f13d2bd7548c3a7e4c8de87db09a9d29bb3a4a60c"},
     {file = "typing_extensions-4.0.0-py3-none-any.whl", hash = "sha256:829704698b22e13ec9eaf959122315eabb370b0884400e9818334d8b677023d9"},
     {file = "typing_extensions-4.0.0.tar.gz", hash = "sha256:2cdf80e4e04866a9b3689a51869016d36db0814d84b8d8a568d22781d45d27ed"},
 ]
