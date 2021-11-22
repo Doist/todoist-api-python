@@ -8,7 +8,7 @@ The repository can be included as a Poetry dependency in `pyproject.toml`, it is
 
 ```
 [tool.poetry.dependencies]
-todoist-api-python = "^v2.0.0"
+todoist-api-python = "^v1.1.0"
 ```
 
 ### Supported Python Versions
