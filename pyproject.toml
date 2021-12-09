@@ -22,7 +22,7 @@ python = "^3.8"
 requests = "^2.26.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^5.3.2"
+pytest = "^6.2.5"
 black = "21.11b1"
 flake8 = "^4.0.1"
 pre-commit = "^2.9.0"
