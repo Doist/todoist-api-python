@@ -24,7 +24,7 @@ attrs = "^21.2.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
-black = "21.11b1"
+black = "21.12b0"
 flake8 = "^4.0.1"
 pre-commit = "^2.16.0"
 isort = "^5.10.1"
