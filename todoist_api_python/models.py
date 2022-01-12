@@ -266,7 +266,7 @@ class Collaborator(object):
 
 @attr.s
 class Attachment(object):
-    resource_type: str = attr.ib()
+    resource_type: Optional[str] = attr.ib(default=None)
 
     file_name: Optional[str] = attr.ib(default=None)
     file_size: Optional[int] = attr.ib(default=None)
@@ -285,7 +285,7 @@ class Attachment(object):
     @classmethod
     def from_dict(cls, obj):
         return cls(
-            resource_type=obj["resource_type"],
+            resource_type=obj.get("resource_type"),
             file_name=obj.get("file_name"),
             file_size=obj.get("file_size"),
             file_type=obj.get("file_type"),
