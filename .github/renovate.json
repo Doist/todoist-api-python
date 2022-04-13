@@ -1,0 +1,6 @@
+{
+    "extends": [
+        "github>doist/renovate-config:integrations-base",
+        "github>doist/renovate-config:integrations-automerge",
+    ]
+}
