@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from typing import Any, Dict, List
 
 import requests
@@ -55,6 +56,11 @@ class TodoistAPI:
 
     def add_task(self, content: str, **kwargs) -> Task:
         endpoint = get_rest_url(TASKS_ENDPOINT)
+
+        for key, value in kwargs.items():
+            if isinstance(value, (date, datetime)):
+                kwargs[key] = value.isoformat()
+
         data: Dict[str, Any] = {"content": content}
         data.update(kwargs)
         task = post(self._session, endpoint, self._token, data=data)
