@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterator, List
 
 import pytest
 import responses
@@ -34,7 +34,7 @@ from todoist_api_python.models import (
 
 
 @pytest.fixture()
-def requests_mock() -> responses.RequestsMock:
+def requests_mock() -> Iterator[responses.RequestsMock]:
     with responses.RequestsMock() as requestsMock:
         yield requestsMock
 
