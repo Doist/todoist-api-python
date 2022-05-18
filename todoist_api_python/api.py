@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import requests
 
@@ -33,7 +33,7 @@ def _validate_entity_id(value: int):
 
 
 class TodoistAPI:
-    def __init__(self, token: str, session=None):
+    def __init__(self, token: str, session: Optional[requests.Session] = None) -> None:
         self._token: str = token
         self._session = session or requests.Session()
 

@@ -14,7 +14,7 @@ from todoist_api_python.utils import run_async
 
 
 class TodoistAPIAsync:
-    def __init__(self, token: str):
+    def __init__(self, token: str) -> None:
         self._api = TodoistAPI(token)
 
     async def get_task(self, task_id: int) -> Task:
