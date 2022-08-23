@@ -1,5 +1,7 @@
-import urllib
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import List
+from urllib.parse import urlencode
 
 import requests
 from requests import Session
@@ -17,7 +19,7 @@ from todoist_api_python.utils import run_async
 
 
 def get_auth_token(
-    client_id: str, client_secret: str, code: str, session: Optional[Session] = None
+    client_id: str, client_secret: str, code: str, session: Session | None = None
 ) -> AuthResult:
     endpoint = get_auth_url(TOKEN_ENDPOINT)
     session = session or requests.Session()
@@ -34,7 +36,7 @@ async def get_auth_token_async(
 
 
 def revoke_auth_token(
-    client_id: str, client_secret: str, token: str, session: Optional[Session] = None
+    client_id: str, client_secret: str, token: str, session: Session | None = None
 ) -> bool:
     endpoint = get_sync_url(REVOKE_TOKEN_ENDPOINT)
     session = session or requests.Session()
@@ -43,9 +45,8 @@ def revoke_auth_token(
         "client_secret": client_secret,
         "access_token": token,
     }
-    response = post(session=session, url=endpoint, data=payload)
-
-    return response
+    post(session=session, url=endpoint, data=payload)
+    return True
 
 
 async def revoke_auth_token_async(
@@ -62,4 +63,4 @@ def get_authentication_url(client_id: str, scopes: List[str], state: str) -> str
 
     auth_url = get_auth_url(AUTHORIZE_ENDPOINT)
 
-    return f"{auth_url}?{urllib.parse.urlencode(query)}"
+    return f"{auth_url}?{urlencode(query)}"
