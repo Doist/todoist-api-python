@@ -45,8 +45,9 @@ def revoke_auth_token(
         "client_secret": client_secret,
         "access_token": token,
     }
-    post(session=session, url=endpoint, data=payload)
-    return True
+    response = post(session=session, url=endpoint, data=payload)
+
+    return response
 
 
 async def revoke_auth_token_async(
