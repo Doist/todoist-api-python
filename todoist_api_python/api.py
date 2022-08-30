@@ -59,23 +59,19 @@ class TodoistAPI:
 
     def update_task(self, task_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
-        post(self._session, endpoint, self._token, data=kwargs)
-        return True
+        return post(self._session, endpoint, self._token, data=kwargs)
 
     def close_task(self, task_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}/close")
-        post(self._session, endpoint, self._token, data=kwargs)
-        return True
+        return post(self._session, endpoint, self._token, data=kwargs)
 
     def reopen_task(self, task_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}/reopen")
-        post(self._session, endpoint, self._token, data=kwargs)
-        return True
+        return post(self._session, endpoint, self._token, data=kwargs)
 
     def delete_task(self, task_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
-        delete(self._session, endpoint, self._token, args=kwargs)
-        return True
+        return delete(self._session, endpoint, self._token, args=kwargs)
 
     def quick_add_task(self, text: str) -> QuickAddResult:
         endpoint = get_sync_url(QUICK_ADD_ENDPOINT)
@@ -106,13 +102,11 @@ class TodoistAPI:
 
     def update_project(self, project_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
-        post(self._session, endpoint, self._token, data=kwargs)
-        return True
+        return post(self._session, endpoint, self._token, data=kwargs)
 
     def delete_project(self, project_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
-        delete(self._session, endpoint, self._token, args=kwargs)
-        return True
+        return delete(self._session, endpoint, self._token, args=kwargs)
 
     def get_collaborators(self, project_id: str) -> List[Collaborator]:
         endpoint = get_rest_url(
@@ -142,13 +136,11 @@ class TodoistAPI:
         endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
         data: Dict[str, Any] = {"name": name}
         data.update(kwargs)
-        post(self._session, endpoint, self._token, data=data)
-        return True
+        return post(self._session, endpoint, self._token, data=data)
 
     def delete_section(self, section_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
-        delete(self._session, endpoint, self._token, args=kwargs)
-        return True
+        return delete(self._session, endpoint, self._token, args=kwargs)
 
     def get_comment(self, comment_id: str) -> Comment:
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
@@ -171,13 +163,11 @@ class TodoistAPI:
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
         data: Dict[str, Any] = {"content": content}
         data.update(kwargs)
-        post(self._session, endpoint, self._token, data=data)
-        return True
+        return post(self._session, endpoint, self._token, data=data)
 
     def delete_comment(self, comment_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
-        delete(self._session, endpoint, self._token, args=kwargs)
-        return True
+        return delete(self._session, endpoint, self._token, args=kwargs)
 
     def get_label(self, label_id: str) -> Label:
         endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
@@ -198,13 +188,11 @@ class TodoistAPI:
 
     def update_label(self, label_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
-        post(self._session, endpoint, self._token, data=kwargs)
-        return True
+        return post(self._session, endpoint, self._token, data=kwargs)
 
     def delete_label(self, label_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
-        delete(self._session, endpoint, self._token, args=kwargs)
-        return True
+        return delete(self._session, endpoint, self._token, args=kwargs)
 
     def get_shared_labels(self) -> List[str]:
         endpoint = get_rest_url(SHARED_LABELS_ENDPOINT)
@@ -213,11 +201,9 @@ class TodoistAPI:
     def rename_shared_label(self, name: str, new_name: str) -> bool:
         endpoint = get_rest_url(SHARED_LABELS_RENAME_ENDPOINT)
         data = {"name": name, "new_name": new_name}
-        post(self._session, endpoint, self._token, data=data)
-        return True
+        return post(self._session, endpoint, self._token, data=data)
 
     def remove_shared_label(self, name: str) -> bool:
         endpoint = get_rest_url(SHARED_LABELS_REMOVE_ENDPOINT)
         data = {"name": name}
-        post(self._session, endpoint, self._token, data=data)
-        return True
+        return post(self._session, endpoint, self._token, data=data)
