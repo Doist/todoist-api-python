@@ -1,50 +1,53 @@
-from typing import List, Optional
+from __future__ import annotations
+
+from typing import List, Literal
 
 import attr
 
 from todoist_api_python.utils import get_url_for_task
 
+VIEW_STYLE = Literal["list", "board"]
+
 
 @attr.s
 class Project(object):
-    id: int = attr.ib()
-    color: int = attr.ib()
+    color: str = attr.ib()
     comment_count: int = attr.ib()
-    favorite: bool = attr.ib()
+    id: str = attr.ib()
+    is_favorite: bool = attr.ib()
+    is_inbox_project: bool = attr.ib()
+    is_shared: bool = attr.ib()
+    is_team_inbox: bool = attr.ib()
     name: str = attr.ib()
-    shared: bool = attr.ib()
-    sync_id: int = attr.ib()
+    order: int = attr.ib()
+    parent_id: str | None = attr.ib()
     url: str = attr.ib()
-
-    inbox_project: Optional[bool] = attr.ib(default=None)
-    team_inbox: Optional[bool] = attr.ib(default=None)
-    order: Optional[int] = attr.ib(default=None)
-    parent_id: Optional[int] = attr.ib(default=None)
+    view_style: VIEW_STYLE = attr.ib()
 
     @classmethod
     def from_dict(cls, obj):
         return cls(
-            id=obj["id"],
             color=obj["color"],
             comment_count=obj["comment_count"],
-            favorite=obj["favorite"],
+            id=obj["id"],
+            is_favorite=obj["is_favorite"],
+            is_inbox_project=obj.get("is_inbox_project"),
+            is_shared=obj["is_shared"],
+            is_team_inbox=obj.get("is_team_inbox"),
             name=obj["name"],
-            shared=obj["shared"],
-            sync_id=obj["sync_id"],
-            url=obj["url"],
-            inbox_project=obj.get("inbox_project"),
-            team_inbox=obj.get("team_inbox"),
             order=obj.get("order"),
             parent_id=obj.get("parent_id"),
+            url=obj["url"],
+            view_style=obj["view_style"],
         )
 
 
 @attr.s
 class Section(object):
-    id: int = attr.ib()
+    id: str = attr.ib()
     name: str = attr.ib()
     order: int = attr.ib()
-    project_id: int = attr.ib()
+    project_id: str = attr.ib()
 
     @classmethod
     def from_dict(cls, obj):
@@ -59,16 +62,17 @@ class Section(object):
 @attr.s
 class Due(object):
     date: str = attr.ib()
-    recurring: bool = attr.ib()
+    is_recurring: bool = attr.ib()
     string: str = attr.ib()
-    datetime: Optional[str] = attr.ib(default=None)
-    timezone: Optional[str] = attr.ib(default=None)
+
+    datetime: str | None = attr.ib(default=None)
+    timezone: str | None = attr.ib(default=None)
 
     @classmethod
     def from_dict(cls, obj):
         return cls(
             date=obj["date"],
-            recurring=obj["recurring"],
+            is_recurring=obj["is_recurring"],
             string=obj["string"],
             datetime=obj.get("datetime"),
             timezone=obj.get("timezone"),
@@ -77,7 +81,7 @@ class Due(object):
     def to_dict(self):
         return {
             "date": self.date,
-            "recurring": self.recurring,
+            "is_recurring": self.is_recurring,
             "string": self.string,
             "datetime": self.datetime,
             "timezone": self.timezone,
@@ -92,14 +96,14 @@ class Due(object):
 
         timezone = due.get("timezone")
 
-        datetime: Optional[str] = None
+        datetime: str | None = None
 
         if timezone:
             datetime = due["date"]
 
         return cls(
             date=due["date"],
-            recurring=due["is_recurring"],
+            is_recurring=due["is_recurring"],
             string=due["string"],
             datetime=datetime,
             timezone=timezone,
@@ -108,107 +112,106 @@ class Due(object):
 
 @attr.s
 class Task(object):
+    assignee_id: str | None = attr.ib()
+    assigner_id: str | None = attr.ib()
     comment_count: int = attr.ib()
-    completed: bool = attr.ib()
+    is_completed: bool = attr.ib()
     content: str = attr.ib()
-    created: str = attr.ib()
-    creator: int = attr.ib()
+    created_at: str = attr.ib()
+    creator_id: str = attr.ib()
     description: str = attr.ib()
-    id: int = attr.ib()
-    project_id: int = attr.ib()
-    section_id: int = attr.ib()
+    due: Due | None = attr.ib()
+    id: str = attr.ib()
+    labels: List[str] = attr.ib()
+    order: int = attr.ib()
+    parent_id: str | None = attr.ib()
     priority: int = attr.ib()
+    project_id: str = attr.ib()
+    section_id: str | None = attr.ib()
     url: str = attr.ib()
 
-    assignee: Optional[int] = attr.ib(default=None)
-    assigner: Optional[int] = attr.ib(default=None)
-    due: Optional[Due] = attr.ib(default=None)
-    label_ids: Optional[List[int]] = attr.ib(default=None)
-    order: Optional[int] = attr.ib(default=None)
-    parent_id: Optional[int] = attr.ib(default=None)
-    sync_id: Optional[int] = attr.ib(default=None)
+    sync_id: str | None = attr.ib(default=None)
 
     @classmethod
     def from_dict(cls, obj):
-        due: Optional[Due] = None
+        due: Due | None = None
 
         if obj.get("due"):
             due = Due.from_dict(obj["due"])
 
         return cls(
+            assignee_id=obj.get("assignee_id"),
+            assigner_id=obj.get("assigner_id"),
             comment_count=obj["comment_count"],
-            completed=obj["completed"],
+            is_completed=obj["is_completed"],
             content=obj["content"],
-            created=obj["created"],
-            creator=obj["creator"],
+            created_at=obj["created_at"],
+            creator_id=obj["creator_id"],
             description=obj["description"],
+            due=due,
             id=obj["id"],
-            project_id=obj["project_id"],
-            section_id=obj["section_id"],
-            priority=obj["priority"],
-            url=obj["url"],
-            assignee=obj.get("assignee"),
-            assigner=obj.get("assigner"),
-            label_ids=obj.get("label_ids"),
+            labels=obj.get("labels"),
             order=obj.get("order"),
             parent_id=obj.get("parent_id"),
-            sync_id=obj.get("sync_id"),
-            due=due,
+            priority=obj["priority"],
+            project_id=obj["project_id"],
+            section_id=obj["section_id"],
+            url=obj["url"],
         )
 
     def to_dict(self):
-        due: Optional[dict] = None
+        due: dict | None = None
 
         if self.due:
             due = self.due.to_dict()
 
         return {
+            "assignee_id": self.assignee_id,
+            "assigner_id": self.assigner_id,
             "comment_count": self.comment_count,
-            "completed": self.completed,
+            "is_completed": self.is_completed,
             "content": self.content,
-            "created": self.created,
-            "creator": self.creator,
+            "created_at": self.created_at,
+            "creator_id": self.creator_id,
             "description": self.description,
+            "due": due,
             "id": self.id,
-            "project_id": self.project_id,
-            "section_id": self.section_id,
-            "priority": self.priority,
-            "url": self.url,
-            "assignee": self.assignee,
-            "assigner": self.assigner,
-            "label_ids": self.label_ids,
+            "labels": self.labels,
             "order": self.order,
             "parent_id": self.parent_id,
+            "priority": self.priority,
+            "project_id": self.project_id,
+            "section_id": self.section_id,
             "sync_id": self.sync_id,
-            "due": due,
+            "url": self.url,
         }
 
     @classmethod
     def from_quick_add_response(cls, obj):
-        due: Optional[Due] = None
+        due: Due | None = None
 
         if obj.get("due"):
             due = Due.from_quick_add_response(obj)
 
         return cls(
+            assignee_id=obj.get("responsible_uid"),
+            assigner_id=obj.get("assigned_by_uid"),
             comment_count=0,
-            completed=False,
+            is_completed=False,
             content=obj["content"],
-            created=obj["date_added"],
-            creator=obj["added_by_uid"],
+            created_at=obj["date_added"],
+            creator_id=obj["added_by_uid"],
             description=obj["description"],
-            id=obj["id"],
-            project_id=obj["project_id"],
-            section_id=obj["section_id"] or 0,
-            priority=obj["priority"],
-            url=get_url_for_task(obj["id"], obj["sync_id"]),
-            assignee=obj.get("responsible_uid"),
-            assigner=obj.get("assigned_by_uid"),
-            label_ids=obj["labels"],
-            order=obj["child_order"],
-            parent_id=obj["parent_id"] or 0,
-            sync_id=obj.get("sync_id"),
             due=due,
+            id=obj["id"],
+            labels=obj["labels"],
+            order=obj["child_order"],
+            parent_id=obj["parent_id"] or None,
+            priority=obj["priority"],
+            project_id=obj["project_id"],
+            section_id=obj["section_id"] or None,
+            sync_id=obj["sync_id"],
+            url=get_url_for_task(obj["id"], obj["sync_id"]),
         )
 
 
@@ -216,10 +219,10 @@ class Task(object):
 class QuickAddResult:
     task: Task = attr.ib()
 
-    resolved_project_name: Optional[str] = attr.ib(default=None)
-    resolved_assignee_name: Optional[str] = attr.ib(default=None)
-    resolved_label_names: Optional[List[str]] = attr.ib(default=None)
-    resolved_section_name: Optional[str] = attr.ib(default=None)
+    resolved_project_name: str | None = attr.ib(default=None)
+    resolved_assignee_name: str | None = attr.ib(default=None)
+    resolved_label_names: List[str] | None = attr.ib(default=None)
+    resolved_section_name: str | None = attr.ib(default=None)
 
     @classmethod
     def from_quick_add_response(cls, obj):
@@ -251,7 +254,7 @@ class QuickAddResult:
 
 @attr.s
 class Collaborator(object):
-    id: int = attr.ib()
+    id: str = attr.ib()
     email: str = attr.ib()
     name: str = attr.ib()
 
@@ -266,21 +269,21 @@ class Collaborator(object):
 
 @attr.s
 class Attachment(object):
-    resource_type: Optional[str] = attr.ib(default=None)
+    resource_type: str | None = attr.ib(default=None)
 
-    file_name: Optional[str] = attr.ib(default=None)
-    file_size: Optional[int] = attr.ib(default=None)
-    file_type: Optional[str] = attr.ib(default=None)
-    file_url: Optional[str] = attr.ib(default=None)
-    file_duration: Optional[int] = attr.ib(default=None)
-    upload_state: Optional[str] = attr.ib(default=None)
+    file_name: str | None = attr.ib(default=None)
+    file_size: int | None = attr.ib(default=None)
+    file_type: str | None = attr.ib(default=None)
+    file_url: str | None = attr.ib(default=None)
+    file_duration: int | None = attr.ib(default=None)
+    upload_state: str | None = attr.ib(default=None)
 
-    image: Optional[str] = attr.ib(default=None)
-    image_width: Optional[int] = attr.ib(default=None)
-    image_height: Optional[int] = attr.ib(default=None)
+    image: str | None = attr.ib(default=None)
+    image_width: int | None = attr.ib(default=None)
+    image_height: int | None = attr.ib(default=None)
 
-    url: Optional[str] = attr.ib(default=None)
-    title: Optional[str] = attr.ib(default=None)
+    url: str | None = attr.ib(default=None)
+    title: str | None = attr.ib(default=None)
 
     @classmethod
     def from_dict(cls, obj):
@@ -301,38 +304,37 @@ class Attachment(object):
 
 @attr.s
 class Comment(object):
-    id: int = attr.ib()
+    attachment: Attachment | None = attr.ib()
     content: str = attr.ib()
-    posted: str = attr.ib()
-
-    task_id: Optional[int] = attr.ib(default=None)
-    project_id: Optional[int] = attr.ib(default=None)
-    attachment: Optional[Attachment] = attr.ib(default=None)
+    id: str = attr.ib()
+    posted_at: str = attr.ib()
+    project_id: str | None = attr.ib()
+    task_id: str | None = attr.ib()
 
     @classmethod
     def from_dict(cls, obj):
-        attachment: Optional[Attachment] = None
+        attachment: Attachment | None = None
 
         if "attachment" in obj:
             attachment = Attachment.from_dict(obj["attachment"])
 
         return cls(
-            id=obj["id"],
-            content=obj["content"],
-            posted=obj["posted"],
-            task_id=obj.get("task_id"),
-            project_id=obj.get("project_id"),
             attachment=attachment,
+            content=obj["content"],
+            id=obj["id"],
+            posted_at=obj["posted_at"],
+            project_id=obj.get("project_id"),
+            task_id=obj.get("task_id"),
         )
 
 
 @attr.s
 class Label:
-    id: int = attr.ib()
+    id: str = attr.ib()
     name: str = attr.ib()
-    color: int = attr.ib()
+    color: str = attr.ib()
     order: int = attr.ib()
-    favorite: bool = attr.ib()
+    is_favorite: bool = attr.ib()
 
     @classmethod
     def from_dict(cls, obj):
@@ -341,7 +343,7 @@ class Label:
             name=obj["name"],
             color=obj["color"],
             order=obj["order"],
-            favorite=obj["favorite"],
+            is_favorite=obj["is_favorite"],
         )
 
 

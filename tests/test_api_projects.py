@@ -1,20 +1,13 @@
+from __future__ import annotations
+
 import json
-import typing
 from typing import Any, Dict, List
 
 import pytest
 import responses
 
-from tests.data.test_defaults import (
-    DEFAULT_REQUEST_ID,
-    INVALID_ENTITY_ID,
-    REST_API_BASE_URL,
-)
-from tests.utils.test_utils import (
-    assert_auth_header,
-    assert_id_validation,
-    assert_request_id_header,
-)
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
+from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Project
@@ -28,7 +21,7 @@ async def test_get_project(
     default_project_response: Dict[str, Any],
     default_project: Project,
 ):
-    project_id = 1234
+    project_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
 
     requests_mock.add(
@@ -49,17 +42,6 @@ async def test_get_project(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert project == default_project
-
-
-@typing.no_type_check
-def test_get_project_invalid_id(
-    todoist_api: TodoistAPI,
-    requests_mock: responses.RequestsMock,
-):
-    assert_id_validation(
-        lambda: todoist_api.get_project(INVALID_ENTITY_ID),
-        requests_mock,
-    )
 
 
 @pytest.mark.asyncio
@@ -183,7 +165,7 @@ async def test_update_project(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    project_id = 123
+    project_id = "123"
 
     args = {
         "name": "An updated project",
@@ -216,24 +198,13 @@ async def test_update_project(
     assert response is True
 
 
-@typing.no_type_check
-def test_update_project_invalid_id(
-    todoist_api: TodoistAPI,
-    requests_mock: responses.RequestsMock,
-):
-    assert_id_validation(
-        lambda: todoist_api.update_project(INVALID_ENTITY_ID),
-        requests_mock,
-    )
-
-
 @pytest.mark.asyncio
 async def test_delete_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    project_id = 1234
+    project_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
 
     requests_mock.add(
@@ -255,17 +226,6 @@ async def test_delete_project(
     assert response is True
 
 
-@typing.no_type_check
-def test_delete_project_invalid_id(
-    todoist_api: TodoistAPI,
-    requests_mock: responses.RequestsMock,
-):
-    assert_id_validation(
-        lambda: todoist_api.delete_project(INVALID_ENTITY_ID),
-        requests_mock,
-    )
-
-
 @pytest.mark.asyncio
 async def test_get_collaborators(
     todoist_api: TodoistAPI,
@@ -274,7 +234,7 @@ async def test_get_collaborators(
     default_collaborators_response: List[Dict[str, Any]],
     default_collaborators_list: List[Project],
 ):
-    project_id = 123
+    project_id = "123"
     expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}/collaborators"
 
     requests_mock.add(
@@ -295,14 +255,3 @@ async def test_get_collaborators(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert collaborators == default_collaborators_list
-
-
-@typing.no_type_check
-def test_get_collaborators_invalid_id(
-    todoist_api: TodoistAPI,
-    requests_mock: responses.RequestsMock,
-):
-    assert_id_validation(
-        lambda: todoist_api.get_collaborators(INVALID_ENTITY_ID),
-        requests_mock,
-    )

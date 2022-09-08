@@ -1,4 +1,6 @@
-from typing import Dict, Optional
+from __future__ import annotations
+
+from typing import Dict
 
 CONTENT_TYPE = ("Content-Type", "application/json; charset=utf-8")
 AUTHORIZATION = ("Authorization", "Bearer %s")
@@ -6,9 +8,9 @@ X_REQUEST_ID = ("X-Request-Id", "%s")
 
 
 def create_headers(
-    token: Optional[str] = None,
+    token: str | None = None,
     with_content: bool = False,
-    request_id: Optional[str] = None,
+    request_id: str | None = None,
 ) -> Dict[str, str]:
     headers: Dict[str, str] = {}
 

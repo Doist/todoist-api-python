@@ -37,15 +37,15 @@ def test_project_from_dict():
     assert project.id == sample_data["id"]
     assert project.color == sample_data["color"]
     assert project.comment_count == sample_data["comment_count"]
-    assert project.favorite == sample_data["favorite"]
+    assert project.is_favorite == sample_data["is_favorite"]
     assert project.name == sample_data["name"]
-    assert project.shared == sample_data["shared"]
-    assert project.sync_id == sample_data["sync_id"]
+    assert project.is_shared == sample_data["is_shared"]
     assert project.url == sample_data["url"]
-    assert project.inbox_project == sample_data["inbox_project"]
-    assert project.team_inbox == sample_data["team_inbox"]
+    assert project.is_inbox_project == sample_data["is_inbox_project"]
+    assert project.is_team_inbox == sample_data["is_team_inbox"]
     assert project.order == sample_data["order"]
     assert project.parent_id == sample_data["parent_id"]
+    assert project.view_style == sample_data["view_style"]
 
 
 def test_section_from_dict():
@@ -67,7 +67,7 @@ def test_due_from_dict():
     due = Due.from_dict(sample_data)
 
     assert due.date == sample_data["date"]
-    assert due.recurring == sample_data["recurring"]
+    assert due.is_recurring == sample_data["is_recurring"]
     assert due.string == sample_data["string"]
     assert due.datetime == sample_data["datetime"]
     assert due.timezone == sample_data["timezone"]
@@ -80,22 +80,21 @@ def test_task_from_dict():
     task = Task.from_dict(sample_data)
 
     assert task.comment_count == sample_data["comment_count"]
-    assert task.completed == sample_data["completed"]
+    assert task.is_completed == sample_data["is_completed"]
     assert task.content == sample_data["content"]
-    assert task.created == sample_data["created"]
-    assert task.creator == sample_data["creator"]
+    assert task.created_at == sample_data["created_at"]
+    assert task.creator_id == sample_data["creator_id"]
     assert task.id == sample_data["id"]
     assert task.project_id == sample_data["project_id"]
     assert task.section_id == sample_data["section_id"]
     assert task.priority == sample_data["priority"]
     assert task.url == sample_data["url"]
-    assert task.assignee == sample_data["assignee"]
-    assert task.assigner == sample_data["assigner"]
+    assert task.assignee_id == sample_data["assignee_id"]
+    assert task.assigner_id == sample_data["assigner_id"]
     assert task.due == Due.from_dict(sample_data["due"])
-    assert task.label_ids == sample_data["label_ids"]
+    assert task.labels == sample_data["labels"]
     assert task.order == sample_data["order"]
     assert task.parent_id == sample_data["parent_id"]
-    assert task.sync_id == sample_data["sync_id"]
 
 
 def test_collaborator_from_dict():
@@ -136,7 +135,7 @@ def test_comment_from_dict():
 
     assert comment.id == sample_data["id"]
     assert comment.content == sample_data["content"]
-    assert comment.posted == sample_data["posted"]
+    assert comment.posted_at == sample_data["posted_at"]
     assert comment.task_id == sample_data["task_id"]
     assert comment.project_id == sample_data["project_id"]
     assert comment.attachment == Attachment.from_dict(sample_data["attachment"])
@@ -152,7 +151,7 @@ def test_label_from_dict():
     assert label.name == sample_data["name"]
     assert label.color == sample_data["color"]
     assert label.order == sample_data["order"]
-    assert label.favorite == sample_data["favorite"]
+    assert label.is_favorite == sample_data["is_favorite"]
 
 
 def test_quick_add_result_minimal():
@@ -162,21 +161,21 @@ def test_quick_add_result_minimal():
     quick_add_result = QuickAddResult.from_quick_add_response(sample_data)
 
     assert quick_add_result.task.comment_count == 0
-    assert quick_add_result.task.completed is False
+    assert quick_add_result.task.is_completed is False
     assert quick_add_result.task.content == "some task"
-    assert quick_add_result.task.created == "2021-02-05T11:02:56Z"
-    assert quick_add_result.task.creator == 21180723
-    assert quick_add_result.task.id == 4554989047
-    assert quick_add_result.task.project_id == 2203108698
-    assert quick_add_result.task.section_id == 0
+    assert quick_add_result.task.created_at == "2021-02-05T11:02:56.00000Z"
+    assert quick_add_result.task.creator_id == "21180723"
+    assert quick_add_result.task.id == "4554989047"
+    assert quick_add_result.task.project_id == "2203108698"
+    assert quick_add_result.task.section_id is None
     assert quick_add_result.task.priority == 1
     assert quick_add_result.task.url == "https://todoist.com/showTask?id=4554989047"
-    assert quick_add_result.task.assignee is None
-    assert quick_add_result.task.assigner is None
+    assert quick_add_result.task.assignee_id is None
+    assert quick_add_result.task.assigner_id is None
     assert quick_add_result.task.due is None
-    assert quick_add_result.task.label_ids == []
+    assert quick_add_result.task.labels == []
     assert quick_add_result.task.order == 6
-    assert quick_add_result.task.parent_id == 0
+    assert quick_add_result.task.parent_id is None
     assert quick_add_result.task.sync_id is None
 
     assert quick_add_result.resolved_assignee_name is None
@@ -192,29 +191,29 @@ def test_quick_add_result_full():
     quick_add_result = QuickAddResult.from_quick_add_response(sample_data)
 
     assert quick_add_result.task.comment_count == 0
-    assert quick_add_result.task.completed is False
+    assert quick_add_result.task.is_completed is False
     assert quick_add_result.task.content == "some task"
-    assert quick_add_result.task.created == "2021-02-05T11:04:54Z"
-    assert quick_add_result.task.creator == 21180723
-    assert quick_add_result.task.id == 4554993687
-    assert quick_add_result.task.project_id == 2257514220
-    assert quick_add_result.task.section_id == 2232454220
+    assert quick_add_result.task.created_at == "2021-02-05T11:04:54.00000Z"
+    assert quick_add_result.task.creator_id == "21180723"
+    assert quick_add_result.task.id == "4554993687"
+    assert quick_add_result.task.project_id == "2257514220"
+    assert quick_add_result.task.section_id == "2232454220"
     assert quick_add_result.task.priority == 1
     assert (
         quick_add_result.task.url
         == "https://todoist.com/showTask?id=4554993687&sync_id=4554993687"
     )
-    assert quick_add_result.task.assignee == 29172386
-    assert quick_add_result.task.assigner == 21180723
-    assert quick_add_result.task.due.date == "2021-02-06T11:00:00Z"
-    assert quick_add_result.task.due.recurring is False
+    assert quick_add_result.task.assignee_id == "29172386"
+    assert quick_add_result.task.assigner_id == "21180723"
+    assert quick_add_result.task.due.date == "2021-02-06T11:00:00.00000Z"
+    assert quick_add_result.task.due.is_recurring is False
     assert quick_add_result.task.due.string == "Feb 6 11:00 AM"
-    assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00Z"
+    assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00.00000Z"
     assert quick_add_result.task.due.timezone == "Europe/London"
-    assert quick_add_result.task.label_ids == [2156154810, 2156154812]
+    assert quick_add_result.task.labels == ["Label1", "Label2"]
     assert quick_add_result.task.order == 1
-    assert quick_add_result.task.parent_id == 0
-    assert quick_add_result.task.sync_id == 4554993687
+    assert quick_add_result.task.parent_id is None
+    assert quick_add_result.task.sync_id == "4554993687"
 
     assert quick_add_result.resolved_assignee_name == "Some Guy"
     assert quick_add_result.resolved_label_names == ["Label1", "Label2"]
@@ -241,29 +240,29 @@ def test_quick_add_broken_data():
         quick_add_result = QuickAddResult.from_quick_add_response(sample_data)
 
         assert quick_add_result.task.comment_count == 0
-        assert quick_add_result.task.completed is False
+        assert quick_add_result.task.is_completed is False
         assert quick_add_result.task.content == "some task"
-        assert quick_add_result.task.created == "2021-02-05T11:04:54Z"
-        assert quick_add_result.task.creator == 21180723
-        assert quick_add_result.task.id == 4554993687
-        assert quick_add_result.task.project_id == 2257514220
-        assert quick_add_result.task.section_id == 2232454220
+        assert quick_add_result.task.created_at == "2021-02-05T11:04:54.00000Z"
+        assert quick_add_result.task.creator_id == "21180723"
+        assert quick_add_result.task.id == "4554993687"
+        assert quick_add_result.task.project_id == "2257514220"
+        assert quick_add_result.task.section_id == "2232454220"
         assert quick_add_result.task.priority == 1
         assert (
             quick_add_result.task.url
             == "https://todoist.com/showTask?id=4554993687&sync_id=4554993687"
         )
-        assert quick_add_result.task.assignee == 29172386
-        assert quick_add_result.task.assigner == 21180723
-        assert quick_add_result.task.due.date == "2021-02-06T11:00:00Z"
-        assert quick_add_result.task.due.recurring is False
+        assert quick_add_result.task.assignee_id == "29172386"
+        assert quick_add_result.task.assigner_id == "21180723"
+        assert quick_add_result.task.due.date == "2021-02-06T11:00:00.00000Z"
+        assert quick_add_result.task.due.is_recurring is False
         assert quick_add_result.task.due.string == "Feb 6 11:00 AM"
-        assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00Z"
+        assert quick_add_result.task.due.datetime == "2021-02-06T11:00:00.00000Z"
         assert quick_add_result.task.due.timezone == "Europe/London"
-        assert quick_add_result.task.label_ids == [2156154810, 2156154812]
+        assert quick_add_result.task.labels == ["Label1", "Label2"]
         assert quick_add_result.task.order == 1
-        assert quick_add_result.task.parent_id == 0
-        assert quick_add_result.task.sync_id == 4554993687
+        assert quick_add_result.task.parent_id is None
+        assert quick_add_result.task.sync_id == "4554993687"
 
         assert quick_add_result.resolved_assignee_name is None
         assert quick_add_result.resolved_label_names == ["Label1", "Label2"]

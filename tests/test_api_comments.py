@@ -1,20 +1,11 @@
 import json
-import typing
 from typing import Any, Dict, List
 
 import pytest
 import responses
 
-from tests.data.test_defaults import (
-    DEFAULT_REQUEST_ID,
-    INVALID_ENTITY_ID,
-    REST_API_BASE_URL,
-)
-from tests.utils.test_utils import (
-    assert_auth_header,
-    assert_id_validation,
-    assert_request_id_header,
-)
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
+from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Comment
@@ -28,7 +19,7 @@ async def test_get_comment(
     default_comment_response: Dict[str, Any],
     default_comment: Comment,
 ):
-    comment_id = 1234
+    comment_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
 
     requests_mock.add(
@@ -51,16 +42,6 @@ async def test_get_comment(
     assert comment == default_comment
 
 
-@typing.no_type_check
-def test_get_comment_invalid_id(
-    todoist_api: TodoistAPI,
-    requests_mock: responses.RequestsMock,
-):
-    assert_id_validation(
-        lambda: todoist_api.get_comment(INVALID_ENTITY_ID), requests_mock
-    )
-
-
 @pytest.mark.asyncio
 async def test_get_comments(
     todoist_api: TodoistAPI,
@@ -69,7 +50,7 @@ async def test_get_comments(
     default_comments_response: List[Dict[str, Any]],
     default_comments_list: List[Comment],
 ):
-    task_id = 1234
+    task_id = "1234"
 
     requests_mock.add(
         responses.GET,
@@ -154,7 +135,7 @@ async def test_update_comment(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    comment_id = 1234
+    comment_id = "1234"
 
     args = {
         "content": "An updated comment",
@@ -185,24 +166,13 @@ async def test_update_comment(
     assert response is True
 
 
-@typing.no_type_check
-def test_update_comment_invalid_id(
-    todoist_api: TodoistAPI,
-    requests_mock: responses.RequestsMock,
-):
-    assert_id_validation(
-        lambda: todoist_api.update_comment(INVALID_ENTITY_ID, "some new content"),
-        requests_mock,
-    )
-
-
 @pytest.mark.asyncio
 async def test_delete_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    comment_id = 1234
+    comment_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
 
     requests_mock.add(
@@ -222,14 +192,3 @@ async def test_delete_comment(
     assert len(requests_mock.calls) == 2
     assert_auth_header(requests_mock.calls[1].request)
     assert response is True
-
-
-@typing.no_type_check
-def test_delete_comment_invalid_id(
-    todoist_api: TodoistAPI,
-    requests_mock: responses.RequestsMock,
-):
-    assert_id_validation(
-        lambda: todoist_api.delete_comment(INVALID_ENTITY_ID),
-        requests_mock,
-    )

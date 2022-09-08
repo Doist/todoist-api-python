@@ -1,42 +1,40 @@
-REST_API_BASE_URL = "https://api.todoist.com/rest/v1"
-SYNC_API_BASE_URL = "https://api.todoist.com/sync/v8"
+REST_API_BASE_URL = "https://api.todoist.com/rest/v2"
+SYNC_API_BASE_URL = "https://api.todoist.com/sync/v9"
 AUTH_BASE_URL = "https://todoist.com"
 DEFAULT_TOKEN = "A TOKEN"
 DEFAULT_REQUEST_ID = "REQUEST12345"
 
-INVALID_ENTITY_ID = "1234/not_a_valid_id"
-
 DEFAULT_DUE_RESPONSE = {
     "date": "2016-09-01",
-    "recurring": True,
-    "datetime": "2016-09-01T09:00:00Z",
+    "is_recurring": True,
+    "datetime": "2016-09-01T09:00:00.00000Z",
     "string": "tomorrow at 12",
     "timezone": "Europe/Moscow",
 }
 
 DEFAULT_TASK_RESPONSE = {
-    "id": 1234,
-    "assigner": 2971358,
-    "assignee": 2423523,
-    "project_id": 2203306141,
-    "parent_id": 8686843758,
-    "sync_id": 2345345346,
-    "section_id": 7025,
+    "id": "1234",
+    "assigner_id": "2971358",
+    "assignee_id": "2423523",
+    "project_id": "2203306141",
+    "parent_id": "8686843758",
+    "section_id": "7025",
     "order": 3,
     "content": "Some Task Content",
     "description": "A description",
-    "completed": False,
-    "label_ids": [],
+    "is_completed": False,
+    "is_shared": False,
+    "labels": [],
     "priority": 1,
     "comment_count": 0,
-    "creator": 0,
-    "created": "2019-01-02T21:00:30Z",
+    "creator_id": "0",
+    "created_at": "2019-01-02T21:00:30.00000Z",
     "url": "https://todoist.com/showTask?id=2995104339",
     "due": DEFAULT_DUE_RESPONSE,
 }
 
 DEFAULT_TASK_RESPONSE_2 = dict(DEFAULT_TASK_RESPONSE)
-DEFAULT_TASK_RESPONSE_2["id"] = 5678
+DEFAULT_TASK_RESPONSE_2["id"] = "5678"
 
 DEFAULT_TASKS_RESPONSE = [
     DEFAULT_TASK_RESPONSE,
@@ -44,22 +42,22 @@ DEFAULT_TASKS_RESPONSE = [
 ]
 
 DEFAULT_PROJECT_RESPONSE = {
-    "id": 1234,
+    "id": "1234",
     "name": "Inbox",
     "comment_count": 10,
     "order": 1,
-    "color": 30,
-    "shared": False,
-    "parent_id": 5678,
-    "sync_id": 0,
-    "favorite": False,
-    "inbox_project": True,
-    "team_inbox": True,
+    "color": "red",
+    "is_shared": False,
+    "parent_id": "5678",
+    "is_favorite": False,
+    "is_inbox_project": True,
+    "is_team_inbox": True,
     "url": "https://todoist.com/showProject?id=1234",
+    "view_style": "list",
 }
 
 DEFAULT_PROJECT_RESPONSE_2 = dict(DEFAULT_PROJECT_RESPONSE)
-DEFAULT_PROJECT_RESPONSE_2["id"] = 5678
+DEFAULT_PROJECT_RESPONSE_2["id"] = "5678"
 
 DEFAULT_PROJECTS_RESPONSE = [
     DEFAULT_PROJECT_RESPONSE,
@@ -67,13 +65,13 @@ DEFAULT_PROJECTS_RESPONSE = [
 ]
 
 DEFAULT_COLLABORATOR_RESPONSE = {
-    "id": 1234,
+    "id": "1234",
     "name": "Alice",
     "email": "alice@example.com",
 }
 
 DEFAULT_COLLABORATOR_RESPONSE_2 = dict(DEFAULT_COLLABORATOR_RESPONSE)
-DEFAULT_COLLABORATOR_RESPONSE_2["id"] = 5678
+DEFAULT_COLLABORATOR_RESPONSE_2["id"] = "5678"
 
 DEFAULT_COLLABORATORS_RESPONSE = [
     DEFAULT_COLLABORATOR_RESPONSE,
@@ -81,8 +79,8 @@ DEFAULT_COLLABORATORS_RESPONSE = [
 ]
 
 DEFAULT_SECTION_RESPONSE = {
-    "id": 1234,
-    "project_id": 4567,
+    "id": "1234",
+    "project_id": "4567",
     "name": "A Section",
     "order": 1,
 }
@@ -110,16 +108,16 @@ DEFAULT_ATTACHMENT_RESPONSE = {
 }
 
 DEFAULT_COMMENT_RESPONSE = {
-    "id": 1234,
+    "id": "1234",
     "content": "A comment",
-    "posted": "2016-09-22T07:00:00Z",
-    "task_id": 2345,
-    "project_id": 4567,
+    "posted_at": "2016-09-22T07:00:00.00000Z",
+    "task_id": "2345",
+    "project_id": "4567",
     "attachment": DEFAULT_ATTACHMENT_RESPONSE,
 }
 
 DEFAULT_COMMENT_RESPONSE_2 = dict(DEFAULT_COMMENT_RESPONSE)
-DEFAULT_COMMENT_RESPONSE_2["id"] = 5678
+DEFAULT_COMMENT_RESPONSE_2["id"] = "5678"
 
 DEFAULT_COMMENTS_RESPONSE = [
     DEFAULT_COMMENT_RESPONSE,
@@ -127,15 +125,15 @@ DEFAULT_COMMENTS_RESPONSE = [
 ]
 
 DEFAULT_LABEL_RESPONSE = {
-    "id": 1234,
+    "id": "1234",
     "name": "A label",
-    "color": 30,
+    "color": "red",
     "order": 1,
-    "favorite": True,
+    "is_favorite": True,
 }
 
 DEFAULT_LABEL_RESPONSE_2 = dict(DEFAULT_LABEL_RESPONSE)
-DEFAULT_LABEL_RESPONSE_2["id"] = 4567
+DEFAULT_LABEL_RESPONSE_2["id"] = "4567"
 
 DEFAULT_LABELS_RESPONSE = [
     DEFAULT_LABEL_RESPONSE,

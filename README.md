@@ -8,12 +8,12 @@ The repository can be included as a Poetry dependency in `pyproject.toml`, it is
 
 ```
 [tool.poetry.dependencies]
-todoist-api-python = "^v1.1.0"
+todoist-api-python = "^v2.0.0"
 ```
 
 ### Supported Python Versions
 
-Python 3.8 is fully supported and tested, and while it may work with other Python 3 versions, we do not test for them.
+Python 3.9 is fully supported and tested, and while it may work with other Python 3 versions, we do not test for them.
 
 ### Usage
 
@@ -44,7 +44,7 @@ def get_tasks_sync():
 
 ### Documentation
 
-For more detailed reference documentation, have a look at the [API documentation with Python examples](https://developer.todoist.com/rest/v1/?python).
+For more detailed reference documentation, have a look at the [API documentation with Python examples](https://developer.todoist.com/rest/v2/?python).
 
 ### Development
 

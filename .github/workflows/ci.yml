@@ -14,14 +14,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: "3.8"
+          python-version: "3.9"
 
       - name: Install dependencies
         run: |
           set -ex
-          curl -O -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
-          python get-poetry.py --yes
-          rm -f get-poetry.py
+          curl -sSL https://install.python-poetry.org | POETRY_HOME=$HOME/.poetry python3 - --yes
           $HOME/.poetry/bin/poetry install
 
       - name: Test with pytest

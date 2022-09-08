@@ -2,11 +2,12 @@ from urllib.parse import urljoin
 
 BASE_URL = "https://api.todoist.com"
 AUTH_BASE_URL = "https://todoist.com"
-SYNC_VERSION = "v8"
-REST_VERSION = "v1"
+SYNC_VERSION = "v9"
+REST_VERSION = "v2"
 
-SYNC_API = urljoin(BASE_URL, "/sync/%s/" % SYNC_VERSION)
-REST_API = urljoin(BASE_URL, "/rest/%s/" % REST_VERSION)
+SYNC_API = urljoin(BASE_URL, f"/sync/{SYNC_VERSION}/")
+REST_API = urljoin(BASE_URL, f"/rest/{REST_VERSION}/")
+
 
 TASKS_ENDPOINT = "tasks"
 PROJECTS_ENDPOINT = "projects"
@@ -14,6 +15,9 @@ COLLABORATORS_ENDPOINT = "collaborators"
 SECTIONS_ENDPOINT = "sections"
 COMMENTS_ENDPOINT = "comments"
 LABELS_ENDPOINT = "labels"
+SHARED_LABELS_ENDPOINT = "labels/shared"
+SHARED_LABELS_RENAME_ENDPOINT = f"{SHARED_LABELS_ENDPOINT}/rename"
+SHARED_LABELS_REMOVE_ENDPOINT = f"{SHARED_LABELS_ENDPOINT}/remove"
 QUICK_ADD_ENDPOINT = "quick/add"
 
 AUTHORIZE_ENDPOINT = "oauth/authorize"
