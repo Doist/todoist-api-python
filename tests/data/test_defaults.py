@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Any
+
 REST_API_BASE_URL = "https://api.todoist.com/rest/v2"
 SYNC_API_BASE_URL = "https://api.todoist.com/sync/v9"
 AUTH_BASE_URL = "https://todoist.com"
@@ -107,7 +110,7 @@ DEFAULT_ATTACHMENT_RESPONSE = {
     "title": "Todoist Website",
 }
 
-DEFAULT_COMMENT_RESPONSE = {
+DEFAULT_COMMENT_RESPONSE: dict[str, Any] = {
     "id": "1234",
     "content": "A comment",
     "posted_at": "2016-09-22T07:00:00.00000Z",
@@ -118,6 +121,7 @@ DEFAULT_COMMENT_RESPONSE = {
 
 DEFAULT_COMMENT_RESPONSE_2 = dict(DEFAULT_COMMENT_RESPONSE)
 DEFAULT_COMMENT_RESPONSE_2["id"] = "5678"
+DEFAULT_COMMENT_RESPONSE_2["attachment"] = None
 
 DEFAULT_COMMENTS_RESPONSE = [
     DEFAULT_COMMENT_RESPONSE,
