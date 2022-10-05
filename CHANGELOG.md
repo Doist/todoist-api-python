@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixes
+
+- Fixed a crash in `get_comments` if attachment is null.
+
 ## [2.0.0] - 2022-09-08
 
 Migrate to [REST API v2](https://developer.todoist.com/rest/v2/?python).
