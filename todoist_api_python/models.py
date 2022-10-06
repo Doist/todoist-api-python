@@ -315,7 +315,7 @@ class Comment(object):
     def from_dict(cls, obj):
         attachment: Attachment | None = None
 
-        if "attachment" in obj:
+        if "attachment" in obj and obj["attachment"] is not None:
             attachment = Attachment.from_dict(obj["attachment"])
 
         return cls(
