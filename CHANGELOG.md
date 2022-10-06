@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+...
+
+## [2.0.1] - 2022-10-06
+
 ### Fixes
 
 - Fixed a crash in `get_comments` if attachment is null.
