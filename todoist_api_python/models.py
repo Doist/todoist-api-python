@@ -199,7 +199,7 @@ class Task(object):
             comment_count=0,
             is_completed=False,
             content=obj["content"],
-            created_at=obj["date_added"],
+            created_at=obj["added_at"],
             creator_id=obj["added_by_uid"],
             description=obj["description"],
             due=due,
