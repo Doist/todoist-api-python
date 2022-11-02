@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ...
 
+
+## [2.0.2] - 2022-11-02
+
+### Fixes
+
+- Task property `date_added` should be `added_at`
+
 ## [2.0.1] - 2022-10-06
 
 ### Fixes
