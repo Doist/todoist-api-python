@@ -8,7 +8,7 @@ QUICK_ADD_RESPONSE_MINIMAL: Dict[str, Any] = {
     "collapsed": 0,
     "content": "some task",
     "description": "",
-    "date_added": "2021-02-05T11:02:56.00000Z",
+    "added_at": "2021-02-05T11:02:56.00000Z",
     "date_completed": None,
     "due": None,
     "id": "4554989047",
@@ -51,7 +51,7 @@ QUICK_ADD_RESPONSE_FULL: Dict[str, Any] = {
     "collapsed": 0,
     "content": "some task",
     "description": "a description",
-    "date_added": "2021-02-05T11:04:54.00000Z",
+    "added_at": "2021-02-05T11:04:54.00000Z",
     "date_completed": None,
     "due": {
         "date": "2021-02-06T11:00:00.00000Z",
