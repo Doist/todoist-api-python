@@ -1,28 +1,27 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import List, Literal
-
-import attr
 
 from todoist_api_python.utils import get_url_for_task
 
 VIEW_STYLE = Literal["list", "board"]
 
 
-@attr.s
+@dataclass
 class Project(object):
-    color: str = attr.ib()
-    comment_count: int = attr.ib()
-    id: str = attr.ib()
-    is_favorite: bool = attr.ib()
-    is_inbox_project: bool = attr.ib()
-    is_shared: bool = attr.ib()
-    is_team_inbox: bool = attr.ib()
-    name: str = attr.ib()
-    order: int = attr.ib()
-    parent_id: str | None = attr.ib()
-    url: str = attr.ib()
-    view_style: VIEW_STYLE = attr.ib()
+    color: str
+    comment_count: int
+    id: str
+    is_favorite: bool
+    is_inbox_project: bool
+    is_shared: bool
+    is_team_inbox: bool
+    name: str
+    order: int
+    parent_id: str | None
+    url: str
+    view_style: VIEW_STYLE
 
     @classmethod
     def from_dict(cls, obj):
@@ -42,12 +41,12 @@ class Project(object):
         )
 
 
-@attr.s
+@dataclass
 class Section(object):
-    id: str = attr.ib()
-    name: str = attr.ib()
-    order: int = attr.ib()
-    project_id: str = attr.ib()
+    id: str
+    name: str
+    order: int
+    project_id: str
 
     @classmethod
     def from_dict(cls, obj):
@@ -59,14 +58,14 @@ class Section(object):
         )
 
 
-@attr.s
+@dataclass
 class Due(object):
-    date: str = attr.ib()
-    is_recurring: bool = attr.ib()
-    string: str = attr.ib()
+    date: str
+    is_recurring: bool
+    string: str
 
-    datetime: str | None = attr.ib(default=None)
-    timezone: str | None = attr.ib(default=None)
+    datetime: str | None = None
+    timezone: str | None = None
 
     @classmethod
     def from_dict(cls, obj):
@@ -110,27 +109,27 @@ class Due(object):
         )
 
 
-@attr.s
+@dataclass
 class Task(object):
-    assignee_id: str | None = attr.ib()
-    assigner_id: str | None = attr.ib()
-    comment_count: int = attr.ib()
-    is_completed: bool = attr.ib()
-    content: str = attr.ib()
-    created_at: str = attr.ib()
-    creator_id: str = attr.ib()
-    description: str = attr.ib()
-    due: Due | None = attr.ib()
-    id: str = attr.ib()
-    labels: List[str] = attr.ib()
-    order: int = attr.ib()
-    parent_id: str | None = attr.ib()
-    priority: int = attr.ib()
-    project_id: str = attr.ib()
-    section_id: str | None = attr.ib()
-    url: str = attr.ib()
+    assignee_id: str | None
+    assigner_id: str | None
+    comment_count: int
+    is_completed: bool
+    content: str
+    created_at: str
+    creator_id: str
+    description: str
+    due: Due | None
+    id: str
+    labels: List[str]
+    order: int
+    parent_id: str | None
+    priority: int
+    project_id: str
+    section_id: str | None
+    url: str
 
-    sync_id: str | None = attr.ib(default=None)
+    sync_id: str | None = None
 
     @classmethod
     def from_dict(cls, obj):
@@ -215,14 +214,14 @@ class Task(object):
         )
 
 
-@attr.s
+@dataclass
 class QuickAddResult:
-    task: Task = attr.ib()
+    task: Task
 
-    resolved_project_name: str | None = attr.ib(default=None)
-    resolved_assignee_name: str | None = attr.ib(default=None)
-    resolved_label_names: List[str] | None = attr.ib(default=None)
-    resolved_section_name: str | None = attr.ib(default=None)
+    resolved_project_name: str | None = None
+    resolved_assignee_name: str | None = None
+    resolved_label_names: List[str] | None = None
+    resolved_section_name: str | None = None
 
     @classmethod
     def from_quick_add_response(cls, obj):
@@ -252,11 +251,11 @@ class QuickAddResult:
         )
 
 
-@attr.s
+@dataclass
 class Collaborator(object):
-    id: str = attr.ib()
-    email: str = attr.ib()
-    name: str = attr.ib()
+    id: str
+    email: str
+    name: str
 
     @classmethod
     def from_dict(cls, obj):
@@ -267,23 +266,23 @@ class Collaborator(object):
         )
 
 
-@attr.s
+@dataclass
 class Attachment(object):
-    resource_type: str | None = attr.ib(default=None)
+    resource_type: str | None = None
 
-    file_name: str | None = attr.ib(default=None)
-    file_size: int | None = attr.ib(default=None)
-    file_type: str | None = attr.ib(default=None)
-    file_url: str | None = attr.ib(default=None)
-    file_duration: int | None = attr.ib(default=None)
-    upload_state: str | None = attr.ib(default=None)
+    file_name: str | None = None
+    file_size: int | None = None
+    file_type: str | None = None
+    file_url: str | None = None
+    file_duration: int | None = None
+    upload_state: str | None = None
 
-    image: str | None = attr.ib(default=None)
-    image_width: int | None = attr.ib(default=None)
-    image_height: int | None = attr.ib(default=None)
+    image: str | None = None
+    image_width: int | None = None
+    image_height: int | None = None
 
-    url: str | None = attr.ib(default=None)
-    title: str | None = attr.ib(default=None)
+    url: str | None = None
+    title: str | None = None
 
     @classmethod
     def from_dict(cls, obj):
@@ -302,14 +301,14 @@ class Attachment(object):
         )
 
 
-@attr.s
+@dataclass
 class Comment(object):
-    attachment: Attachment | None = attr.ib()
-    content: str = attr.ib()
-    id: str = attr.ib()
-    posted_at: str = attr.ib()
-    project_id: str | None = attr.ib()
-    task_id: str | None = attr.ib()
+    attachment: Attachment | None
+    content: str
+    id: str
+    posted_at: str
+    project_id: str | None
+    task_id: str | None
 
     @classmethod
     def from_dict(cls, obj):
@@ -328,13 +327,13 @@ class Comment(object):
         )
 
 
-@attr.s
+@dataclass
 class Label:
-    id: str = attr.ib()
-    name: str = attr.ib()
-    color: str = attr.ib()
-    order: int = attr.ib()
-    is_favorite: bool = attr.ib()
+    id: str
+    name: str
+    color: str
+    order: int
+    is_favorite: bool
 
     @classmethod
     def from_dict(cls, obj):
@@ -347,10 +346,10 @@ class Label:
         )
 
 
-@attr.s
+@dataclass
 class AuthResult:
-    access_token: str = attr.ib()
-    state: str = attr.ib()
+    access_token: str
+    state: str
 
     @classmethod
     def from_dict(cls, obj):
