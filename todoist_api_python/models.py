@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import List, Literal
+from dataclasses import dataclass, fields
+from typing import Any, List, Literal
 
 from todoist_api_python.utils import get_url_for_task
 
@@ -356,4 +356,68 @@ class AuthResult:
         return cls(
             access_token=obj["access_token"],
             state=obj["state"],
+        )
+
+
+@dataclass
+class Item:
+    id: str
+    user_id: str
+    project_id: str
+    content: str
+    description: str
+    priority: int
+    child_order: int
+    collapsed: bool
+    labels: list[str]
+    checked: bool
+    is_deleted: bool
+    added_at: str
+    due: Due | None = None
+    parent_id: int | None = None
+    section_id: str | None = None
+    day_order: int | None = None
+    added_by_uid: str | None = None
+    assigned_by_uid: str | None = None
+    responsible_uid: str | None = None
+    sync_id: str | None = None
+    completed_at: str | None = None
+
+    @classmethod
+    def from_dict(cls, obj: dict[str, Any]) -> Item:
+        params = {f.name: obj[f.name] for f in fields(cls) if f.name in obj}
+        if (due := obj.get("due")) is not None:
+            params["due"] = Due.from_dict(due)
+
+        return cls(**params)
+
+
+@dataclass
+class ItemCompletedInfo:
+    item_id: str
+    completed_items: int
+
+    @classmethod
+    def from_dict(cls, obj: dict[str, Any]) -> ItemCompletedInfo:
+        return cls(**{f.name: obj[f.name] for f in fields(cls)})
+
+
+@dataclass
+class CompletedItems:
+    items: list[Item]
+    total: int
+    completed_info: list[ItemCompletedInfo]
+    has_more: bool
+    next_cursor: str | None = None
+
+    @classmethod
+    def from_dict(cls, obj: dict[str, Any]) -> CompletedItems:
+        return cls(
+            items=[Item.from_dict(v) for v in obj["items"]],
+            total=obj["total"],
+            completed_info=[
+                ItemCompletedInfo.from_dict(v) for v in obj["completed_info"]
+            ],
+            has_more=obj["has_more"],
+            next_cursor=obj.get("next_cursor"),
         )
