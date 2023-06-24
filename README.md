@@ -4,9 +4,10 @@ This is the official Python API client for the Todoist REST API.
 
 ### Installation
 
-The repository can be included as a Poetry dependency in `pyproject.toml`, it is best to integrate to a release tag to ensure a stable dependency:
+The repository can be included as a [Poetry](https://python-poetry.org/) dependency in `pyproject.toml`.
+It is best to integrate to a release tag to ensure a stable dependency:
 
-```
+```toml
 [tool.poetry.dependencies]
 todoist-api-python = "^v2.0.0"
 ```
@@ -66,7 +67,9 @@ You can try your changes via REPL by running:
 $ poetry run python
 ```
 
-You can then import the library as describe in [Usage](#usage) without having to create a file. Keep in mind that you have to `import asyncio` and run `asyncio.run(yourmethod())` to make your async methods run as expected if you decide to use `TodoistAPIAsync`.
+You can then import the library as described in [Usage](#usage) without having to create a file.
+If you decide to use `TodoistAPIAsync`, please keep in mind that you have to `import asyncio`
+and run `asyncio.run(yourmethod())` to make your async methods run as expected.
 
 ### Releases
 
