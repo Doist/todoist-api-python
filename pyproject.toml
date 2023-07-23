@@ -20,7 +20,7 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.9"
 requests = "^2.26.0"
-attrs = "^22.0.0"
+attrs = ">=22.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.1"
