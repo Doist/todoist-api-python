@@ -18,7 +18,10 @@ LABELS_ENDPOINT = "labels"
 SHARED_LABELS_ENDPOINT = "labels/shared"
 SHARED_LABELS_RENAME_ENDPOINT = f"{SHARED_LABELS_ENDPOINT}/rename"
 SHARED_LABELS_REMOVE_ENDPOINT = f"{SHARED_LABELS_ENDPOINT}/remove"
+
+# sync endpoints
 QUICK_ADD_ENDPOINT = "quick/add"
+SYNC_ENDPOINT = "sync"
 
 AUTHORIZE_ENDPOINT = "oauth/authorize"
 TOKEN_ENDPOINT = "oauth/access_token"

@@ -14,6 +14,7 @@ from todoist_api_python.endpoints import (
     SHARED_LABELS_ENDPOINT,
     SHARED_LABELS_REMOVE_ENDPOINT,
     SHARED_LABELS_RENAME_ENDPOINT,
+    SYNC_ENDPOINT,
     TASKS_ENDPOINT,
     get_rest_url,
     get_sync_url,
@@ -72,16 +73,6 @@ class TodoistAPI:
     def delete_task(self, task_id: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
         return delete(self._session, endpoint, self._token, args=kwargs)
-
-    def quick_add_task(self, text: str) -> QuickAddResult:
-        endpoint = get_sync_url(QUICK_ADD_ENDPOINT)
-        data = {
-            "text": text,
-            "meta": True,
-            "auto_reminder": True,
-        }
-        task_data = post(self._session, endpoint, self._token, data=data)
-        return QuickAddResult.from_quick_add_response(task_data)
 
     def get_project(self, project_id: str) -> Project:
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
@@ -207,3 +198,25 @@ class TodoistAPI:
         endpoint = get_rest_url(SHARED_LABELS_REMOVE_ENDPOINT)
         data = {"name": name}
         return post(self._session, endpoint, self._token, data=data)
+
+    # sync api
+
+    def quick_add_task(self, text: str) -> QuickAddResult:
+        endpoint = get_sync_url(QUICK_ADD_ENDPOINT)
+        data = {
+            "text": text,
+            "meta": True,
+            "auto_reminder": True,
+        }
+        task_data = post(self._session, endpoint, self._token, data=data)
+        return QuickAddResult.from_quick_add_response(task_data)
+
+    def sync_read_resources(self, resource_types: list[str] = ["all"], sync_token: str = "*"):
+        endpoint = get_sync_url(SYNC_ENDPOINT)
+        data = {
+            "resource_types": resource_types,
+            "sync_token": sync_token,
+        }
+        resource_data = post(self._session, endpoint, self._token, data=data)
+        return resource_data
+
