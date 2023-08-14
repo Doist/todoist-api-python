@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ...
 
+## [2.1.2] - 2023-08-14
+
+### Fixes
+
+- Restore Python 3.9 compatibility
+
 ## [2.1.1] - 2023-08-09
 
 ### Fixes
