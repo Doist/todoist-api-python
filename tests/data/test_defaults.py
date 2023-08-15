@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import Any
 
 REST_API_BASE_URL = "https://api.todoist.com/rest/v2"
@@ -147,4 +148,33 @@ DEFAULT_LABELS_RESPONSE = [
 DEFAULT_AUTH_RESPONSE = {
     "access_token": "1234",
     "state": "somestate",
+}
+
+DEFAULT_ITEM_RESPONSE = {
+    "id": "2995104339",
+    "user_id": "2671355",
+    "project_id": "2203306141",
+    "content": "Buy Milk",
+    "description": "",
+    "priority": 1,
+    "due": DEFAULT_DUE_RESPONSE,
+    "child_order": 1,
+    "day_order": -1,
+    "collapsed": False,
+    "labels": ["Food", "Shopping"],
+    "added_by_uid": "2671355",
+    "assigned_by_uid": "2671355",
+    "checked": False,
+    "is_deleted": False,
+    "added_at": "2014-09-26T08:25:05.000000Z",
+}
+
+DEFAULT_ITEM_COMPLETED_INFO_RESPONSE = {"item_id": "2995104339", "completed_items": 12}
+
+DEFAULT_COMPLETED_ITEMS_RESPONSE = {
+    "items": [DEFAULT_ITEM_RESPONSE],
+    "completed_info": [DEFAULT_ITEM_COMPLETED_INFO_RESPONSE],
+    "total": 22,
+    "next_cursor": "k85gVI5ZAs8AAAABFoOzAQ",
+    "has_more": True,
 }

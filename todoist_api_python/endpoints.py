@@ -24,6 +24,8 @@ AUTHORIZE_ENDPOINT = "oauth/authorize"
 TOKEN_ENDPOINT = "oauth/access_token"
 REVOKE_TOKEN_ENDPOINT = "access_tokens/revoke"
 
+COMPLETED_ITEMS_ENDPOINT = "archive/items"
+
 
 def get_rest_url(relative_path: str) -> str:
     return urljoin(REST_API, relative_path)

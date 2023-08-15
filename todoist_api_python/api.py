@@ -7,6 +7,7 @@ import requests
 from todoist_api_python.endpoints import (
     COLLABORATORS_ENDPOINT,
     COMMENTS_ENDPOINT,
+    COMPLETED_ITEMS_ENDPOINT,
     LABELS_ENDPOINT,
     PROJECTS_ENDPOINT,
     QUICK_ADD_ENDPOINT,
@@ -22,6 +23,7 @@ from todoist_api_python.http_requests import delete, get, post
 from todoist_api_python.models import (
     Collaborator,
     Comment,
+    CompletedItems,
     Label,
     Project,
     QuickAddResult,
@@ -207,3 +209,28 @@ class TodoistAPI:
         endpoint = get_rest_url(SHARED_LABELS_REMOVE_ENDPOINT)
         data = {"name": name}
         return post(self._session, endpoint, self._token, data=data)
+
+    def get_completed_items(
+        self,
+        project_id: str | None = None,
+        section_id: str | None = None,
+        item_id: str | None = None,
+        last_seen_id: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> CompletedItems:
+        endpoint = get_sync_url(COMPLETED_ITEMS_ENDPOINT)
+        completed_items = get(
+            self._session,
+            endpoint,
+            self._token,
+            {
+                "project_id": project_id,
+                "section_id": section_id,
+                "item_id": item_id,
+                "last_seen_id": last_seen_id,
+                "limit": limit,
+                "cursor": cursor,
+            },
+        )
+        return CompletedItems.from_dict(completed_items)

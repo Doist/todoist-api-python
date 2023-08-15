@@ -9,6 +9,7 @@ from tests.data.test_defaults import (
     DEFAULT_COLLABORATORS_RESPONSE,
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_COMMENTS_RESPONSE,
+    DEFAULT_COMPLETED_ITEMS_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_LABELS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
@@ -25,6 +26,7 @@ from todoist_api_python.models import (
     AuthResult,
     Collaborator,
     Comment,
+    CompletedItems,
     Label,
     Project,
     QuickAddResult,
@@ -177,3 +179,13 @@ def default_auth_response() -> Dict[str, Any]:
 @pytest.fixture()
 def default_auth_result() -> AuthResult:
     return AuthResult.from_dict(DEFAULT_AUTH_RESPONSE)
+
+
+@pytest.fixture()
+def default_completed_items_response() -> dict[str, Any]:
+    return DEFAULT_COMPLETED_ITEMS_RESPONSE
+
+
+@pytest.fixture()
+def default_completed_items() -> CompletedItems:
+    return CompletedItems.from_dict(DEFAULT_COMPLETED_ITEMS_RESPONSE)

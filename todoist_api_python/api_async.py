@@ -6,6 +6,7 @@ from todoist_api_python.api import TodoistAPI
 from todoist_api_python.models import (
     Collaborator,
     Comment,
+    CompletedItems,
     Label,
     Project,
     QuickAddResult,
@@ -120,3 +121,18 @@ class TodoistAPIAsync:
 
     async def remove_shared_label(self, name: str) -> bool:
         return await run_async(lambda: self._api.remove_shared_label(name))
+
+    async def get_completed_items(
+        self,
+        project_id: str | None = None,
+        section_id: str | None = None,
+        item_id: str | None = None,
+        last_seen_id: str | None = None,
+        limit: int | None = None,
+        cursor: str | None = None,
+    ) -> CompletedItems:
+        return await run_async(
+            lambda: self._api.get_completed_items(
+                project_id, section_id, item_id, last_seen_id, limit, cursor
+            )
+        )

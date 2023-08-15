@@ -6,7 +6,10 @@ from tests.data.test_defaults import (
     DEFAULT_ATTACHMENT_RESPONSE,
     DEFAULT_COLLABORATOR_RESPONSE,
     DEFAULT_COMMENT_RESPONSE,
+    DEFAULT_COMPLETED_ITEMS_RESPONSE,
     DEFAULT_DUE_RESPONSE,
+    DEFAULT_ITEM_COMPLETED_INFO_RESPONSE,
+    DEFAULT_ITEM_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_SECTION_RESPONSE,
@@ -17,7 +20,10 @@ from todoist_api_python.models import (
     AuthResult,
     Collaborator,
     Comment,
+    CompletedItems,
     Due,
+    Item,
+    ItemCompletedInfo,
     Label,
     Project,
     QuickAddResult,
@@ -280,3 +286,87 @@ def test_auth_result_from_dict():
 
     assert auth_result.access_token == token
     assert auth_result.state == state
+
+
+def test_item_from_dict():
+    sample_data = dict(DEFAULT_ITEM_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    item = Item.from_dict(sample_data)
+
+    assert item.id == "2995104339"
+    assert item.user_id == "2671355"
+    assert item.project_id == "2203306141"
+    assert item.content == "Buy Milk"
+    assert item.description == ""
+    assert item.priority == 1
+    assert item.due.date == DEFAULT_DUE_RESPONSE["date"]
+    assert item.due.is_recurring == DEFAULT_DUE_RESPONSE["is_recurring"]
+    assert item.due.string == DEFAULT_DUE_RESPONSE["string"]
+    assert item.due.datetime == DEFAULT_DUE_RESPONSE["datetime"]
+    assert item.due.timezone == DEFAULT_DUE_RESPONSE["timezone"]
+    assert item.parent_id is None
+    assert item.child_order == 1
+    assert item.section_id is None
+    assert item.day_order == -1
+    assert item.collapsed is False
+    assert item.labels == ["Food", "Shopping"]
+    assert item.added_by_uid == "2671355"
+    assert item.assigned_by_uid == "2671355"
+    assert item.responsible_uid is None
+    assert item.checked is False
+    assert item.is_deleted is False
+    assert item.sync_id is None
+    assert item.added_at == "2014-09-26T08:25:05.000000Z"
+
+
+def test_item_completed_info_from_dict():
+    sample_data = dict(DEFAULT_ITEM_COMPLETED_INFO_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    info = ItemCompletedInfo.from_dict(sample_data)
+
+    assert info.item_id == "2995104339"
+    assert info.completed_items == 12
+
+
+def test_completed_items_from_dict():
+    sample_data = dict(DEFAULT_COMPLETED_ITEMS_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    completed_items = CompletedItems.from_dict(sample_data)
+
+    assert completed_items.total == 22
+    assert completed_items.next_cursor == "k85gVI5ZAs8AAAABFoOzAQ"
+    assert completed_items.has_more is True
+    assert len(completed_items.items) == 1
+    assert completed_items.items[0].id == "2995104339"
+    assert completed_items.items[0].user_id == "2671355"
+    assert completed_items.items[0].project_id == "2203306141"
+    assert completed_items.items[0].content == "Buy Milk"
+    assert completed_items.items[0].description == ""
+    assert completed_items.items[0].priority == 1
+    assert completed_items.items[0].due.date == DEFAULT_DUE_RESPONSE["date"]
+    assert (
+        completed_items.items[0].due.is_recurring
+        == DEFAULT_DUE_RESPONSE["is_recurring"]
+    )
+    assert completed_items.items[0].due.string == DEFAULT_DUE_RESPONSE["string"]
+    assert completed_items.items[0].due.datetime == DEFAULT_DUE_RESPONSE["datetime"]
+    assert completed_items.items[0].due.timezone == DEFAULT_DUE_RESPONSE["timezone"]
+    assert completed_items.items[0].parent_id is None
+    assert completed_items.items[0].child_order == 1
+    assert completed_items.items[0].section_id is None
+    assert completed_items.items[0].day_order == -1
+    assert completed_items.items[0].collapsed is False
+    assert completed_items.items[0].labels == ["Food", "Shopping"]
+    assert completed_items.items[0].added_by_uid == "2671355"
+    assert completed_items.items[0].assigned_by_uid == "2671355"
+    assert completed_items.items[0].responsible_uid is None
+    assert completed_items.items[0].checked is False
+    assert completed_items.items[0].is_deleted is False
+    assert completed_items.items[0].sync_id is None
+    assert completed_items.items[0].added_at == "2014-09-26T08:25:05.000000Z"
+    assert len(completed_items.completed_info) == 1
+    assert completed_items.completed_info[0].item_id == "2995104339"
+    assert completed_items.completed_info[0].completed_items == 12
