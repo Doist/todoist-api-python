@@ -154,7 +154,7 @@ class Task(object):
             parent_id=obj.get("parent_id"),
             priority=obj["priority"],
             project_id=obj["project_id"],
-            section_id=obj["section_id"],
+            section_id=obj.get("section_id", None),
             url=obj["url"],
         )
 
