@@ -41,10 +41,10 @@ class TodoistAPI:
         self._finalizer = finalize(self, self._session.close)
         
     def __enter__(self):
-            return self
+        return self
         
     def __exit__(self, exc_type, exc_value, traceback):
-            self._finalizer()
+        self._finalizer()
 
     def get_task(self, task_id: str) -> Task:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
