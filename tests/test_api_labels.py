@@ -160,7 +160,7 @@ async def test_update_label(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    label_id = 123
+    label_id = "123"
 
     args = {
         "name": "An updated label",
