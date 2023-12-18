@@ -216,7 +216,7 @@ async def test_update_task(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    task_id = 123
+    task_id = "123"
 
     args = {
         "content": "Some updated content",
