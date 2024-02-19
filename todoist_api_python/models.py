@@ -9,7 +9,7 @@ VIEW_STYLE = Literal["list", "board"]
 
 
 @dataclass
-class Project(object):
+class Project:
     color: str
     comment_count: int
     id: str
@@ -42,7 +42,7 @@ class Project(object):
 
 
 @dataclass
-class Section(object):
+class Section:
     id: str
     name: str
     order: int
@@ -59,7 +59,7 @@ class Section(object):
 
 
 @dataclass
-class Due(object):
+class Due:
     date: str
     is_recurring: bool
     string: str
@@ -110,7 +110,7 @@ class Due(object):
 
 
 @dataclass
-class Task(object):
+class Task:
     assignee_id: str | None
     assigner_id: str | None
     comment_count: int
@@ -252,7 +252,7 @@ class QuickAddResult:
 
 
 @dataclass
-class Collaborator(object):
+class Collaborator:
     id: str
     email: str
     name: str
@@ -267,7 +267,7 @@ class Collaborator(object):
 
 
 @dataclass
-class Attachment(object):
+class Attachment:
     resource_type: str | None = None
 
     file_name: str | None = None
@@ -302,7 +302,7 @@ class Attachment(object):
 
 
 @dataclass
-class Comment(object):
+class Comment:
     attachment: Attachment | None
     content: str
     id: str

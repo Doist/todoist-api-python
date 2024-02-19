@@ -32,7 +32,7 @@ def post(
     request_id = data.pop("request_id", None) if data else None
 
     headers = create_headers(
-        token=token, with_content=True if data else False, request_id=request_id
+        token=token, with_content=bool(data), request_id=request_id
     )
 
     response = session.post(
