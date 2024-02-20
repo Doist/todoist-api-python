@@ -38,7 +38,7 @@ DEFAULT_TASK_RESPONSE = {
     "comment_count": 0,
     "creator_id": "0",
     "created_at": "2019-01-02T21:00:30.00000Z",
-    "url": "https://todoist.com/showTask?id=2995104339",
+    "url": "https://todoist.com/showTask?id=1234",
     "due": DEFAULT_DUE_RESPONSE,
     "duration": DEFAULT_DURATION_RESPONSE,
 }
@@ -97,7 +97,7 @@ DEFAULT_SECTION_RESPONSE = {
 }
 
 DEFAULT_SECTION_RESPONSE_2 = dict(DEFAULT_SECTION_RESPONSE)
-DEFAULT_SECTION_RESPONSE_2["id"] = 5678
+DEFAULT_SECTION_RESPONSE_2["id"] = "5678"
 
 DEFAULT_SECTIONS_RESPONSE = [
     DEFAULT_SECTION_RESPONSE,

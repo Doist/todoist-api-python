@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from tests.data.test_defaults import DEFAULT_DURATION_RESPONSE
+
 QUICK_ADD_RESPONSE_MINIMAL: dict[str, Any] = {
     "added_by_uid": "21180723",
     "assigned_by_uid": None,
@@ -13,6 +15,7 @@ QUICK_ADD_RESPONSE_MINIMAL: dict[str, Any] = {
     "added_at": "2021-02-05T11:02:56.00000Z",
     "date_completed": None,
     "due": None,
+    "duration": None,
     "id": "4554989047",
     "in_history": 0,
     "is_deleted": 0,
@@ -61,6 +64,10 @@ QUICK_ADD_RESPONSE_FULL: dict[str, Any] = {
         "lang": "en",
         "string": "Feb 6 11:00 AM",
         "timezone": "Europe/London",
+    },
+    "duration": {
+        "amount": 60,
+        "unit": "minute",
     },
     "id": "4554993687",
     "in_history": 0,
