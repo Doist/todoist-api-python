@@ -20,6 +20,7 @@ include = [
 [tool.poetry.dependencies]
 python = "^3.9"
 requests = "^2.26.0"
+pydantic = "^2.6.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.1.1"
@@ -154,10 +155,7 @@ section-order = [
   "future",
   "standard-library",
   "third-party",
-  "parts",
   "first-party",
-  "td-models",
-  "td-apps",
   "local-folder",
 ]
 
