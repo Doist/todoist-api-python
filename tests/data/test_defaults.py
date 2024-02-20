@@ -33,7 +33,7 @@ DEFAULT_TASK_RESPONSE = {
     "comment_count": 0,
     "creator_id": "0",
     "created_at": "2019-01-02T21:00:30.00000Z",
-    "url": "https://todoist.com/showTask?id=2995104339",
+    "url": "https://todoist.com/showTask?id=1234",
     "due": DEFAULT_DUE_RESPONSE,
 }
 
