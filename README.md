@@ -43,6 +43,28 @@ def get_tasks_sync():
         print(error)
 ```
 
+Example of paginating through completed project tasks:
+
+```python
+def get_all_completed_items(original_params: dict):
+    params = original_params.copy()
+    results = []
+
+    while True:
+        response = api.get_completed_items(**(params | {"limit": 100}))
+        results.append(response.items)
+
+        if not response.has_more:
+            break
+
+        params["cursor"] = response.next_cursor
+
+    # flatten the results
+    return [item for sublist in results for item in sublist]
+
+items = get_all_completed_items({"project_id": 123})
+```
+
 ### Documentation
 
 For more detailed reference documentation, have a look at the [API documentation with Python examples](https://developer.todoist.com/rest/v2/?python).
