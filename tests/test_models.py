@@ -52,6 +52,7 @@ def test_project_from_dict():
     assert project.order == sample_data["order"]
     assert project.parent_id == sample_data["parent_id"]
     assert project.view_style == sample_data["view_style"]
+    assert project.allow_assignment == sample_data["allow_assignment"]
 
 
 def test_section_from_dict():
