@@ -17,6 +17,7 @@ class Project:
     is_inbox_project: bool
     is_shared: bool
     is_team_inbox: bool
+    can_assign_tasks: bool
     name: str
     order: int
     parent_id: str | None
@@ -33,6 +34,7 @@ class Project:
             is_inbox_project=obj.get("is_inbox_project"),
             is_shared=obj["is_shared"],
             is_team_inbox=obj.get("is_team_inbox"),
+            can_assign_tasks=obj["can_assign_tasks"],
             name=obj["name"],
             order=obj.get("order"),
             parent_id=obj.get("parent_id"),

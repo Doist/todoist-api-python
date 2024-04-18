@@ -56,6 +56,7 @@ DEFAULT_PROJECT_RESPONSE = {
     "is_favorite": False,
     "is_inbox_project": True,
     "is_team_inbox": True,
+    "can_assign_tasks": False,
     "url": "https://todoist.com/showProject?id=1234",
     "view_style": "list",
 }
