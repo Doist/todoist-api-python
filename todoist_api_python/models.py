@@ -130,15 +130,20 @@ class Task:
     project_id: str
     section_id: str | None
     url: str
+    duration: Duration | None
 
     sync_id: str | None = None
 
     @classmethod
     def from_dict(cls, obj):
         due: Due | None = None
+        duration: Duration | None = None
 
         if obj.get("due"):
             due = Due.from_dict(obj["due"])
+
+        if obj.get("duration"):
+            duration = Duration.from_dict(obj["duration"])
 
         return cls(
             assignee_id=obj.get("assignee_id"),
@@ -158,6 +163,7 @@ class Task:
             project_id=obj["project_id"],
             section_id=obj["section_id"],
             url=obj["url"],
+            duration=duration
         )
 
     def to_dict(self):
@@ -185,14 +191,19 @@ class Task:
             "section_id": self.section_id,
             "sync_id": self.sync_id,
             "url": self.url,
+            "duration": self.duration
         }
 
     @classmethod
     def from_quick_add_response(cls, obj):
         due: Due | None = None
+        duration: Duration | None = None
 
         if obj.get("due"):
             due = Due.from_quick_add_response(obj)
+
+        if obj.get("duration"):
+            duration = Duration.from_dict(obj["duration"])
 
         return cls(
             assignee_id=obj.get("responsible_uid"),
@@ -204,6 +215,7 @@ class Task:
             creator_id=obj["added_by_uid"],
             description=obj["description"],
             due=due,
+            duration=duration,
             id=obj["id"],
             labels=obj["labels"],
             order=obj["child_order"],
@@ -423,3 +435,22 @@ class CompletedItems:
             has_more=obj["has_more"],
             next_cursor=obj.get("next_cursor"),
         )
+
+
+@dataclass
+class Duration(object):
+    amount: int
+    unit: str
+
+    @classmethod
+    def from_dict(cls, obj):
+        return cls(
+            amount=obj["amount"],
+            unit=obj["unit"],
+        )
+
+    def to_dict(self):
+        return {
+            "amount": self.amount,
+            "unit": self.unit,
+        }
