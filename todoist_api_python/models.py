@@ -141,6 +141,7 @@ class Task(object):
             due = Due.from_dict(obj["due"])
 
         if obj.get("duration"):
+            # only get duration when it exists
             duration = Duration.from_dict(obj["duration"])
 
         return cls(
