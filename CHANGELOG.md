@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ...
 
+## [2.1.4] - 2024-05-07
+
+### What's Changed
+* chore(deps): update python docker tag to v3.11.5 by @renovate in https://github.com/Doist/todoist-api-python/pull/107
+* chore: Update actions to support NodeJS 20 by @deorus in https://github.com/Doist/todoist-api-python/pull/113
+* Bump certifi from 2022.6.15 to 2023.7.22 by @dependabot in https://github.com/Doist/todoist-api-python/pull/114
+* Bump urllib3 from 1.26.12 to 1.26.17 by @dependabot in https://github.com/Doist/todoist-api-python/pull/117
+* Bump urllib3 from 1.26.17 to 1.26.18 by @dependabot in https://github.com/Doist/todoist-api-python/pull/120
+* build: Switch to poetry-core by @lefcha in https://github.com/Doist/todoist-api-python/pull/121
+* chore: Migrate to Ruff by @lefcha in https://github.com/Doist/todoist-api-python/pull/127
+* Bump idna from 3.3 to 3.7 by @dependabot in https://github.com/Doist/todoist-api-python/pull/133
+* feat: Support project.can_assign_tasks by @amix in https://github.com/Doist/todoist-api-python/pull/132
+* feat: add duration to Task object by @eitchtee in https://github.com/Doist/todoist-api-python/pull/109
+* docs: pagination example by @iloveitaly in https://github.com/Doist/todoist-api-python/pull/126
+* chore(deps): update python docker tag to v3.12.3 by @renovate in https://github.com/Doist/todoist-api-python/pull/119
+
+### New Contributors
+* @deorus made their first contribution in https://github.com/Doist/todoist-api-python/pull/113
+* @amix made their first contribution in https://github.com/Doist/todoist-api-python/pull/132
+* @eitchtee made their first contribution in https://github.com/Doist/todoist-api-python/pull/109
+* @iloveitaly made their first contribution in https://github.com/Doist/todoist-api-python/pull/126
+
 ## [2.1.3] - 2023-08-15
 
 ### Added
