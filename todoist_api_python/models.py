@@ -141,7 +141,6 @@ class Task(object):
             due = Due.from_dict(obj["due"])
 
         if obj.get("duration"):
-            # only get duration when it exists
             duration = Duration.from_dict(obj["duration"])
 
         return cls(
@@ -196,9 +195,13 @@ class Task(object):
     @classmethod
     def from_quick_add_response(cls, obj):
         due: Due | None = None
+        duration: Duration | None = None
 
         if obj.get("due"):
             due = Due.from_quick_add_response(obj)
+
+        if obj.get("duration"):
+            duration = Duration.from_dict(obj["duration"])
 
         return cls(
             assignee_id=obj.get("responsible_uid"),
@@ -210,6 +213,7 @@ class Task(object):
             creator_id=obj["added_by_uid"],
             description=obj["description"],
             due=due,
+            duration=duration,
             id=obj["id"],
             labels=obj["labels"],
             order=obj["child_order"],
