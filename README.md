@@ -43,7 +43,7 @@ def get_tasks_sync():
         print(error)
 ```
 
-Example of paginating through completed project tasks:
+Example of paginating through a completed project tasks:
 
 ```python
 def get_all_completed_items(original_params: dict):
