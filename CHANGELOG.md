@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ...
 
+## [2.1.5] - 2024-05-22
+
+## What's Changed
+* fix: key error on can_assign_tasks in Project model by @tedyeates in https://github.com/Doist/todoist-api-python/pull/137
+
+## New Contributors
+* @tedyeates made their first contribution in https://github.com/Doist/todoist-api-python/pull/137
+
 ## [2.1.4] - 2024-05-07
 
 ### What's Changed
