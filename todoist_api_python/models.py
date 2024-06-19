@@ -369,7 +369,7 @@ class AuthResult:
     def from_dict(cls, obj):
         return cls(
             access_token=obj["access_token"],
-            state=obj["state"],
+            state=obj.get("state"),
         )
 
 
