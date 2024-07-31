@@ -8,6 +8,7 @@ from tests.data.test_defaults import (
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_COMPLETED_ITEMS_RESPONSE,
     DEFAULT_DUE_RESPONSE,
+    DEFAULT_DURATION_RESPONSE,
     DEFAULT_ITEM_COMPLETED_INFO_RESPONSE,
     DEFAULT_ITEM_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
@@ -22,6 +23,7 @@ from todoist_api_python.models import (
     Comment,
     CompletedItems,
     Due,
+    Duration,
     Item,
     ItemCompletedInfo,
     Label,
@@ -80,6 +82,16 @@ def test_due_from_dict():
     assert due.timezone == sample_data["timezone"]
 
 
+def test_duration_from_dict():
+    sample_data = dict(DEFAULT_DURATION_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    duration = Duration.from_dict(sample_data)
+
+    assert duration.amount == sample_data["amount"]
+    assert duration.unit == sample_data["unit"]
+
+
 def test_task_from_dict():
     sample_data = dict(DEFAULT_TASK_RESPONSE)
     sample_data.update(unexpected_data)
@@ -102,6 +114,34 @@ def test_task_from_dict():
     assert task.labels == sample_data["labels"]
     assert task.order == sample_data["order"]
     assert task.parent_id == sample_data["parent_id"]
+    assert task.duration == Duration.from_dict(sample_data["duration"])
+
+
+def test_task_to_dict():
+    sample_data = dict(DEFAULT_TASK_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    task = Task.from_dict(sample_data).to_dict()
+
+    assert task["comment_count"] == sample_data["comment_count"]
+    assert task["is_completed"] == sample_data["is_completed"]
+    assert task["content"] == sample_data["content"]
+    assert task["created_at"] == sample_data["created_at"]
+    assert task["creator_id"] == sample_data["creator_id"]
+    assert task["id"] == sample_data["id"]
+    assert task["project_id"] == sample_data["project_id"]
+    assert task["section_id"] == sample_data["section_id"]
+    assert task["priority"] == sample_data["priority"]
+    assert task["url"] == sample_data["url"]
+    assert task["assignee_id"] == sample_data["assignee_id"]
+    assert task["assigner_id"] == sample_data["assigner_id"]
+    for key in task["due"]:
+        assert task["due"][key] == sample_data["due"][key]
+    assert task["labels"] == sample_data["labels"]
+    assert task["order"] == sample_data["order"]
+    assert task["parent_id"] == sample_data["parent_id"]
+    for key in task["duration"]:
+        assert task["duration"][key] == sample_data["duration"][key]
 
 
 def test_collaborator_from_dict():
