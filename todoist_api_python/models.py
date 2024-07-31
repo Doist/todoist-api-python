@@ -163,14 +163,18 @@ class Task:
             project_id=obj["project_id"],
             section_id=obj["section_id"],
             url=obj["url"],
-            duration=duration
+            duration=duration,
         )
 
     def to_dict(self):
         due: dict | None = None
+        duration: dict | None = None
 
         if self.due:
             due = self.due.to_dict()
+
+        if self.duration:
+            duration = self.duration.to_dict()
 
         return {
             "assignee_id": self.assignee_id,
@@ -191,7 +195,7 @@ class Task:
             "section_id": self.section_id,
             "sync_id": self.sync_id,
             "url": self.url,
-            "duration": self.duration
+            "duration": duration,
         }
 
     @classmethod
@@ -438,7 +442,7 @@ class CompletedItems:
 
 
 @dataclass
-class Duration(object):
+class Duration:
     amount: int
     unit: str
 
