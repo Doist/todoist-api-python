@@ -9,35 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ...
 
+## [2.1.6] - 2024-08-07
+
+### Fixes
+
+- `TodoistAPIAsync` accepts a `session` parameter
+- State becomes optional in `AuthResult.from_dict()`
+- Duration handling in `to_dict()` and tests
+- Default value to `section_id`
+- Properly close requests `Session` object
+
 ## [2.1.5] - 2024-05-22
 
-## What's Changed
-* fix: key error on can_assign_tasks in Project model by @tedyeates in https://github.com/Doist/todoist-api-python/pull/137
+### Fixes
 
-## New Contributors
-* @tedyeates made their first contribution in https://github.com/Doist/todoist-api-python/pull/137
+- Key error on `can_assign_tasks` in `Project` model
 
 ## [2.1.4] - 2024-05-07
 
-### What's Changed
-* chore(deps): update python docker tag to v3.11.5 by @renovate in https://github.com/Doist/todoist-api-python/pull/107
-* chore: Update actions to support NodeJS 20 by @deorus in https://github.com/Doist/todoist-api-python/pull/113
-* Bump certifi from 2022.6.15 to 2023.7.22 by @dependabot in https://github.com/Doist/todoist-api-python/pull/114
-* Bump urllib3 from 1.26.12 to 1.26.17 by @dependabot in https://github.com/Doist/todoist-api-python/pull/117
-* Bump urllib3 from 1.26.17 to 1.26.18 by @dependabot in https://github.com/Doist/todoist-api-python/pull/120
-* build: Switch to poetry-core by @lefcha in https://github.com/Doist/todoist-api-python/pull/121
-* chore: Migrate to Ruff by @lefcha in https://github.com/Doist/todoist-api-python/pull/127
-* Bump idna from 3.3 to 3.7 by @dependabot in https://github.com/Doist/todoist-api-python/pull/133
-* feat: Support project.can_assign_tasks by @amix in https://github.com/Doist/todoist-api-python/pull/132
-* feat: add duration to Task object by @eitchtee in https://github.com/Doist/todoist-api-python/pull/109
-* docs: pagination example by @iloveitaly in https://github.com/Doist/todoist-api-python/pull/126
-* chore(deps): update python docker tag to v3.12.3 by @renovate in https://github.com/Doist/todoist-api-python/pull/119
+### Added
 
-### New Contributors
-* @deorus made their first contribution in https://github.com/Doist/todoist-api-python/pull/113
-* @amix made their first contribution in https://github.com/Doist/todoist-api-python/pull/132
-* @eitchtee made their first contribution in https://github.com/Doist/todoist-api-python/pull/109
-* @iloveitaly made their first contribution in https://github.com/Doist/todoist-api-python/pull/126
+- Support `project.can_assign_tasks`
+- Add `duration` to `Task` object
+- Pagination example
 
 ## [2.1.3] - 2023-08-15
 
