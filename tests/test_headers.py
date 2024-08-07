@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from todoist_api_python.headers import create_headers
 
 

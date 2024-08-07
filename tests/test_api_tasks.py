@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import json
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import pytest
@@ -11,9 +13,11 @@ from tests.data.test_defaults import (
     SYNC_API_BASE_URL,
 )
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
-from todoist_api_python.api import TodoistAPI
-from todoist_api_python.api_async import TodoistAPIAsync
-from todoist_api_python.models import QuickAddResult, Task
+
+if TYPE_CHECKING:
+    from todoist_api_python.api import TodoistAPI
+    from todoist_api_python.api_async import TodoistAPIAsync
+    from todoist_api_python.models import QuickAddResult, Task
 
 
 @pytest.mark.asyncio
@@ -21,7 +25,7 @@ async def test_get_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_task_response: Dict[str, Any],
+    default_task_response: dict[str, Any],
     default_task: Task,
 ):
     task_id = "1234"
@@ -52,8 +56,8 @@ async def test_get_tasks_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_tasks_response: List[Dict[str, Any]],
-    default_tasks_list: List[Task],
+    default_tasks_response: list[dict[str, Any]],
+    default_tasks_list: list[Task],
 ):
     requests_mock.add(
         responses.GET,
@@ -80,8 +84,8 @@ async def test_get_tasks_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_tasks_response: List[Dict[str, Any]],
-    default_tasks_list: List[Task],
+    default_tasks_response: list[dict[str, Any]],
+    default_tasks_list: list[Task],
 ):
     project_id = "1234"
     label_id = 2345
@@ -122,7 +126,7 @@ async def test_add_task_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_task_response: Dict[str, Any],
+    default_task_response: dict[str, Any],
     default_task: Task,
 ):
     task_content = "Some content"
@@ -159,7 +163,7 @@ async def test_add_task_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_task_response: Dict[str, Any],
+    default_task_response: dict[str, Any],
     default_task: Task,
 ):
     task_content = "Some content"
@@ -179,7 +183,7 @@ async def test_add_task_full(
         "assignee": 321,
     }
 
-    expected_payload: Dict[str, Any] = {"content": task_content}
+    expected_payload: dict[str, Any] = {"content": task_content}
     expected_payload.update(optional_args)
 
     requests_mock.add(
@@ -216,18 +220,18 @@ async def test_update_task(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    task_id = 123
+    task_id = "123"
 
     args = {
         "content": "Some updated content",
         "description": "An updated description",
-        "label_ids": [123, 456],
+        "label_ids": ["123", "456"],
         "priority": 4,
         "due_string": "today",
         "due_date": "2021-01-01",
         "due_datetime": "2021-01-01T11:00:00Z",
         "due_lang": "ja",
-        "assignee": 321,
+        "assignee": "321",
     }
 
     requests_mock.add(
@@ -344,7 +348,7 @@ async def test_quick_add_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_quick_add_response: Dict[str, Any],
+    default_quick_add_response: dict[str, Any],
     default_quick_add_result: QuickAddResult,
 ):
     text = "some task"

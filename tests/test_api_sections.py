@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 import json
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import responses
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
-from todoist_api_python.api import TodoistAPI
-from todoist_api_python.api_async import TodoistAPIAsync
-from todoist_api_python.models import Section
+
+if TYPE_CHECKING:
+    from todoist_api_python.api import TodoistAPI
+    from todoist_api_python.api_async import TodoistAPIAsync
+    from todoist_api_python.models import Section
 
 
 @pytest.mark.asyncio
@@ -16,7 +20,7 @@ async def test_get_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_section_response: Dict[str, Any],
+    default_section_response: dict[str, Any],
     default_section: Section,
 ):
     section_id = "1234"
@@ -47,8 +51,8 @@ async def test_get_all_sections(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_sections_response: List[Dict[str, Any]],
-    default_sections_list: List[Section],
+    default_sections_response: list[dict[str, Any]],
+    default_sections_list: list[Section],
 ):
     requests_mock.add(
         responses.GET,
@@ -75,7 +79,7 @@ async def test_get_project_sections(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_sections_response: List[Dict[str, Any]],
+    default_sections_response: list[dict[str, Any]],
 ):
     project_id = "123"
 
@@ -97,14 +101,14 @@ async def test_add_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_section_response: Dict[str, Any],
+    default_section_response: dict[str, Any],
     default_section: Section,
 ):
     section_name = "A Section"
     project_id = "123"
     order = 3
 
-    expected_payload: Dict[str, Any] = {
+    expected_payload: dict[str, Any] = {
         "name": section_name,
         "project_id": project_id,
         "order": order,

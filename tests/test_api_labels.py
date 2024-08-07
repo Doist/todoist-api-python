@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 import json
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import responses
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
-from todoist_api_python.api import TodoistAPI
-from todoist_api_python.api_async import TodoistAPIAsync
-from todoist_api_python.models import Label
+
+if TYPE_CHECKING:
+    from todoist_api_python.api import TodoistAPI
+    from todoist_api_python.api_async import TodoistAPIAsync
+    from todoist_api_python.models import Label
 
 
 @pytest.mark.asyncio
@@ -16,7 +20,7 @@ async def test_get_label(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_label_response: Dict[str, Any],
+    default_label_response: dict[str, Any],
     default_label: Label,
 ):
     label_id = "1234"
@@ -47,8 +51,8 @@ async def test_get_labels(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_labels_response: List[Dict[str, Any]],
-    default_labels_list: List[Label],
+    default_labels_response: list[dict[str, Any]],
+    default_labels_list: list[Label],
 ):
     requests_mock.add(
         responses.GET,
@@ -75,7 +79,7 @@ async def test_add_label_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_label_response: Dict[str, Any],
+    default_label_response: dict[str, Any],
     default_label: Label,
 ):
     label_name = "A Label"
@@ -112,7 +116,7 @@ async def test_add_label_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_label_response: Dict[str, Any],
+    default_label_response: dict[str, Any],
     default_label: Label,
 ):
     label_name = "A Label"
@@ -123,7 +127,7 @@ async def test_add_label_full(
         "favorite": True,
     }
 
-    expected_payload: Dict[str, Any] = {"name": label_name}
+    expected_payload: dict[str, Any] = {"name": label_name}
     expected_payload.update(optional_args)
 
     requests_mock.add(
@@ -160,7 +164,7 @@ async def test_update_label(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ):
-    label_id = 123
+    label_id = "123"
 
     args = {
         "name": "An updated label",

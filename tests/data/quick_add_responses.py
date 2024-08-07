@@ -1,6 +1,8 @@
-from typing import Any, Dict
+from __future__ import annotations
 
-QUICK_ADD_RESPONSE_MINIMAL: Dict[str, Any] = {
+from typing import Any
+
+QUICK_ADD_RESPONSE_MINIMAL: dict[str, Any] = {
     "added_by_uid": "21180723",
     "assigned_by_uid": None,
     "checked": 0,
@@ -43,7 +45,7 @@ QUICK_ADD_RESPONSE_MINIMAL: Dict[str, Any] = {
     "user_id": "21180723",
 }
 
-QUICK_ADD_RESPONSE_FULL: Dict[str, Any] = {
+QUICK_ADD_RESPONSE_FULL: dict[str, Any] = {
     "added_by_uid": "21180723",
     "assigned_by_uid": "21180723",
     "checked": 0,

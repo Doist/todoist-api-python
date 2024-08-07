@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from tests.data.quick_add_responses import (
     QUICK_ADD_RESPONSE_FULL,
     QUICK_ADD_RESPONSE_MINIMAL,

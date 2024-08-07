@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import json
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import pytest
@@ -14,7 +16,9 @@ from todoist_api_python.authentication import (
     revoke_auth_token_async,
 )
 from todoist_api_python.endpoints import SYNC_API
-from todoist_api_python.models import AuthResult
+
+if TYPE_CHECKING:
+    from todoist_api_python.models import AuthResult
 
 
 def test_get_authentication_url():
@@ -35,7 +39,7 @@ def test_get_authentication_url():
 @pytest.mark.asyncio
 async def test_get_auth_token(
     requests_mock: responses.RequestsMock,
-    default_auth_response: Dict[str, Any],
+    default_auth_response: dict[str, Any],
     default_auth_result: AuthResult,
 ):
     client_id = "123"

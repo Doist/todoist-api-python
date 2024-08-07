@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, fields
-from typing import Any, List, Literal
+from typing import Any, Literal
 
 from todoist_api_python.utils import get_url_for_task
 
@@ -25,18 +25,18 @@ class Project:
     view_style: VIEW_STYLE
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             color=obj["color"],
             comment_count=obj["comment_count"],
             id=obj["id"],
             is_favorite=obj["is_favorite"],
-            is_inbox_project=obj.get("is_inbox_project"),
+            is_inbox_project=obj["is_inbox_project"],
             is_shared=obj["is_shared"],
-            is_team_inbox=obj.get("is_team_inbox"),
-            can_assign_tasks=obj.get("can_assign_tasks"),
+            is_team_inbox=obj["is_team_inbox"],
+            can_assign_tasks=obj["can_assign_tasks"],
             name=obj["name"],
-            order=obj.get("order"),
+            order=obj["order"],
             parent_id=obj.get("parent_id"),
             url=obj["url"],
             view_style=obj["view_style"],
@@ -51,7 +51,7 @@ class Section:
     project_id: str
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             id=obj["id"],
             name=obj["name"],
@@ -70,7 +70,7 @@ class Due:
     timezone: str | None = None
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             date=obj["date"],
             is_recurring=obj["is_recurring"],
@@ -79,7 +79,7 @@ class Due:
             timezone=obj.get("timezone"),
         )
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "date": self.date,
             "is_recurring": self.is_recurring,
@@ -89,7 +89,7 @@ class Due:
         }
 
     @classmethod
-    def from_quick_add_response(cls, obj):
+    def from_quick_add_response(cls, obj: dict[str, Any]):
         due = obj.get("due")
 
         if not due:
@@ -123,7 +123,7 @@ class Task:
     description: str
     due: Due | None
     id: str
-    labels: List[str]
+    labels: list[str] | None
     order: int
     parent_id: str | None
     priority: int
@@ -135,7 +135,7 @@ class Task:
     sync_id: str | None = None
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         due: Due | None = None
         duration: Duration | None = None
 
@@ -157,7 +157,7 @@ class Task:
             due=due,
             id=obj["id"],
             labels=obj.get("labels"),
-            order=obj.get("order"),
+            order=obj["order"],
             parent_id=obj.get("parent_id"),
             priority=obj["priority"],
             project_id=obj["project_id"],
@@ -166,9 +166,9 @@ class Task:
             duration=duration,
         )
 
-    def to_dict(self):
-        due: dict | None = None
-        duration: dict | None = None
+    def to_dict(self) -> dict[str, Any]:
+        due: dict[str, Any] | None = None
+        duration: dict[str, Any] | None = None
 
         if self.due:
             due = self.due.to_dict()
@@ -199,7 +199,7 @@ class Task:
         }
 
     @classmethod
-    def from_quick_add_response(cls, obj):
+    def from_quick_add_response(cls, obj: dict[str, Any]):
         due: Due | None = None
         duration: Duration | None = None
 
@@ -238,11 +238,11 @@ class QuickAddResult:
 
     resolved_project_name: str | None = None
     resolved_assignee_name: str | None = None
-    resolved_label_names: List[str] | None = None
+    resolved_label_names: list[str] | None = None
     resolved_section_name: str | None = None
 
     @classmethod
-    def from_quick_add_response(cls, obj):
+    def from_quick_add_response(cls, obj: dict[str, Any]):
         project_data = obj["meta"].get("project", {})
         assignee_data = obj["meta"].get("assignee", {})
         section_data = obj["meta"].get("section", {})
@@ -276,7 +276,7 @@ class Collaborator:
     name: str
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             id=obj["id"],
             email=obj["email"],
@@ -303,7 +303,7 @@ class Attachment:
     title: str | None = None
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             resource_type=obj.get("resource_type"),
             file_name=obj.get("file_name"),
@@ -329,7 +329,7 @@ class Comment:
     task_id: str | None
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         attachment: Attachment | None = None
 
         if "attachment" in obj and obj["attachment"] is not None:
@@ -354,7 +354,7 @@ class Label:
     is_favorite: bool
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             id=obj["id"],
             name=obj["name"],
@@ -367,10 +367,10 @@ class Label:
 @dataclass
 class AuthResult:
     access_token: str
-    state: str
+    state: str | None
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             access_token=obj["access_token"],
             state=obj.get("state"),
@@ -447,13 +447,13 @@ class Duration:
     unit: str
 
     @classmethod
-    def from_dict(cls, obj):
+    def from_dict(cls, obj: dict[str, Any]):
         return cls(
             amount=obj["amount"],
             unit=obj["unit"],
         )
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return {
             "amount": self.amount,
             "unit": self.unit,

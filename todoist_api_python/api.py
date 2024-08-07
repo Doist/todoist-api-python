@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 import requests
 
@@ -42,7 +42,7 @@ class TodoistAPI:
         task = get(self._session, endpoint, self._token)
         return Task.from_dict(task)
 
-    def get_tasks(self, **kwargs) -> List[Task]:
+    def get_tasks(self, **kwargs) -> list[Task]:
         ids = kwargs.pop("ids", None)
 
         if ids:
@@ -54,7 +54,7 @@ class TodoistAPI:
 
     def add_task(self, content: str, **kwargs) -> Task:
         endpoint = get_rest_url(TASKS_ENDPOINT)
-        data: Dict[str, Any] = {"content": content}
+        data: dict[str, Any] = {"content": content}
         data.update(kwargs)
         task = post(self._session, endpoint, self._token, data=data)
         return Task.from_dict(task)
@@ -90,14 +90,14 @@ class TodoistAPI:
         project = get(self._session, endpoint, self._token)
         return Project.from_dict(project)
 
-    def get_projects(self) -> List[Project]:
+    def get_projects(self) -> list[Project]:
         endpoint = get_rest_url(PROJECTS_ENDPOINT)
         projects = get(self._session, endpoint, self._token)
         return [Project.from_dict(obj) for obj in projects]
 
     def add_project(self, name: str, **kwargs) -> Project:
         endpoint = get_rest_url(PROJECTS_ENDPOINT)
-        data: Dict[str, Any] = {"name": name}
+        data: dict[str, Any] = {"name": name}
         data.update(kwargs)
         project = post(self._session, endpoint, self._token, data=data)
         return Project.from_dict(project)
@@ -110,7 +110,7 @@ class TodoistAPI:
         endpoint = get_rest_url(f"{PROJECTS_ENDPOINT}/{project_id}")
         return delete(self._session, endpoint, self._token, args=kwargs)
 
-    def get_collaborators(self, project_id: str) -> List[Collaborator]:
+    def get_collaborators(self, project_id: str) -> list[Collaborator]:
         endpoint = get_rest_url(
             f"{PROJECTS_ENDPOINT}/{project_id}/{COLLABORATORS_ENDPOINT}"
         )
@@ -122,7 +122,7 @@ class TodoistAPI:
         section = get(self._session, endpoint, self._token)
         return Section.from_dict(section)
 
-    def get_sections(self, **kwargs) -> List[Section]:
+    def get_sections(self, **kwargs) -> list[Section]:
         endpoint = get_rest_url(SECTIONS_ENDPOINT)
         sections = get(self._session, endpoint, self._token, kwargs)
         return [Section.from_dict(obj) for obj in sections]
@@ -136,7 +136,7 @@ class TodoistAPI:
 
     def update_section(self, section_id: str, name: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{SECTIONS_ENDPOINT}/{section_id}")
-        data: Dict[str, Any] = {"name": name}
+        data: dict[str, Any] = {"name": name}
         data.update(kwargs)
         return post(self._session, endpoint, self._token, data=data)
 
@@ -149,7 +149,7 @@ class TodoistAPI:
         comment = get(self._session, endpoint, self._token)
         return Comment.from_dict(comment)
 
-    def get_comments(self, **kwargs) -> List[Comment]:
+    def get_comments(self, **kwargs) -> list[Comment]:
         endpoint = get_rest_url(COMMENTS_ENDPOINT)
         comments = get(self._session, endpoint, self._token, kwargs)
         return [Comment.from_dict(obj) for obj in comments]
@@ -163,7 +163,7 @@ class TodoistAPI:
 
     def update_comment(self, comment_id: str, content: str, **kwargs) -> bool:
         endpoint = get_rest_url(f"{COMMENTS_ENDPOINT}/{comment_id}")
-        data: Dict[str, Any] = {"content": content}
+        data: dict[str, Any] = {"content": content}
         data.update(kwargs)
         return post(self._session, endpoint, self._token, data=data)
 
@@ -176,7 +176,7 @@ class TodoistAPI:
         label = get(self._session, endpoint, self._token)
         return Label.from_dict(label)
 
-    def get_labels(self) -> List[Label]:
+    def get_labels(self) -> list[Label]:
         endpoint = get_rest_url(LABELS_ENDPOINT)
         labels = get(self._session, endpoint, self._token)
         return [Label.from_dict(obj) for obj in labels]
@@ -196,7 +196,7 @@ class TodoistAPI:
         endpoint = get_rest_url(f"{LABELS_ENDPOINT}/{label_id}")
         return delete(self._session, endpoint, self._token, args=kwargs)
 
-    def get_shared_labels(self) -> List[str]:
+    def get_shared_labels(self) -> list[str]:
         endpoint = get_rest_url(SHARED_LABELS_ENDPOINT)
         return get(self._session, endpoint, self._token)
 

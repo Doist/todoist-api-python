@@ -1,8 +1,13 @@
+from __future__ import annotations
+
 import re
-from typing import Callable, Optional
+from typing import TYPE_CHECKING
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, DEFAULT_TOKEN
 from todoist_api_python.api import TodoistAPI
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 MATCH_ANY_REGEX = re.compile(".*")
 
@@ -15,7 +20,7 @@ def assert_request_id_header(request):
     assert request.headers["X-Request-Id"] == DEFAULT_REQUEST_ID
 
 
-def get_todoist_api_patch(method: Optional[Callable]) -> str:
+def get_todoist_api_patch(method: Callable | None) -> str:
     module = TodoistAPI.__module__
     name = TodoistAPI.__qualname__
 

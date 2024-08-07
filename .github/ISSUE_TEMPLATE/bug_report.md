@@ -14,7 +14,7 @@ assignees: ''
 <!-- A clear and concise description of what you expected to happen. -->
 
 ## Is reproducible
-Yes/No 
+Yes/No
 
 ## To reproduce
 <!--  Provide the exact steps to reproduce the behaviour-->

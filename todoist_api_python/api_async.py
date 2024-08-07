@@ -1,19 +1,21 @@
 from __future__ import annotations
 
-from typing import List
+from typing import TYPE_CHECKING
 
 from todoist_api_python.api import TodoistAPI
-from todoist_api_python.models import (
-    Collaborator,
-    Comment,
-    CompletedItems,
-    Label,
-    Project,
-    QuickAddResult,
-    Section,
-    Task,
-)
 from todoist_api_python.utils import run_async
+
+if TYPE_CHECKING:
+    from todoist_api_python.models import (
+        Collaborator,
+        Comment,
+        CompletedItems,
+        Label,
+        Project,
+        QuickAddResult,
+        Section,
+        Task,
+    )
 
 
 class TodoistAPIAsync:
@@ -23,7 +25,7 @@ class TodoistAPIAsync:
     async def get_task(self, task_id: str) -> Task:
         return await run_async(lambda: self._api.get_task(task_id))
 
-    async def get_tasks(self, **kwargs) -> List[Task]:
+    async def get_tasks(self, **kwargs) -> list[Task]:
         return await run_async(lambda: self._api.get_tasks(**kwargs))
 
     async def add_task(self, content: str, **kwargs) -> Task:
@@ -47,7 +49,7 @@ class TodoistAPIAsync:
     async def get_project(self, project_id: str) -> Project:
         return await run_async(lambda: self._api.get_project(project_id))
 
-    async def get_projects(self) -> List[Project]:
+    async def get_projects(self) -> list[Project]:
         return await run_async(lambda: self._api.get_projects())
 
     async def add_project(self, name: str, **kwargs) -> Project:
@@ -59,13 +61,13 @@ class TodoistAPIAsync:
     async def delete_project(self, project_id: str, **kwargs) -> bool:
         return await run_async(lambda: self._api.delete_project(project_id, **kwargs))
 
-    async def get_collaborators(self, project_id: str) -> List[Collaborator]:
+    async def get_collaborators(self, project_id: str) -> list[Collaborator]:
         return await run_async(lambda: self._api.get_collaborators(project_id))
 
     async def get_section(self, section_id: str) -> Section:
         return await run_async(lambda: self._api.get_section(section_id))
 
-    async def get_sections(self, **kwargs) -> List[Section]:
+    async def get_sections(self, **kwargs) -> list[Section]:
         return await run_async(lambda: self._api.get_sections(**kwargs))
 
     async def add_section(self, name: str, project_id: str, **kwargs) -> Section:
@@ -84,7 +86,7 @@ class TodoistAPIAsync:
     async def get_comment(self, comment_id: str) -> Comment:
         return await run_async(lambda: self._api.get_comment(comment_id))
 
-    async def get_comments(self, **kwargs) -> List[Comment]:
+    async def get_comments(self, **kwargs) -> list[Comment]:
         return await run_async(lambda: self._api.get_comments(**kwargs))
 
     async def add_comment(self, content: str, **kwargs) -> Comment:
@@ -101,7 +103,7 @@ class TodoistAPIAsync:
     async def get_label(self, label_id: str) -> Label:
         return await run_async(lambda: self._api.get_label(label_id))
 
-    async def get_labels(self) -> List[Label]:
+    async def get_labels(self) -> list[Label]:
         return await run_async(lambda: self._api.get_labels())
 
     async def add_label(self, name: str, **kwargs) -> Label:
@@ -113,7 +115,7 @@ class TodoistAPIAsync:
     async def delete_label(self, label_id: str, **kwargs) -> bool:
         return await run_async(lambda: self._api.delete_label(label_id, **kwargs))
 
-    async def get_shared_labels(self) -> List[str]:
+    async def get_shared_labels(self) -> list[str]:
         return await run_async(lambda: self._api.get_shared_labels())
 
     async def rename_shared_label(self, name: str, new_name: str) -> bool:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from unittest.mock import MagicMock, patch
 
 from tests.data.test_defaults import DEFAULT_TOKEN
