@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import json
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 import responses
@@ -13,7 +15,7 @@ DEFAULT_URL = f"{BASE_URL}/{TASKS_ENDPOINT}"
 
 
 @responses.activate
-def test_get_with_params(default_task_response: Dict[str, Any]):
+def test_get_with_params(default_task_response: dict[str, Any]):
     params = {"param1": "value1", "param2": "value2"}
 
     responses.add(
@@ -48,7 +50,7 @@ def test_get_raise_for_status():
 
 
 @responses.activate
-def test_post_with_data(default_task_response: Dict[str, Any]):
+def test_post_with_data(default_task_response: dict[str, Any]):
     request_id = "12345"
 
     data = {"param1": "value1", "param2": "value2", "request_id": request_id}

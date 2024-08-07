@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from typing import List
 from urllib.parse import urlencode
 
 import requests
@@ -56,9 +55,13 @@ async def revoke_auth_token_async(
     return await run_async(lambda: revoke_auth_token(client_id, client_secret, token))
 
 
-def get_authentication_url(client_id: str, scopes: List[str], state: str) -> str:
+class ArgumentError(Exception):
+    pass
+
+
+def get_authentication_url(client_id: str, scopes: list[str], state: str) -> str:
     if len(scopes) == 0:
-        raise Exception("At least one authorization scope should be requested.")
+        raise ArgumentError("At least one authorization scope should be requested.")
 
     query = {"client_id": client_id, "scope": ",".join(scopes), "state": state}
 

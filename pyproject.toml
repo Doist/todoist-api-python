@@ -23,78 +23,145 @@ requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
-pre-commit = "^2.17.0"
-mypy = "^0.990"
-responses = "^0.22.0"
+pre-commit = "^3.8.0"
+mypy = "^1.11"
+responses = "^0.25.3"
 pytest-asyncio = "^0.21.0"
 types-requests = "^2.32"
-ruff = "^0.2.2"
-
-[tool.isort]
-profile = "black"
+ruff = "^0.5.6"
 
 [build-system]
 requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.mypy]
+python_version = 3.11
+follow_imports = "silent"
+mypy_path = "."
+scripts_are_modules = true
+namespace_packages = true
+no_implicit_optional = true
+no_implicit_reexport = true
+show_error_codes = true
+check_untyped_defs = true
+enable_error_code=[
+  "redundant-self",
+  "redundant-expr",
+  "ignore-without-code",
+  "truthy-iterable",
+  "truthy-bool"
+]
+extra_checks = true
+strict_equality = true
+strict_optional = true # default value, but required for Pylance to be strict, see https://twist.com/a/1585/ch/274843/t/3453725/c/76267088
+warn_redundant_casts = true
+warn_unused_ignores = true
+disallow_any_generics = true
+untyped_calls_exclude = []
+
+[[tool.mypy.overrides]]
+module = [ ]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = []
+disallow_untyped_defs = true
+warn_unreachable = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
+warn_untyped_fields = true
+
 [tool.ruff]
+target-version = "py311"  # used by some linters like UP, FA, PERF
+
+[tool.ruff.lint]
 select = [
+  "A",          # flake8-builtins
   "ASYNC",      # flake8-async
+  "B",          # flake8-bugbear
   "C4",         # flake8-comprehensions
   "D",          # pydocstyle,
+  "DTZ",        # flake8-datetimez,
   "E", "W",     # pycodestyle
   "F",          # pyflakes
   "I",          # isort
   "PL",         # pylint
   "RUF",        # ruff
   "S",          # flake8-bandit
+  "T20",        # flake8-print
   "SIM",        # flake8-simplify
   "UP",         # pyupgrade
+  "TCH",        # flake8-type-checking
+  "TRY",        # tryceratops
+  "BLE",        # flake8-blind-except
+  "FIX",        # flake8-fixme
+  "ICN",        # flake8-import-conventions
+  "LOG",        # flake8-logging
+  "G",          # flake8-logging-format
+  "RET",        # flake8-logging-return
+  "ISC",        # flake8-implicit-str-concat
+  "INP",        # flake8-no-pep420
+  "PIE",        # flake8-pie
+  "PT",         # flake8-pytest-style
+  "TID",        # flake8-tidy-imports
+  "PTH",        # flake8-user-pathlib
+  "PERF",       # perflint
+  "FURB",       # refurb
+  "N"           # pep8-naming
 ]
-
-# By default, always show source code snippets.
-show-source = true
 
 ignore = [
   ## D - pydocstyle ##
   # D1XX errors are OK. Don't force people into over-documenting.
   "D100", "D101", "D102", "D103", "D104", "D105", "D107",
   # These need to be fixed.
-  "D202", "D205", "D400", "D401",
+  "D205",
+  "D400",
+  "D401",
 
   ## E / W - pycodestyle ##
   "E501",  # line too long
-  "E203",  # whitespace-before-punctuation
-  "E741",  # ambiguous variable name
 
   ## PL - pylint ##
   # Commented-out rules are rules that we disable in pylint but are not supported by ruff yet.
 
+  "PLR6301",  # no-self-use
+  "PLC2701",  # import-private-name
+
   # Import order issues
   # "PLC0411",  # wrong-import-order
   # "PLC0412",  # wrong-import-position
-  "PLC0414",  # ungrouped-imports
+  "PLC0415",  # import-outside-top-level
+
+  # flake8-fixme
+  "FIX001",  # line-contains-fixme: We allow FIXME but not TODO, XXX, HACK
+  "FIX002",  # line-contains-todo: Rule matches "todoist" which we use a lot in comments.
+
+  # flake8-implicit-str-concat
+  "ISC001",  # May conflict with the formatter
 
   # Documentation issues
   # "C0114",  # missing-module-docstring
 
   # Complexity issues
-  # "PLR0904",  # too-many-public-methods
+  "PLR0904",  # too-many-public-methods
   # "PLC0302",  # too-many-lines
-  # "PLR1702",  # too-many-nested-blocks
+  "PLR1702",  # too-many-nested-blocks
   # "PLR0902",  # too-many-instance-attributes
   "PLR0911",  # too-many-return-statements
   "PLR0915",  # too-many-statements
   "PLR0912",  # too-many-branches
   # "PLR0903",  # too-few-public-methods
-  # "PLR0914",  # too-many-locals
+  "PLR0914",  # too-many-locals
   # "PLC0301",  # line-too-long
   "PLR0913",  # too-many-arguments
+  "PLR0917",  # too-many-positional
   "PLR2004",  # magic-value-comparison
-  "PLR5501",  # collapsible-else-if
   "PLW0603",  # global-statement
   "PLW2901",  # redefined-loop-name
-  "PLC1901",  # compare-to-empty-string
 
   ## RUF - ruff ##
   "RUF001",  # ambiguous-unicode-character-string
@@ -110,9 +177,6 @@ ignore = [
   "S104",  # hardcoded-bind-all-interfaces
   "S105",  # hardcoded-password-string
   "S106",  # hardcoded-password-func-arg
-  "S107",  # hardcoded-password-default
-  "S110",  # try-except-pass
-  "S301",  # suspicious-pickle-usage
   "S303",  # suspicious-insecure-hash-usage
   "S310",  # suspicious-url-open-usage
   "S311",  # suspicious-non-cryptographic-random-usage
@@ -121,35 +185,101 @@ ignore = [
   "S607",  # start-process-with-partial-path
   "S608",  # hardcoded-sql-expression
 
+  ## DTZ - flake8-datetimez
+  "DTZ001",  # call-datetime-without-tzinfo
+  "DTZ002",	 # call-datetime-today
+  "DTZ003",  # call-datetime-utcnow
+  "DTZ004",	 # call-datetime-utcfromtimestamp
+  "DTZ005",  # call-datetime-now-without-tzinfo
+  "DTZ006",  # call-datetime-fromtimestamp
+  "DTZ007",  # call-datetime-strptime-without-zone
+  "DTZ011",  # call-date-today
+
   ## SIM - flake8-simplify ##
   "SIM102",  # collapsible-if
-  "SIM105",  # suppressible-exception
-  "SIM108",  # if-else-block-instead-of-if-exp
-  "SIM114",  # if-with-same-arms
-  "SIM116",  # if-else-block-instead-of-dict-lookup
   "SIM117",  # multiple-with-statements
 
   # Enable when the rule is out of preview and false-positives are handled.
   # See: https://docs.astral.sh/ruff/rules/in-dict-keys/
   "SIM118",  # in-dict-keys
+
+  ## TRY - tryceratops ##
+  "TRY003",   # raise-vanilla-args
+  "TRY004",   # type-check-without-type-error
+  "TRY301",   # raise-within-try
+
+  ## RET - flake8-return ##
+  "RET504",   # unnecessary-assign
+
+  ## PT - flake8-pytest-style ##
+  "PT004",  # pytest-missing-fixture-name-underscore
+  "PT012",  # pytest-raises-with-multiple-statements
+
+  ## UP - pyupgrade ##
+  "UP038",  # non-pep604-isinstance
+
+  ## B - flake8-bugbear ##
+  "B008",   # function-call-in-default-argument
+  "B009",   # get-attr-with-constant
+  "B010",   # set-attr-with-constant
+  "B018",   # useless-expression
+
+  ## PTH - flake8-user-pathlib #
+  "PTH118", # os-path-join
+  "PTH120", # os-path-dirname
+  "PTH122", # os-path-splitext
+  "PTH123", # builtin-open
+  "PTH207", # glob
+
+  ## TID - flake8-tidy-imports ##
+  "TID252", # relative-imports
+
+  ## N - pep8-naming ##
+  "N801",   # invalid-class-name
+  "N802",   # invalid-function-name
+  "N803",   # invalid-argument-name
+  "N815",   # mixed-case-variable-in-class-scope
+
+  # Broken in ruff 0.5.0 upgrade
+  "SIM103",  # needless-bool
+  "PERF403",  # manual-dict-comprehension
 ]
 
-extend-exclude = [
-  "env",
-  "runtime",
+flake8-pytest-style.fixture-parentheses = false
+flake8-pytest-style.mark-parentheses = false
+
+pylint.allow-dunder-method-names = [
+  "__json__",
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.flake8-builtins]
+builtins-ignorelist = [
+  "id", # 59
+  "filter", # 10
+  "type", # 4
+  "input", # 2
+  "format", # 2
+  "hash", # 1
+  "help", # 1
+]
+
+[tool.ruff.lint.per-file-ignores]
 # These files have only a bunch of imports in them to force code loading.
-"tests/**" = ["S101"] # Allow assert statement in tests.
+"tests/**" = [
+  "S101",   # assert
+  "S104",   # hardcoded-bind-all-interfaces
+  "S105",   # hardcoded-password-string
+  "S106",   # hardcoded-password-func-arg
+  "S107",   # hardcoded-password-default
+  "S301",   # suspicious-pickle-usage
+  "RUF018", # assignment-in-assert
+]
 
-# To import all fixtures from other conftests.
-"conftest.py" = ["F401", "F403"]
 # To import select fixtures from non-local conftests.
 # Importing and using the fixture makes it be shadowed.
-"test_*.py" = ["F401", "F811"]
+"test_*.py" = ["F811", "PLC0414"]
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 section-order = [
   "future",
   "standard-library",
@@ -161,10 +291,16 @@ section-order = [
   "local-folder",
 ]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.flake8-import-conventions.extend-aliases]
+"parts.web.validators" = "v"
+
+[tool.ruff.lint.pydocstyle]
 convention = "pep257"
 
 [tool.ruff.lint.pyupgrade]
 # Required by tools like Pydantic that use type information at runtime.
 # https://github.com/asottile/pyupgrade/issues/622#issuecomment-1088766572
 keep-runtime-typing = true
+
+[tool.ruff.format]
+docstring-code-format = true

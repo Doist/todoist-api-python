@@ -1,4 +1,6 @@
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 from urllib.parse import parse_qs, urlparse
 
 import pytest
@@ -6,10 +8,12 @@ import responses
 
 from tests.data.test_defaults import SYNC_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header
-from todoist_api_python.api import TodoistAPI
-from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.endpoints import COMPLETED_ITEMS_ENDPOINT
-from todoist_api_python.models import CompletedItems
+
+if TYPE_CHECKING:
+    from todoist_api_python.api import TodoistAPI
+    from todoist_api_python.api_async import TodoistAPIAsync
+    from todoist_api_python.models import CompletedItems
 
 
 @pytest.mark.asyncio

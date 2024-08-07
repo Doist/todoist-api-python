@@ -1,16 +1,18 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import responses
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
-from todoist_api_python.api import TodoistAPI
-from todoist_api_python.api_async import TodoistAPIAsync
-from todoist_api_python.models import Project
+
+if TYPE_CHECKING:
+    from todoist_api_python.api import TodoistAPI
+    from todoist_api_python.api_async import TodoistAPIAsync
+    from todoist_api_python.models import Project
 
 
 @pytest.mark.asyncio
@@ -18,7 +20,7 @@ async def test_get_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_project_response: Dict[str, Any],
+    default_project_response: dict[str, Any],
     default_project: Project,
 ):
     project_id = "1234"
@@ -49,8 +51,8 @@ async def test_get_projects(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_projects_response: List[Dict[str, Any]],
-    default_projects_list: List[Project],
+    default_projects_response: list[dict[str, Any]],
+    default_projects_list: list[Project],
 ):
     requests_mock.add(
         responses.GET,
@@ -77,7 +79,7 @@ async def test_add_project_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_project_response: Dict[str, Any],
+    default_project_response: dict[str, Any],
     default_project: Project,
 ):
     project_name = "A Project"
@@ -116,7 +118,7 @@ async def test_add_project_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_project_response: Dict[str, Any],
+    default_project_response: dict[str, Any],
     default_project: Project,
 ):
     project_name = "A Project"
@@ -128,7 +130,7 @@ async def test_add_project_full(
         "favorite": True,
     }
 
-    expected_payload: Dict[str, Any] = {"name": project_name}
+    expected_payload: dict[str, Any] = {"name": project_name}
     expected_payload.update(optional_args)
 
     requests_mock.add(
@@ -231,8 +233,8 @@ async def test_get_collaborators(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_collaborators_response: List[Dict[str, Any]],
-    default_collaborators_list: List[Project],
+    default_collaborators_response: list[dict[str, Any]],
+    default_collaborators_list: list[Project],
 ):
     project_id = "123"
     expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}/collaborators"

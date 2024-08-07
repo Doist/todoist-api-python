@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 import json
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import responses
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
 from tests.utils.test_utils import assert_auth_header, assert_request_id_header
-from todoist_api_python.api import TodoistAPI
-from todoist_api_python.api_async import TodoistAPIAsync
-from todoist_api_python.models import Comment
+
+if TYPE_CHECKING:
+    from todoist_api_python.api import TodoistAPI
+    from todoist_api_python.api_async import TodoistAPIAsync
+    from todoist_api_python.models import Comment
 
 
 @pytest.mark.asyncio
@@ -16,7 +20,7 @@ async def test_get_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_comment_response: Dict[str, Any],
+    default_comment_response: dict[str, Any],
     default_comment: Comment,
 ):
     comment_id = "1234"
@@ -47,8 +51,8 @@ async def test_get_comments(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_comments_response: List[Dict[str, Any]],
-    default_comments_list: List[Comment],
+    default_comments_response: list[dict[str, Any]],
+    default_comments_list: list[Comment],
 ):
     task_id = "1234"
 
@@ -77,7 +81,7 @@ async def test_add_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_comment_response: Dict[str, Any],
+    default_comment_response: dict[str, Any],
     default_comment: Comment,
 ):
     content = "A Comment"
@@ -89,7 +93,7 @@ async def test_add_comment(
         "file_name": "File.pdf",
     }
 
-    expected_payload: Dict[str, Any] = {
+    expected_payload: dict[str, Any] = {
         "content": content,
         "project_id": project_id,
         "attachment": attachment_data,
