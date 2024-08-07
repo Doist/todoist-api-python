@@ -6,6 +6,8 @@ from todoist_api_python.api import TodoistAPI
 from todoist_api_python.utils import run_async
 
 if TYPE_CHECKING:
+    import requests
+
     from todoist_api_python.models import (
         Collaborator,
         Comment,
@@ -19,8 +21,8 @@ if TYPE_CHECKING:
 
 
 class TodoistAPIAsync:
-    def __init__(self, token: str) -> None:
-        self._api = TodoistAPI(token)
+    def __init__(self, token: str, session: requests.Session | None = None) -> None:
+        self._api = TodoistAPI(token, session)
 
     async def get_task(self, task_id: str) -> Task:
         return await run_async(lambda: self._api.get_task(task_id))
