@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from weakref import finalize
 
 import requests
 
@@ -36,6 +37,13 @@ class TodoistAPI:
     def __init__(self, token: str, session: requests.Session | None = None) -> None:
         self._token: str = token
         self._session = session or requests.Session()
+        self._finalizer = finalize(self, self._session.close)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._finalizer()
 
     def get_task(self, task_id: str) -> Task:
         endpoint = get_rest_url(f"{TASKS_ENDPOINT}/{task_id}")
