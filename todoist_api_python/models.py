@@ -14,10 +14,10 @@ class Project:
     comment_count: int
     id: str
     is_favorite: bool
-    is_inbox_project: bool
+    is_inbox_project: bool | None
     is_shared: bool
-    is_team_inbox: bool
-    can_assign_tasks: bool
+    is_team_inbox: bool | None
+    can_assign_tasks: bool | None
     name: str
     order: int
     parent_id: str | None
@@ -31,10 +31,10 @@ class Project:
             comment_count=obj["comment_count"],
             id=obj["id"],
             is_favorite=obj["is_favorite"],
-            is_inbox_project=obj["is_inbox_project"],
+            is_inbox_project=obj.get("is_inbox_project"),
             is_shared=obj["is_shared"],
-            is_team_inbox=obj["is_team_inbox"],
-            can_assign_tasks=obj["can_assign_tasks"],
+            is_team_inbox=obj.get("is_team_inbox"),
+            can_assign_tasks=obj.get("can_assign_tasks"),
             name=obj["name"],
             order=obj["order"],
             parent_id=obj.get("parent_id"),
