@@ -46,7 +46,6 @@ class Project:
         return {
             "color": self.color,
             "comment_count": self.comment_count,
-            "comment_count": self.comment_count,
             "id": self.id,
             "is_favorite": self.is_favorite,
             "is_inbox_project": self.is_inbox_project,
