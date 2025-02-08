@@ -44,19 +44,39 @@ def test_project_from_dict():
 
     project = Project.from_dict(sample_data)
 
-    assert project.id == sample_data["id"]
     assert project.color == sample_data["color"]
     assert project.comment_count == sample_data["comment_count"]
+    assert project.id == sample_data["id"]
     assert project.is_favorite == sample_data["is_favorite"]
-    assert project.name == sample_data["name"]
-    assert project.is_shared == sample_data["is_shared"]
-    assert project.url == sample_data["url"]
     assert project.is_inbox_project == sample_data["is_inbox_project"]
+    assert project.is_shared == sample_data["is_shared"]
     assert project.is_team_inbox == sample_data["is_team_inbox"]
+    assert project.can_assign_tasks == sample_data["can_assign_tasks"]
+    assert project.name == sample_data["name"]
     assert project.order == sample_data["order"]
     assert project.parent_id == sample_data["parent_id"]
+    assert project.url == sample_data["url"]
     assert project.view_style == sample_data["view_style"]
-    assert project.can_assign_tasks == sample_data["can_assign_tasks"]
+
+def test_project_to_dict():
+    sample_data = dict(DEFAULT_PROJECT_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    project = Project.from_dict(sample_data).to_dict()
+
+    assert project["color"] == sample_data["color"]
+    assert project["comment_count"] == sample_data["comment_count"]
+    assert project["id"] == sample_data["id"]
+    assert project["is_favorite"] == sample_data["is_favorite"]
+    assert project["is_inbox_project"] == sample_data["is_inbox_project"]
+    assert project["is_shared"] == sample_data["is_shared"]
+    assert project["is_team_inbox"] == sample_data["is_team_inbox"]
+    assert project["can_assign_tasks"] == sample_data["can_assign_tasks"]
+    assert project["name"] == sample_data["name"]
+    assert project["order"] == sample_data["order"]
+    assert project["parent_id"] == sample_data["parent_id"]
+    assert project["url"] == sample_data["url"]
+    assert project["view_style"] == sample_data["view_style"]
 
 
 def test_section_from_dict():
