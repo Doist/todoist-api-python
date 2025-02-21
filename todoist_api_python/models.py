@@ -42,6 +42,23 @@ class Project:
             view_style=obj["view_style"],
         )
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "color": self.color,
+            "comment_count": self.comment_count,
+            "id": self.id,
+            "is_favorite": self.is_favorite,
+            "is_inbox_project": self.is_inbox_project,
+            "is_shared": self.is_shared,
+            "is_team_inbox": self.is_team_inbox,
+            "can_assign_tasks": self.can_assign_tasks,
+            "name": self.name,
+            "order": self.order,
+            "parent_id": self.parent_id,
+            "url": self.url,
+            "view_style": self.view_style,
+        }
+
 
 @dataclass
 class Section:
