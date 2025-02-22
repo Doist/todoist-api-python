@@ -18,6 +18,7 @@ include = ["LICENSE"]
 [tool.poetry.dependencies]
 python = "^3.13"
 requests = "^2.32.3"
+dataclasses-json = "^0.6.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"

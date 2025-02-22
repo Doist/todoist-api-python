@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-...
+### Changed
+
+- Use `dataclasses_json` for object mapping
+
+### Fixes
+
+- Missing optional `next_cursor` attribute in `CompletedItems` object
 
 ## [2.1.7] - 2024-08-13
 
