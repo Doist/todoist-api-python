@@ -1,7 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field
 from typing import Any, Literal
+
+from dataclasses_json import DataClassJsonMixin
 
 from todoist_api_python.utils import get_url_for_task
 
@@ -9,7 +11,7 @@ VIEW_STYLE = Literal["list", "board"]
 
 
 @dataclass
-class Project:
+class Project(DataClassJsonMixin):
     color: str
     comment_count: int
     id: str
@@ -24,61 +26,17 @@ class Project:
     url: str
     view_style: VIEW_STYLE
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            color=obj["color"],
-            comment_count=obj["comment_count"],
-            id=obj["id"],
-            is_favorite=obj["is_favorite"],
-            is_inbox_project=obj.get("is_inbox_project"),
-            is_shared=obj["is_shared"],
-            is_team_inbox=obj.get("is_team_inbox"),
-            can_assign_tasks=obj.get("can_assign_tasks"),
-            name=obj["name"],
-            order=obj["order"],
-            parent_id=obj.get("parent_id"),
-            url=obj["url"],
-            view_style=obj["view_style"],
-        )
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "color": self.color,
-            "comment_count": self.comment_count,
-            "id": self.id,
-            "is_favorite": self.is_favorite,
-            "is_inbox_project": self.is_inbox_project,
-            "is_shared": self.is_shared,
-            "is_team_inbox": self.is_team_inbox,
-            "can_assign_tasks": self.can_assign_tasks,
-            "name": self.name,
-            "order": self.order,
-            "parent_id": self.parent_id,
-            "url": self.url,
-            "view_style": self.view_style,
-        }
-
 
 @dataclass
-class Section:
+class Section(DataClassJsonMixin):
     id: str
     name: str
     order: int
     project_id: str
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            id=obj["id"],
-            name=obj["name"],
-            order=obj["order"],
-            project_id=obj["project_id"],
-        )
-
 
 @dataclass
-class Due:
+class Due(DataClassJsonMixin):
     date: str
     is_recurring: bool
     string: str
@@ -87,49 +45,23 @@ class Due:
     timezone: str | None = None
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            date=obj["date"],
-            is_recurring=obj["is_recurring"],
-            string=obj["string"],
-            datetime=obj.get("datetime"),
-            timezone=obj.get("timezone"),
-        )
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "date": self.date,
-            "is_recurring": self.is_recurring,
-            "string": self.string,
-            "datetime": self.datetime,
-            "timezone": self.timezone,
-        }
-
-    @classmethod
-    def from_quick_add_response(cls, obj: dict[str, Any]):
+    def from_quick_add_response(cls, obj: dict[str, Any]) -> Due | None:
         due = obj.get("due")
 
         if not due:
             return None
 
         timezone = due.get("timezone")
+        datetime: str | None = due["date"] if timezone is not None else None
 
-        datetime: str | None = None
+        due["datetime"] = datetime
+        due["timezone"] = timezone
 
-        if timezone:
-            datetime = due["date"]
-
-        return cls(
-            date=due["date"],
-            is_recurring=due["is_recurring"],
-            string=due["string"],
-            datetime=datetime,
-            timezone=timezone,
-        )
+        return cls.from_dict(due)
 
 
 @dataclass
-class Task:
+class Task(DataClassJsonMixin):
     assignee_id: str | None
     assigner_id: str | None
     comment_count: int
@@ -146,111 +78,35 @@ class Task:
     priority: int
     project_id: str
     section_id: str | None
-    url: str
-    duration: Duration | None
+    url: str = field(init=False)
+    duration: Duration | None = None
 
     sync_id: str | None = None
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        due: Due | None = None
-        duration: Duration | None = None
-
-        if obj.get("due"):
-            due = Due.from_dict(obj["due"])
-
-        if obj.get("duration"):
-            duration = Duration.from_dict(obj["duration"])
-
-        return cls(
-            assignee_id=obj.get("assignee_id"),
-            assigner_id=obj.get("assigner_id"),
-            comment_count=obj["comment_count"],
-            is_completed=obj["is_completed"],
-            content=obj["content"],
-            created_at=obj["created_at"],
-            creator_id=obj["creator_id"],
-            description=obj["description"],
-            due=due,
-            id=obj["id"],
-            labels=obj.get("labels"),
-            order=obj["order"],
-            parent_id=obj.get("parent_id"),
-            priority=obj["priority"],
-            project_id=obj["project_id"],
-            section_id=obj.get("section_id"),
-            url=obj["url"],
-            duration=duration,
+    def __post_init__(self) -> None:
+        self.url = get_url_for_task(
+            int(self.id), int(self.sync_id) if self.sync_id else None
         )
 
-    def to_dict(self) -> dict[str, Any]:
-        due: dict[str, Any] | None = None
-        duration: dict[str, Any] | None = None
-
-        if self.due:
-            due = self.due.to_dict()
-
-        if self.duration:
-            duration = self.duration.to_dict()
-
-        return {
-            "assignee_id": self.assignee_id,
-            "assigner_id": self.assigner_id,
-            "comment_count": self.comment_count,
-            "is_completed": self.is_completed,
-            "content": self.content,
-            "created_at": self.created_at,
-            "creator_id": self.creator_id,
-            "description": self.description,
-            "due": due,
-            "id": self.id,
-            "labels": self.labels,
-            "order": self.order,
-            "parent_id": self.parent_id,
-            "priority": self.priority,
-            "project_id": self.project_id,
-            "section_id": self.section_id,
-            "sync_id": self.sync_id,
-            "url": self.url,
-            "duration": duration,
-        }
-
     @classmethod
-    def from_quick_add_response(cls, obj: dict[str, Any]):
-        due: Due | None = None
-        duration: Duration | None = None
-
-        if obj.get("due"):
-            due = Due.from_quick_add_response(obj)
-
-        if obj.get("duration"):
-            duration = Duration.from_dict(obj["duration"])
-
-        return cls(
-            assignee_id=obj.get("responsible_uid"),
-            assigner_id=obj.get("assigned_by_uid"),
-            comment_count=0,
-            is_completed=False,
-            content=obj["content"],
-            created_at=obj["added_at"],
-            creator_id=obj["added_by_uid"],
-            description=obj["description"],
-            due=due,
-            duration=duration,
-            id=obj["id"],
-            labels=obj["labels"],
-            order=obj["child_order"],
-            parent_id=obj["parent_id"] or None,
-            priority=obj["priority"],
-            project_id=obj["project_id"],
-            section_id=obj["section_id"] or None,
-            sync_id=obj["sync_id"],
-            url=get_url_for_task(obj["id"], obj["sync_id"]),
+    def from_quick_add_response(cls, obj: dict[str, Any]) -> Task:
+        obj_copy = obj.copy()
+        obj_copy["due"] = (
+            Due.from_quick_add_response(obj) if obj.get("due") is not None else None
         )
+        obj_copy["comment_count"] = 0
+        obj_copy["is_completed"] = False
+        obj_copy["created_at"] = obj_copy.pop("added_at", None)
+        obj_copy["creator_id"] = obj_copy.pop("added_by_uid", None)
+        obj_copy["assignee_id"] = obj_copy.pop("responsible_uid", None)
+        obj_copy["assigner_id"] = obj_copy.pop("assigned_by_uid", None)
+        obj_copy["order"] = obj_copy.pop("child_order", None)
+
+        return cls.from_dict(obj_copy)
 
 
 @dataclass
-class QuickAddResult:
+class QuickAddResult(DataClassJsonMixin):
     task: Task
 
     resolved_project_name: str | None = None
@@ -259,7 +115,7 @@ class QuickAddResult:
     resolved_section_name: str | None = None
 
     @classmethod
-    def from_quick_add_response(cls, obj: dict[str, Any]):
+    def from_quick_add_response(cls, obj: dict[str, Any]) -> QuickAddResult:
         project_data = obj["meta"].get("project", {})
         assignee_data = obj["meta"].get("assignee", {})
         section_data = obj["meta"].get("section", {})
@@ -277,32 +133,26 @@ class QuickAddResult:
         if section_data and len(section_data) == 2:
             resolved_section_name = obj["meta"]["section"][1]
 
+        resolved_label_names = list(obj["meta"]["labels"].values())
+
         return cls(
             task=Task.from_quick_add_response(obj),
             resolved_project_name=resolved_project_name,
             resolved_assignee_name=resolved_assignee_name,
-            resolved_label_names=list(obj["meta"]["labels"].values()),
+            resolved_label_names=resolved_label_names,
             resolved_section_name=resolved_section_name,
         )
 
 
 @dataclass
-class Collaborator:
+class Collaborator(DataClassJsonMixin):
     id: str
     email: str
     name: str
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            id=obj["id"],
-            email=obj["email"],
-            name=obj["name"],
-        )
-
 
 @dataclass
-class Attachment:
+class Attachment(DataClassJsonMixin):
     resource_type: str | None = None
 
     file_name: str | None = None
@@ -319,83 +169,34 @@ class Attachment:
     url: str | None = None
     title: str | None = None
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            resource_type=obj.get("resource_type"),
-            file_name=obj.get("file_name"),
-            file_size=obj.get("file_size"),
-            file_type=obj.get("file_type"),
-            file_url=obj.get("file_url"),
-            upload_state=obj.get("upload_state"),
-            image=obj.get("image"),
-            image_width=obj.get("image_width"),
-            image_height=obj.get("image_height"),
-            url=obj.get("url"),
-            title=obj.get("title"),
-        )
-
 
 @dataclass
-class Comment:
-    attachment: Attachment | None
+class Comment(DataClassJsonMixin):
     content: str
     id: str
     posted_at: str
     project_id: str | None
     task_id: str | None
-
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        attachment: Attachment | None = None
-
-        if "attachment" in obj and obj["attachment"] is not None:
-            attachment = Attachment.from_dict(obj["attachment"])
-
-        return cls(
-            attachment=attachment,
-            content=obj["content"],
-            id=obj["id"],
-            posted_at=obj["posted_at"],
-            project_id=obj.get("project_id"),
-            task_id=obj.get("task_id"),
-        )
+    attachment: Attachment | None = None
 
 
 @dataclass
-class Label:
+class Label(DataClassJsonMixin):
     id: str
     name: str
     color: str
     order: int
     is_favorite: bool
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            id=obj["id"],
-            name=obj["name"],
-            color=obj["color"],
-            order=obj["order"],
-            is_favorite=obj["is_favorite"],
-        )
-
 
 @dataclass
-class AuthResult:
+class AuthResult(DataClassJsonMixin):
     access_token: str
     state: str | None
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            access_token=obj["access_token"],
-            state=obj.get("state"),
-        )
-
 
 @dataclass
-class Item:
+class Item(DataClassJsonMixin):
     id: str
     user_id: str
     project_id: str
@@ -418,60 +219,23 @@ class Item:
     sync_id: str | None = None
     completed_at: str | None = None
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]) -> Item:
-        params = {f.name: obj[f.name] for f in fields(cls) if f.name in obj}
-        if (due := obj.get("due")) is not None:
-            params["due"] = Due.from_dict(due)
-
-        return cls(**params)
-
 
 @dataclass
-class ItemCompletedInfo:
+class ItemCompletedInfo(DataClassJsonMixin):
     item_id: str
     completed_items: int
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]) -> ItemCompletedInfo:
-        return cls(**{f.name: obj[f.name] for f in fields(cls)})
-
 
 @dataclass
-class CompletedItems:
+class CompletedItems(DataClassJsonMixin):
     items: list[Item]
     total: int
     completed_info: list[ItemCompletedInfo]
     has_more: bool
     next_cursor: str | None = None
 
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]) -> CompletedItems:
-        return cls(
-            items=[Item.from_dict(v) for v in obj["items"]],
-            total=obj["total"],
-            completed_info=[
-                ItemCompletedInfo.from_dict(v) for v in obj["completed_info"]
-            ],
-            has_more=obj["has_more"],
-            next_cursor=obj.get("next_cursor"),
-        )
-
 
 @dataclass
-class Duration:
+class Duration(DataClassJsonMixin):
     amount: int
     unit: str
-
-    @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
-        return cls(
-            amount=obj["amount"],
-            unit=obj["unit"],
-        )
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "amount": self.amount,
-            "unit": self.unit,
-        }
