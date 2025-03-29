@@ -23,7 +23,7 @@ requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
-pre-commit = "^3.8.0"
+pre-commit = "^4.0.0"
 mypy = "^1.11"
 responses = "^0.25.3"
 pytest-asyncio = "^0.21.0"
