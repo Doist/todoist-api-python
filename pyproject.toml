@@ -10,12 +10,10 @@ authors = ["Doist Developers <dev@doist.com>"]
 keywords = ["todoist", "rest", "api", "python"]
 license = "MIT"
 classifiers = [
-    "Intended Audience :: Developers",
-    "Topic :: Software Development :: Libraries :: Python Modules",
+  "Intended Audience :: Developers",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-include = [
-    "LICENSE",
-]
+include = ["LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -44,12 +42,12 @@ no_implicit_optional = true
 no_implicit_reexport = true
 show_error_codes = true
 check_untyped_defs = true
-enable_error_code=[
+enable_error_code = [
   "redundant-self",
   "redundant-expr",
   "ignore-without-code",
   "truthy-iterable",
-  "truthy-bool"
+  "truthy-bool",
 ]
 extra_checks = true
 strict_equality = true
