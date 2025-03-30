@@ -57,15 +57,6 @@ warn_unused_ignores = true
 disallow_any_generics = true
 untyped_calls_exclude = []
 
-[[tool.mypy.overrides]]
-module = [ ]
-ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = []
-disallow_untyped_defs = true
-warn_unreachable = true
-
 [tool.pydantic-mypy]
 init_forbid_extra = true
 init_typed = true
