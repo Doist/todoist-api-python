@@ -1,13 +1,13 @@
 [tool.poetry]
 name = "todoist_api_python"
 version = "2.1.7"
-description = "Official Python SDK for the Todoist REST API."
+description = "Official Python SDK for the Todoist API."
 readme = "README.md"
 homepage = "https://github.com/Doist/todoist-api-python"
 repository = "https://github.com/Doist/todoist-api-python"
 documentation = "https://developer.todoist.com/rest/"
 authors = ["Doist Developers <dev@doist.com>"]
-keywords = ["todoist", "rest", "api", "python"]
+keywords = ["todoist", "rest", "sync", "api", "python"]
 license = "MIT"
 classifiers = [
   "Intended Audience :: Developers",
@@ -16,7 +16,7 @@ classifiers = [
 include = ["LICENSE"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.13"
 requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
@@ -33,7 +33,7 @@ requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
-python_version = 3.11
+python_version = "3.13"
 follow_imports = "silent"
 mypy_path = "."
 scripts_are_modules = true
@@ -64,7 +64,7 @@ warn_required_dynamic_aliases = true
 warn_untyped_fields = true
 
 [tool.ruff]
-target-version = "py311"  # used by some linters like UP, FA, PERF
+target-version = "py313" # used by some linters like UP, FA, PERF
 
 [tool.ruff.lint]
 select = [
