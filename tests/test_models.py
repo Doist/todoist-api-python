@@ -38,7 +38,7 @@ from todoist_api_python.models import (
 unexpected_data = {"unexpected_key": "some value"}
 
 
-def test_project_from_dict():
+def test_project_from_dict() -> None:
     sample_data = dict(DEFAULT_PROJECT_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -79,7 +79,7 @@ def test_project_to_dict():
     assert project["view_style"] == sample_data["view_style"]
 
 
-def test_section_from_dict():
+def test_section_from_dict() -> None:
     sample_data = dict(DEFAULT_SECTION_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -91,7 +91,7 @@ def test_section_from_dict():
     assert section.project_id == sample_data["project_id"]
 
 
-def test_due_from_dict():
+def test_due_from_dict() -> None:
     sample_data = dict(DEFAULT_DUE_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -104,7 +104,7 @@ def test_due_from_dict():
     assert due.timezone == sample_data["timezone"]
 
 
-def test_duration_from_dict():
+def test_duration_from_dict() -> None:
     sample_data = dict(DEFAULT_DURATION_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -114,7 +114,7 @@ def test_duration_from_dict():
     assert duration.unit == sample_data["unit"]
 
 
-def test_task_from_dict():
+def test_task_from_dict() -> None:
     sample_data = dict(DEFAULT_TASK_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -139,7 +139,7 @@ def test_task_from_dict():
     assert task.duration == Duration.from_dict(sample_data["duration"])
 
 
-def test_task_to_dict():
+def test_task_to_dict() -> None:
     sample_data = dict(DEFAULT_TASK_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -166,7 +166,7 @@ def test_task_to_dict():
         assert task["duration"][key] == sample_data["duration"][key]
 
 
-def test_collaborator_from_dict():
+def test_collaborator_from_dict() -> None:
     sample_data = dict(DEFAULT_COLLABORATOR_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -177,7 +177,7 @@ def test_collaborator_from_dict():
     assert collaborator.name == sample_data["name"]
 
 
-def test_attachment_from_dict():
+def test_attachment_from_dict() -> None:
     sample_data = dict(DEFAULT_ATTACHMENT_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -196,7 +196,7 @@ def test_attachment_from_dict():
     assert attachment.title == sample_data["title"]
 
 
-def test_comment_from_dict():
+def test_comment_from_dict() -> None:
     sample_data = dict(DEFAULT_COMMENT_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -210,7 +210,7 @@ def test_comment_from_dict():
     assert comment.attachment == Attachment.from_dict(sample_data["attachment"])
 
 
-def test_label_from_dict():
+def test_label_from_dict() -> None:
     sample_data = dict(DEFAULT_LABEL_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -223,7 +223,7 @@ def test_label_from_dict():
     assert label.is_favorite == sample_data["is_favorite"]
 
 
-def test_quick_add_result_minimal():
+def test_quick_add_result_minimal() -> None:
     sample_data = dict(QUICK_ADD_RESPONSE_MINIMAL)
     sample_data.update(unexpected_data)
 
@@ -253,7 +253,7 @@ def test_quick_add_result_minimal():
     assert quick_add_result.resolved_section_name is None
 
 
-def test_quick_add_result_full():
+def test_quick_add_result_full() -> None:
     sample_data = dict(QUICK_ADD_RESPONSE_FULL)
     sample_data.update(unexpected_data)
 
@@ -290,7 +290,7 @@ def test_quick_add_result_full():
     assert quick_add_result.resolved_section_name == "A section"
 
 
-def test_quick_add_broken_data():
+def test_quick_add_broken_data() -> None:
     none_attribute = QUICK_ADD_RESPONSE_FULL.copy()
     missing_attribute = QUICK_ADD_RESPONSE_FULL.copy()
 
@@ -339,7 +339,7 @@ def test_quick_add_broken_data():
         assert quick_add_result.resolved_section_name is None
 
 
-def test_auth_result_from_dict():
+def test_auth_result_from_dict() -> None:
     token = "123"
     state = "456"
     sample_data = {"access_token": token, "state": state}
@@ -351,7 +351,7 @@ def test_auth_result_from_dict():
     assert auth_result.state == state
 
 
-def test_item_from_dict():
+def test_item_from_dict() -> None:
     sample_data = dict(DEFAULT_ITEM_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -383,7 +383,7 @@ def test_item_from_dict():
     assert item.added_at == "2014-09-26T08:25:05.000000Z"
 
 
-def test_item_completed_info_from_dict():
+def test_item_completed_info_from_dict() -> None:
     sample_data = dict(DEFAULT_ITEM_COMPLETED_INFO_RESPONSE)
     sample_data.update(unexpected_data)
 
@@ -393,7 +393,7 @@ def test_item_completed_info_from_dict():
     assert info.completed_items == 12
 
 
-def test_completed_items_from_dict():
+def test_completed_items_from_dict() -> None:
     sample_data = dict(DEFAULT_COMPLETED_ITEMS_RESPONSE)
     sample_data.update(unexpected_data)
 

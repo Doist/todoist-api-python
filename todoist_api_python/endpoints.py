@@ -23,8 +23,8 @@ SHARED_LABELS_REMOVE_ENDPOINT = f"{SHARED_LABELS_ENDPOINT}/remove"
 QUICK_ADD_ENDPOINT = "quick/add"
 
 AUTHORIZE_ENDPOINT = "oauth/authorize"
-TOKEN_ENDPOINT = "oauth/access_token"
-REVOKE_TOKEN_ENDPOINT = "access_tokens/revoke"
+TOKEN_ENDPOINT = "oauth/access_token"  # noqa:S105
+REVOKE_TOKEN_ENDPOINT = "access_tokens/revoke"  # noqa:S105
 
 COMPLETED_ITEMS_ENDPOINT = "archive/items"
 

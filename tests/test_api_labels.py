@@ -22,7 +22,7 @@ async def test_get_label(
     requests_mock: responses.RequestsMock,
     default_label_response: dict[str, Any],
     default_label: Label,
-):
+) -> None:
     label_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/labels/{label_id}"
 
@@ -53,7 +53,7 @@ async def test_get_labels(
     requests_mock: responses.RequestsMock,
     default_labels_response: list[dict[str, Any]],
     default_labels_list: list[Label],
-):
+) -> None:
     requests_mock.add(
         responses.GET,
         f"{REST_API_BASE_URL}/labels",
@@ -81,7 +81,7 @@ async def test_add_label_minimal(
     requests_mock: responses.RequestsMock,
     default_label_response: dict[str, Any],
     default_label: Label,
-):
+) -> None:
     label_name = "A Label"
     expected_payload = {"name": label_name}
 
@@ -118,7 +118,7 @@ async def test_add_label_full(
     requests_mock: responses.RequestsMock,
     default_label_response: dict[str, Any],
     default_label: Label,
-):
+) -> None:
     label_name = "A Label"
 
     optional_args = {
@@ -163,7 +163,7 @@ async def test_update_label(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     label_id = "123"
 
     args = {
@@ -203,7 +203,7 @@ async def test_delete_label(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     label_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/labels/{label_id}"
 

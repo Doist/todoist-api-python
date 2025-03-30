@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from todoist_api_python.models import AuthResult
 
 
-def test_get_authentication_url():
+def test_get_authentication_url() -> None:
     client_id = "123"
     scopes = ["task:add", "data:read", "project:delete"]
     state = "456"
@@ -41,7 +41,7 @@ async def test_get_auth_token(
     requests_mock: responses.RequestsMock,
     default_auth_response: dict[str, Any],
     default_auth_result: AuthResult,
-):
+) -> None:
     client_id = "123"
     client_secret = "456"
     code = "789"
@@ -73,7 +73,7 @@ async def test_get_auth_token(
 @pytest.mark.asyncio
 async def test_revoke_auth_token(
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     client_id = "123"
     client_secret = "456"
     token = "AToken"

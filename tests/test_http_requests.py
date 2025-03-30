@@ -15,7 +15,7 @@ DEFAULT_URL = f"{BASE_URL}/{TASKS_ENDPOINT}"
 
 
 @responses.activate
-def test_get_with_params(default_task_response: dict[str, Any]):
+def test_get_with_params(default_task_response: dict[str, Any]) -> None:
     params = {"param1": "value1", "param2": "value2"}
 
     responses.add(
@@ -38,19 +38,19 @@ def test_get_with_params(default_task_response: dict[str, Any]):
 
 
 @responses.activate
-def test_get_raise_for_status():
-    with pytest.raises(HTTPError):
-        responses.add(
-            responses.GET,
-            DEFAULT_URL,
-            status=500,
-        )
+def test_get_raise_for_status() -> None:
+    responses.add(
+        responses.GET,
+        DEFAULT_URL,
+        status=500,
+    )
 
+    with pytest.raises(HTTPError):
         get(Session(), DEFAULT_URL, DEFAULT_TOKEN)
 
 
 @responses.activate
-def test_post_with_data(default_task_response: dict[str, Any]):
+def test_post_with_data(default_task_response: dict[str, Any]) -> None:
     request_id = "12345"
 
     data = {"param1": "value1", "param2": "value2", "request_id": request_id}
@@ -79,7 +79,7 @@ def test_post_with_data(default_task_response: dict[str, Any]):
 
 
 @responses.activate
-def test_post_return_ok_when_no_response_body():
+def test_post_return_ok_when_no_response_body() -> None:
     responses.add(
         responses.POST,
         DEFAULT_URL,
@@ -92,19 +92,19 @@ def test_post_return_ok_when_no_response_body():
 
 
 @responses.activate
-def test_post_raise_for_status():
-    with pytest.raises(HTTPError):
-        responses.add(
-            responses.POST,
-            DEFAULT_URL,
-            status=500,
-        )
+def test_post_raise_for_status() -> None:
+    responses.add(
+        responses.POST,
+        DEFAULT_URL,
+        status=500,
+    )
 
+    with pytest.raises(HTTPError):
         post(Session(), DEFAULT_URL, DEFAULT_TOKEN)
 
 
 @responses.activate
-def test_delete_with_request_id():
+def test_delete_with_request_id() -> None:
     request_id = "12345"
 
     responses.add(
@@ -125,12 +125,12 @@ def test_delete_with_request_id():
 
 
 @responses.activate
-def test_delete_raise_for_status():
-    with pytest.raises(HTTPError):
-        responses.add(
-            responses.DELETE,
-            DEFAULT_URL,
-            status=500,
-        )
+def test_delete_raise_for_status() -> None:
+    responses.add(
+        responses.DELETE,
+        DEFAULT_URL,
+        status=500,
+    )
 
+    with pytest.raises(HTTPError):
         delete(Session(), DEFAULT_URL, DEFAULT_TOKEN)
