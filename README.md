@@ -4,17 +4,20 @@ This is the official Python API client for the Todoist REST API.
 
 ### Installation
 
-The repository can be included as a [Poetry](https://python-poetry.org/) dependency in `pyproject.toml`.
+The repository can be included as a dependency in `pyproject.toml`.
 It is best to integrate to a release tag to ensure a stable dependency:
 
 ```toml
-[tool.poetry.dependencies]
-todoist-api-python = "^v2.0.0"
+dependencies = [
+  ...
+  "todoist-api-python>=8.0.0,<9",
+  ...
+]
 ```
 
 ### Supported Python Versions
 
-Python 3.9 is fully supported and tested, and while it may work with other Python 3 versions, we do not test for them.
+Python 3.13 is fully supported and tested, and while it should work with other Python 3 versions, we do not test for them.
 
 ### Usage
 
@@ -74,19 +77,19 @@ For more detailed reference documentation, have a look at the [API documentation
 To install Python dependencies:
 
 ```sh
-$ poetry install
+$ uv sync
 ```
 
 To install pre-commit:
 
 ```sh
-$ poetry run pre-commit install
+$ uv run pre-commit install
 ```
 
 You can try your changes via REPL by running:
 
 ```sh
-$ poetry run python
+$ uv run python
 ```
 
 You can then import the library as described in [Usage](#usage) without having to create a file.
