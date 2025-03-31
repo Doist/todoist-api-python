@@ -31,7 +31,7 @@ async def test_get_completed_items(
     limit = 30
     cursor = "ghij"
 
-    def assert_query(url):
+    def assert_query(url: str) -> None:
         queries = parse_qs(urlparse(url).query)
         assert queries.get("project_id") == [project_id]
         assert queries.get("section_id") == [section_id]

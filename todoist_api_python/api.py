@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any, Self
 from weakref import finalize
 
 import requests
@@ -32,6 +32,9 @@ from todoist_api_python.models import (
     Task,
 )
 
+if TYPE_CHECKING:
+    from types import TracebackType
+
 
 class TodoistAPI:
     def __init__(self, token: str, session: requests.Session | None = None) -> None:
@@ -39,10 +42,15 @@ class TodoistAPI:
         self._session = session or requests.Session()
         self._finalizer = finalize(self, self._session.close)
 
-    def __enter__(self):
+    def __enter__(self) -> Self:
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         self._finalizer()
 
     def get_task(self, task_id: str) -> Task:

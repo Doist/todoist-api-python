@@ -22,7 +22,7 @@ async def test_get_section(
     requests_mock: responses.RequestsMock,
     default_section_response: dict[str, Any],
     default_section: Section,
-):
+) -> None:
     section_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/sections/{section_id}"
 
@@ -53,7 +53,7 @@ async def test_get_all_sections(
     requests_mock: responses.RequestsMock,
     default_sections_response: list[dict[str, Any]],
     default_sections_list: list[Section],
-):
+) -> None:
     requests_mock.add(
         responses.GET,
         f"{REST_API_BASE_URL}/sections",
@@ -80,7 +80,7 @@ async def test_get_project_sections(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
     default_sections_response: list[dict[str, Any]],
-):
+) -> None:
     project_id = "123"
 
     requests_mock.add(
@@ -103,7 +103,7 @@ async def test_add_section(
     requests_mock: responses.RequestsMock,
     default_section_response: dict[str, Any],
     default_section: Section,
-):
+) -> None:
     section_name = "A Section"
     project_id = "123"
     order = 3
@@ -153,7 +153,7 @@ async def test_update_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     section_id = "123"
 
     args = {
@@ -190,7 +190,7 @@ async def test_delete_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     section_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/sections/{section_id}"
 

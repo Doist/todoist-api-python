@@ -25,7 +25,7 @@ class Project:
     view_style: VIEW_STYLE
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Project:
         return cls(
             color=obj["color"],
             comment_count=obj["comment_count"],
@@ -68,7 +68,7 @@ class Section:
     project_id: str
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Section:
         return cls(
             id=obj["id"],
             name=obj["name"],
@@ -87,7 +87,7 @@ class Due:
     timezone: str | None = None
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Due:
         return cls(
             date=obj["date"],
             is_recurring=obj["is_recurring"],
@@ -106,7 +106,7 @@ class Due:
         }
 
     @classmethod
-    def from_quick_add_response(cls, obj: dict[str, Any]):
+    def from_quick_add_response(cls, obj: dict[str, Any]) -> Due | None:
         due = obj.get("due")
 
         if not due:
@@ -152,7 +152,7 @@ class Task:
     sync_id: str | None = None
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Task:
         due: Due | None = None
         duration: Duration | None = None
 
@@ -216,7 +216,7 @@ class Task:
         }
 
     @classmethod
-    def from_quick_add_response(cls, obj: dict[str, Any]):
+    def from_quick_add_response(cls, obj: dict[str, Any]) -> Task:
         due: Due | None = None
         duration: Duration | None = None
 
@@ -259,7 +259,7 @@ class QuickAddResult:
     resolved_section_name: str | None = None
 
     @classmethod
-    def from_quick_add_response(cls, obj: dict[str, Any]):
+    def from_quick_add_response(cls, obj: dict[str, Any]) -> QuickAddResult:
         project_data = obj["meta"].get("project", {})
         assignee_data = obj["meta"].get("assignee", {})
         section_data = obj["meta"].get("section", {})
@@ -268,13 +268,13 @@ class QuickAddResult:
         resolved_assignee_name = None
         resolved_section_name = None
 
-        if project_data and len(project_data) == 2:
+        if project_data and len(project_data) == 2:  # noqa: PLR2004
             resolved_project_name = obj["meta"]["project"][1]
 
-        if assignee_data and len(assignee_data) == 2:
+        if assignee_data and len(assignee_data) == 2:  # noqa: PLR2004
             resolved_assignee_name = obj["meta"]["assignee"][1]
 
-        if section_data and len(section_data) == 2:
+        if section_data and len(section_data) == 2:  # noqa: PLR2004
             resolved_section_name = obj["meta"]["section"][1]
 
         return cls(
@@ -293,7 +293,7 @@ class Collaborator:
     name: str
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Collaborator:
         return cls(
             id=obj["id"],
             email=obj["email"],
@@ -320,7 +320,7 @@ class Attachment:
     title: str | None = None
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Attachment:
         return cls(
             resource_type=obj.get("resource_type"),
             file_name=obj.get("file_name"),
@@ -346,7 +346,7 @@ class Comment:
     task_id: str | None
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Comment:
         attachment: Attachment | None = None
 
         if "attachment" in obj and obj["attachment"] is not None:
@@ -371,7 +371,7 @@ class Label:
     is_favorite: bool
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Label:
         return cls(
             id=obj["id"],
             name=obj["name"],
@@ -387,7 +387,7 @@ class AuthResult:
     state: str | None
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> AuthResult:
         return cls(
             access_token=obj["access_token"],
             state=obj.get("state"),
@@ -464,7 +464,7 @@ class Duration:
     unit: str
 
     @classmethod
-    def from_dict(cls, obj: dict[str, Any]):
+    def from_dict(cls, obj: dict[str, Any]) -> Duration:
         return cls(
             amount=obj["amount"],
             unit=obj["unit"],

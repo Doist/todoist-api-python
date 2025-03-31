@@ -22,7 +22,7 @@ async def test_get_project(
     requests_mock: responses.RequestsMock,
     default_project_response: dict[str, Any],
     default_project: Project,
-):
+) -> None:
     project_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
 
@@ -53,7 +53,7 @@ async def test_get_projects(
     requests_mock: responses.RequestsMock,
     default_projects_response: list[dict[str, Any]],
     default_projects_list: list[Project],
-):
+) -> None:
     requests_mock.add(
         responses.GET,
         f"{REST_API_BASE_URL}/projects",
@@ -81,7 +81,7 @@ async def test_add_project_minimal(
     requests_mock: responses.RequestsMock,
     default_project_response: dict[str, Any],
     default_project: Project,
-):
+) -> None:
     project_name = "A Project"
     expected_payload = {"name": project_name}
 
@@ -120,7 +120,7 @@ async def test_add_project_full(
     requests_mock: responses.RequestsMock,
     default_project_response: dict[str, Any],
     default_project: Project,
-):
+) -> None:
     project_name = "A Project"
 
     optional_args = {
@@ -166,7 +166,7 @@ async def test_update_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     project_id = "123"
 
     args = {
@@ -205,7 +205,7 @@ async def test_delete_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     project_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
 
@@ -235,7 +235,7 @@ async def test_get_collaborators(
     requests_mock: responses.RequestsMock,
     default_collaborators_response: list[dict[str, Any]],
     default_collaborators_list: list[Project],
-):
+) -> None:
     project_id = "123"
     expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}/collaborators"
 

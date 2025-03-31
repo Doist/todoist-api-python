@@ -22,7 +22,7 @@ async def test_get_comment(
     requests_mock: responses.RequestsMock,
     default_comment_response: dict[str, Any],
     default_comment: Comment,
-):
+) -> None:
     comment_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
 
@@ -53,7 +53,7 @@ async def test_get_comments(
     requests_mock: responses.RequestsMock,
     default_comments_response: list[dict[str, Any]],
     default_comments_list: list[Comment],
-):
+) -> None:
     task_id = "1234"
 
     requests_mock.add(
@@ -83,7 +83,7 @@ async def test_add_comment(
     requests_mock: responses.RequestsMock,
     default_comment_response: dict[str, Any],
     default_comment: Comment,
-):
+) -> None:
     content = "A Comment"
     project_id = 123
     attachment_data = {
@@ -138,7 +138,7 @@ async def test_update_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     comment_id = "1234"
 
     args = {
@@ -175,7 +175,7 @@ async def test_delete_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     comment_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
 

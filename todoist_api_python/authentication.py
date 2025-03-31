@@ -44,9 +44,7 @@ def revoke_auth_token(
         "client_secret": client_secret,
         "access_token": token,
     }
-    response = post(session=session, url=endpoint, data=payload)
-
-    return response
+    return post(session=session, url=endpoint, data=payload)
 
 
 async def revoke_auth_token_async(
@@ -59,9 +57,14 @@ class ArgumentError(Exception):
     pass
 
 
+class NoAuthScopesError(ArgumentError):
+    def __init__(self) -> None:
+        super().__init__("At least one authorization scope should be requested.")
+
+
 def get_authentication_url(client_id: str, scopes: list[str], state: str) -> str:
     if len(scopes) == 0:
-        raise ArgumentError("At least one authorization scope should be requested.")
+        raise NoAuthScopesError
 
     query = {"client_id": client_id, "scope": ",".join(scopes), "state": state}
 

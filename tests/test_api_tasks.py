@@ -27,7 +27,7 @@ async def test_get_task(
     requests_mock: responses.RequestsMock,
     default_task_response: dict[str, Any],
     default_task: Task,
-):
+) -> None:
     task_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}"
 
@@ -58,7 +58,7 @@ async def test_get_tasks_minimal(
     requests_mock: responses.RequestsMock,
     default_tasks_response: list[dict[str, Any]],
     default_tasks_list: list[Task],
-):
+) -> None:
     requests_mock.add(
         responses.GET,
         f"{REST_API_BASE_URL}/tasks",
@@ -86,10 +86,10 @@ async def test_get_tasks_full(
     requests_mock: responses.RequestsMock,
     default_tasks_response: list[dict[str, Any]],
     default_tasks_list: list[Task],
-):
+) -> None:
     project_id = "1234"
     label_id = 2345
-    filter = "today"
+    filter_query = "today"
     lang = "en"
     ids = [1, 2, 3, 4]
 
@@ -97,7 +97,7 @@ async def test_get_tasks_full(
     expected_endpoint = (
         f"{REST_API_BASE_URL}/tasks"
         f"?project_id={project_id}&label_id={label_id}"
-        f"&filter={filter}&lang={lang}&ids={encoded_ids}"
+        f"&filter={filter_query}&lang={lang}&ids={encoded_ids}"
     )
 
     requests_mock.add(
@@ -105,7 +105,11 @@ async def test_get_tasks_full(
     )
 
     tasks = todoist_api.get_tasks(
-        project_id=project_id, label_id=label_id, filter=filter, lang=lang, ids=ids
+        project_id=project_id,
+        label_id=label_id,
+        filter=filter_query,
+        lang=lang,
+        ids=ids,
     )
 
     assert len(requests_mock.calls) == 1
@@ -113,7 +117,11 @@ async def test_get_tasks_full(
     assert tasks == default_tasks_list
 
     tasks = await todoist_api_async.get_tasks(
-        project_id=project_id, label_id=label_id, filter=filter, lang=lang, ids=ids
+        project_id=project_id,
+        label_id=label_id,
+        filter=filter_query,
+        lang=lang,
+        ids=ids,
     )
 
     assert len(requests_mock.calls) == 2
@@ -128,7 +136,7 @@ async def test_add_task_minimal(
     requests_mock: responses.RequestsMock,
     default_task_response: dict[str, Any],
     default_task: Task,
-):
+) -> None:
     task_content = "Some content"
     expected_payload = {"content": task_content}
 
@@ -165,7 +173,7 @@ async def test_add_task_full(
     requests_mock: responses.RequestsMock,
     default_task_response: dict[str, Any],
     default_task: Task,
-):
+) -> None:
     task_content = "Some content"
 
     optional_args = {
@@ -219,7 +227,7 @@ async def test_update_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     task_id = "123"
 
     args = {
@@ -264,7 +272,7 @@ async def test_close_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     task_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}/close"
 
@@ -292,7 +300,7 @@ async def test_reopen_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     task_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}/reopen"
 
@@ -320,7 +328,7 @@ async def test_delete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-):
+) -> None:
     task_id = "1234"
     expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}"
 
@@ -350,7 +358,7 @@ async def test_quick_add_task(
     requests_mock: responses.RequestsMock,
     default_quick_add_response: dict[str, Any],
     default_quick_add_result: QuickAddResult,
-):
+) -> None:
     text = "some task"
     expected_payload = {"text": text, "meta": True, "auto_reminder": True}
 
