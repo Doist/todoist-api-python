@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixes
 
 - Missing optional `next_cursor` attribute in `CompletedItems` object
+- API requests configure appropriate timeouts to avoid connections hanging
 
 ## [2.1.7] - 2024-08-13
 
