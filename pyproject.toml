@@ -28,6 +28,10 @@ pytest-asyncio = "^0.26.0"
 types-requests = "^2.32"
 ruff = "^0.11.0"
 
+[tool.poetry.group.publishing.dependencies]
+twine = "*"
+build = "*"
+
 [build-system]
 requires = ["poetry-core>=1.0.8"]
 build-backend = "poetry.core.masonry.api"

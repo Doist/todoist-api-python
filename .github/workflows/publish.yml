@@ -37,14 +37,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          $POETRY_HOME/bin/poetry install
+          $POETRY_HOME/bin/poetry install --with publishing
 
       - name: Build and publish to PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-          python -m pip install --upgrade pip
-          pip install setuptools wheel twine build
-          python -m build
-          python -m twine upload dist/*
+          $POETRY_HOME/bin/poetry run python -m build
+          $POETRY_HOME/bin/poetry run python -m twine upload dist/*
