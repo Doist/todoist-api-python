@@ -12,7 +12,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-dependencies = ["requests>=2.32.3,<3", "dataclasses-json>=0.6.7,<0.7"]
+dependencies = ["requests>=2.32.3,<3", "dataclass-wizard>=0.35.0,<1.0"]
 
 [project.urls]
 Homepage = "https://github.com/Doist/todoist-api-python"
