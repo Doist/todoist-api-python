@@ -17,7 +17,7 @@ dependencies = [
 
 ### Supported Python Versions
 
-Python 3.13 is fully supported and tested, and while it should work with other Python 3 versions, we do not test for them.
+While we only actively test under Python 3.13, we strive to support all versions from Python 3.9 and above.
 
 ### Usage
 

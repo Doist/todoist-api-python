@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from dataclasses_json import DataClassJsonMixin
+from dataclass_wizard import JSONPyWizard
 
 from todoist_api_python.utils import get_url_for_task
 
@@ -11,7 +11,10 @@ VIEW_STYLE = Literal["list", "board"]
 
 
 @dataclass
-class Project(DataClassJsonMixin):
+class Project(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     color: str
     comment_count: int
     id: str
@@ -28,7 +31,10 @@ class Project(DataClassJsonMixin):
 
 
 @dataclass
-class Section(DataClassJsonMixin):
+class Section(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     id: str
     name: str
     order: int
@@ -36,7 +42,10 @@ class Section(DataClassJsonMixin):
 
 
 @dataclass
-class Due(DataClassJsonMixin):
+class Due(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     date: str
     is_recurring: bool
     string: str
@@ -44,24 +53,16 @@ class Due(DataClassJsonMixin):
     datetime: str | None = None
     timezone: str | None = None
 
-    @classmethod
-    def from_quick_add_response(cls, obj: dict[str, Any]) -> Due | None:
-        due = obj.get("due")
-
-        if not due:
-            return None
-
-        timezone = due.get("timezone")
-        datetime: str | None = due["date"] if timezone is not None else None
-
-        due["datetime"] = datetime
-        due["timezone"] = timezone
-
-        return cls.from_dict(due)
+    def __post_init__(self) -> None:
+        if not self.datetime and (self.date and self.timezone):
+            self.datetime = self.date
 
 
 @dataclass
-class Task(DataClassJsonMixin):
+class Task(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     assignee_id: str | None
     assigner_id: str | None
     comment_count: int
@@ -91,9 +92,6 @@ class Task(DataClassJsonMixin):
     @classmethod
     def from_quick_add_response(cls, obj: dict[str, Any]) -> Task:
         obj_copy = obj.copy()
-        obj_copy["due"] = (
-            Due.from_quick_add_response(obj) if obj.get("due") is not None else None
-        )
         obj_copy["comment_count"] = 0
         obj_copy["is_completed"] = False
         obj_copy["created_at"] = obj_copy.pop("added_at", None)
@@ -106,7 +104,10 @@ class Task(DataClassJsonMixin):
 
 
 @dataclass
-class QuickAddResult(DataClassJsonMixin):
+class QuickAddResult(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     task: Task
 
     resolved_project_name: str | None = None
@@ -145,14 +146,20 @@ class QuickAddResult(DataClassJsonMixin):
 
 
 @dataclass
-class Collaborator(DataClassJsonMixin):
+class Collaborator(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     id: str
     email: str
     name: str
 
 
 @dataclass
-class Attachment(DataClassJsonMixin):
+class Attachment(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     resource_type: str | None = None
 
     file_name: str | None = None
@@ -171,7 +178,10 @@ class Attachment(DataClassJsonMixin):
 
 
 @dataclass
-class Comment(DataClassJsonMixin):
+class Comment(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     content: str
     id: str
     posted_at: str
@@ -181,7 +191,10 @@ class Comment(DataClassJsonMixin):
 
 
 @dataclass
-class Label(DataClassJsonMixin):
+class Label(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     id: str
     name: str
     color: str
@@ -190,13 +203,19 @@ class Label(DataClassJsonMixin):
 
 
 @dataclass
-class AuthResult(DataClassJsonMixin):
+class AuthResult(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     access_token: str
     state: str | None
 
 
 @dataclass
-class Item(DataClassJsonMixin):
+class Item(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     id: str
     user_id: str
     project_id: str
@@ -221,13 +240,19 @@ class Item(DataClassJsonMixin):
 
 
 @dataclass
-class ItemCompletedInfo(DataClassJsonMixin):
+class ItemCompletedInfo(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     item_id: str
     completed_items: int
 
 
 @dataclass
-class CompletedItems(DataClassJsonMixin):
+class CompletedItems(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     items: list[Item]
     total: int
     completed_info: list[ItemCompletedInfo]
@@ -236,6 +261,9 @@ class CompletedItems(DataClassJsonMixin):
 
 
 @dataclass
-class Duration(DataClassJsonMixin):
+class Duration(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
     amount: int
     unit: str
