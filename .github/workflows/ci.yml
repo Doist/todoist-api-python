@@ -2,6 +2,9 @@ name: tests
 
 on: [pull_request, workflow_dispatch]
 
+env:
+  POETRY_HOME: ${{ github.workspace }}/.poetry
+
 jobs:
   build-test:
     runs-on: ubuntu-latest
@@ -11,18 +14,29 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Read Python version
+        id: python-version
+        run: echo "version=$(cat .python-version)" >> $GITHUB_OUTPUT
+
+      - name: Read Poetry version
+        id: poetry-version
+        run: echo "version=$(cat .poetry-version)" >> $GITHUB_OUTPUT
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ steps.python-version.outputs.version }}
+
+      - name: Set up Poetry
+        run: |
+          python3 -m venv $POETRY_HOME
+          $POETRY_HOME/bin/pip install "poetry==${{ steps.poetry-version.outputs.version }}"
 
       - name: Install dependencies
         run: |
-          set -ex
-          curl -sSL https://install.python-poetry.org | POETRY_HOME=$HOME/.poetry python3 - --yes
-          $HOME/.poetry/bin/poetry install
+          $POETRY_HOME/bin/poetry install --with dev
 
       - name: Test with pytest
         run: |
           set -ex
-          $HOME/.poetry/bin/poetry run pytest
+          $POETRY_HOME/bin/poetry run pytest
