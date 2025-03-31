@@ -25,11 +25,16 @@ repos:
       # Run the formatter
       - id: ruff-format
 
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.6.11
+    hooks:
+      - id: uv-lock
+
   - repo: local
     hooks:
       - id: mypy
         name: mypy
-        entry: poetry run mypy
+        entry: uv run mypy
         language: system
         "types_or": [python, pyi]
         args: ["--scripts-are-modules"]

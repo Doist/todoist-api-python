@@ -2,9 +2,6 @@ name: tests
 
 on: [pull_request, workflow_dispatch]
 
-env:
-  POETRY_HOME: ${{ github.workspace }}/.poetry
-
 jobs:
   build-test:
     runs-on: ubuntu-latest
@@ -14,29 +11,18 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Read Python version
-        id: python-version
-        run: echo "version=$(cat .python-version)" >> $GITHUB_OUTPUT
-
-      - name: Read Poetry version
-        id: poetry-version
-        run: echo "version=$(cat .poetry-version)" >> $GITHUB_OUTPUT
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ steps.python-version.outputs.version }}
+          python-version-file: pyproject.toml
 
-      - name: Set up Poetry
-        run: |
-          python3 -m venv $POETRY_HOME
-          $POETRY_HOME/bin/pip install "poetry==${{ steps.poetry-version.outputs.version }}"
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: 0.6.11
 
-      - name: Install dependencies
-        run: |
-          $POETRY_HOME/bin/poetry install --with dev
+      - name: Install project
+        run: uv sync --group dev
 
       - name: Test with pytest
-        run: |
-          set -ex
-          $POETRY_HOME/bin/poetry run pytest
+        run: uv run pytest
