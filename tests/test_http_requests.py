@@ -7,7 +7,7 @@ import pytest
 import responses
 from requests import HTTPError, Session
 
-from tests.conftest import DEFAULT_TOKEN
+from tests.data.test_defaults import DEFAULT_TOKEN
 from todoist_api_python.endpoints import BASE_URL, TASKS_ENDPOINT
 from todoist_api_python.http_requests import delete, get, post
 
@@ -42,11 +42,14 @@ def test_get_raise_for_status() -> None:
     responses.add(
         responses.GET,
         DEFAULT_URL,
+        json="<error description>",
         status=500,
     )
 
-    with pytest.raises(HTTPError):
+    with pytest.raises(HTTPError) as error_info:
         get(Session(), DEFAULT_URL, DEFAULT_TOKEN)
+
+    assert error_info.value.response.content == b'"<error description>"'
 
 
 @responses.activate
