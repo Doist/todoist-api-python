@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
+from datetime import UTC
 from typing import TYPE_CHECKING, Annotated, Any, Literal, Self, TypeVar
 from weakref import finalize
 
@@ -33,12 +34,10 @@ from todoist_api_python.models import (
 )
 
 if TYPE_CHECKING:
+    from datetime import date, datetime
     from types import TracebackType
 
-DateFormat = Annotated[str, Predicate(lambda x: len(x) == 10 and x.count("-") == 2)]  # noqa: PLR2004
-DateTimeFormat = Annotated[
-    str, Predicate(lambda x: len(x) >= 20 and "T" in x and ":" in x)  # noqa: PLR2004
-]
+
 LanguageCode = Annotated[str, Predicate(lambda x: len(x) == 2)]  # noqa: PLR2004
 ColorString = Annotated[
     str,
@@ -230,16 +229,16 @@ class TodoistAPI:
         labels: list[Annotated[str, MaxLen(100)]] | None = None,
         priority: Annotated[int, Ge(1), Le(4)] | None = None,
         due_string: Annotated[str, MaxLen(150)] | None = None,
-        due_date: DateFormat | None = None,
-        due_datetime: DateTimeFormat | None = None,
         due_lang: LanguageCode | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
         assignee_id: str | None = None,
         order: int | None = None,
         auto_reminder: bool | None = None,
         auto_parse_labels: bool | None = None,
         duration: Annotated[int, Ge(1)] | None = None,
         duration_unit: Literal["minute", "day"] | None = None,
-        deadline_date: DateFormat | None = None,
+        deadline_date: date | None = None,
         deadline_lang: LanguageCode | None = None,
     ) -> Task:
         """
@@ -252,9 +251,9 @@ class TodoistAPI:
         :param labels: The task's labels (a list of names).
         :param priority: The priority of the task (4 for very urgent).
         :param due_string: The due date in natural language format.
-        :param due_date: The due date in YYYY-MM-DD format.
-        :param due_datetime: The due date and time in RFC 3339 format.
         :param due_lang: Language for parsing the due date (e.g., 'en').
+        :param due_date: The due date as a date object.
+        :param due_datetime: The due date and time as a datetime object.
         :param assignee_id: User ID to whom the task is assigned.
         :param description: Description for the task.
         :param order: The order of task in the project or section.
@@ -262,7 +261,7 @@ class TodoistAPI:
         :param auto_parse_labels: Whether to parse labels from task content.
         :param duration: The amount of time the task will take.
         :param duration_unit: The unit of time for duration.
-        :param deadline_date: The deadline date in YYYY-MM-DD format.
+        :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: The newly created task.
         :raises requests.exceptions.HTTPError: If the API request fails.
@@ -285,12 +284,12 @@ class TodoistAPI:
             data["priority"] = priority
         if due_string is not None:
             data["due_string"] = due_string
-        if due_date is not None:
-            data["due_date"] = due_date
-        if due_datetime is not None:
-            data["due_datetime"] = due_datetime
         if due_lang is not None:
             data["due_lang"] = due_lang
+        if due_date is not None:
+            data["due_date"] = _format_date(due_date)
+        if due_datetime is not None:
+            data["due_datetime"] = _format_datetime(due_datetime)
         if assignee_id is not None:
             data["assignee_id"] = assignee_id
         if order is not None:
@@ -304,7 +303,7 @@ class TodoistAPI:
         if duration_unit is not None:
             data["duration_unit"] = duration_unit
         if deadline_date is not None:
-            data["deadline_date"] = deadline_date
+            data["deadline_date"] = _format_date(deadline_date)
         if deadline_lang is not None:
             data["deadline_lang"] = deadline_lang
 
@@ -362,15 +361,15 @@ class TodoistAPI:
         labels: list[Annotated[str, MaxLen(60)]] | None = None,
         priority: Annotated[int, Ge(1), Le(4)] | None = None,
         due_string: Annotated[str, MaxLen(150)] | None = None,
-        due_date: DateFormat | None = None,
-        due_datetime: DateTimeFormat | None = None,
         due_lang: LanguageCode | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
         assignee_id: str | None = None,
         day_order: int | None = None,
         collapsed: bool | None = None,
         duration: Annotated[int, Ge(1)] | None = None,
         duration_unit: Literal["minute", "day"] | None = None,
-        deadline_date: DateFormat | None = None,
+        deadline_date: date | None = None,
         deadline_lang: LanguageCode | None = None,
     ) -> Task:
         """
@@ -384,15 +383,15 @@ class TodoistAPI:
         :param labels: The task's labels (a list of names).
         :param priority: The priority of the task (4 for very urgent).
         :param due_string: The due date in natural language format.
-        :param due_date: The due date in YYYY-MM-DD format.
-        :param due_datetime: The due date and time in RFC 3339 format.
         :param due_lang: Language for parsing the due date (e.g., 'en').
+        :param due_date: The due date as a date object.
+        :param due_datetime: The due date and time as a datetime object.
         :param assignee_id: User ID to whom the task is assigned.
         :param day_order: The order of the task inside Today or Next 7 days view.
         :param collapsed: Whether the task's sub-tasks are collapsed.
         :param duration: The amount of time the task will take.
         :param duration_unit: The unit of time for duration.
-        :param deadline_date: The deadline date in YYYY-MM-DD format.
+        :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: the updated Task.
         :raises requests.exceptions.HTTPError: If the API request fails.
@@ -410,12 +409,12 @@ class TodoistAPI:
             data["priority"] = priority
         if due_string is not None:
             data["due_string"] = due_string
-        if due_date is not None:
-            data["due_date"] = due_date
-        if due_datetime is not None:
-            data["due_datetime"] = due_datetime
         if due_lang is not None:
             data["due_lang"] = due_lang
+        if due_date is not None:
+            data["due_date"] = _format_date(due_date)
+        if due_datetime is not None:
+            data["due_datetime"] = _format_datetime(due_datetime)
         if assignee_id is not None:
             data["assignee_id"] = assignee_id
         if day_order is not None:
@@ -427,7 +426,7 @@ class TodoistAPI:
         if duration_unit is not None:
             data["duration_unit"] = duration_unit
         if deadline_date is not None:
-            data["deadline_date"] = deadline_date
+            data["deadline_date"] = _format_date(deadline_date)
         if deadline_lang is not None:
             data["deadline_lang"] = deadline_lang
 
@@ -1152,3 +1151,19 @@ class ResultsPaginator(Iterator[list[T]]):
 
         results: list[Any] = data.get(self._results_field, [])
         return [self._results_inst(result) for result in results]
+
+
+def _format_date(d: date) -> str:
+    """Format a date object as YYYY-MM-DD."""
+    return d.isoformat()
+
+
+def _format_datetime(dt: datetime) -> str:
+    """
+    Format a datetime object.
+
+    YYYY-MM-DDTHH:MM:SS for naive datetimes; YYYY-MM-DDTHH:MM:SSZ for aware datetimes.
+    """
+    if dt.tzinfo is None:
+        return dt.isoformat()
+    return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")

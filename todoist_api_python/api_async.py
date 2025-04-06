@@ -9,6 +9,7 @@ from todoist_api_python.api import TodoistAPI
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
+    from datetime import date, datetime
     from types import TracebackType
 
     import requests
@@ -25,8 +26,6 @@ if TYPE_CHECKING:
 
 from todoist_api_python.api import (
     ColorString,
-    DateFormat,
-    DateTimeFormat,
     LanguageCode,
     ViewStyle,
 )
@@ -154,8 +153,8 @@ class TodoistAPIAsync:
         labels: list[Annotated[str, MaxLen(100)]] | None = None,
         priority: Annotated[int, Ge(1), Le(4)] | None = None,
         due_string: Annotated[str, MaxLen(150)] | None = None,
-        due_date: DateFormat | None = None,
-        due_datetime: DateTimeFormat | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
         due_lang: LanguageCode | None = None,
         assignee_id: str | None = None,
         order: int | None = None,
@@ -163,7 +162,7 @@ class TodoistAPIAsync:
         auto_parse_labels: bool | None = None,
         duration: Annotated[int, Ge(1)] | None = None,
         duration_unit: Literal["minute", "day"] | None = None,
-        deadline_date: DateFormat | None = None,
+        deadline_date: date | None = None,
         deadline_lang: LanguageCode | None = None,
     ) -> Task:
         """
@@ -176,9 +175,9 @@ class TodoistAPIAsync:
         :param labels: The task's labels (a list of names).
         :param priority: The priority of the task (4 for very urgent).
         :param due_string: The due date in natural language format.
-        :param due_date: The due date in YYYY-MM-DD format.
-        :param due_datetime: The due date and time in RFC 3339 format.
         :param due_lang: Language for parsing the due date (e.g., 'en').
+        :param due_date: The due date as a date object.
+        :param due_datetime: The due date and time as a datetime object.
         :param assignee_id: User ID to whom the task is assigned.
         :param description: Description for the task.
         :param order: The order of task in the project or section.
@@ -186,7 +185,7 @@ class TodoistAPIAsync:
         :param auto_parse_labels: Whether to parse labels from task content.
         :param duration: The amount of time the task will take.
         :param duration_unit: The unit of time for duration.
-        :param deadline_date: The deadline date in YYYY-MM-DD format.
+        :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: The newly created task.
         :raises requests.exceptions.HTTPError: If the API request fails.
@@ -202,9 +201,9 @@ class TodoistAPIAsync:
                 labels=labels,
                 priority=priority,
                 due_string=due_string,
+                due_lang=due_lang,
                 due_date=due_date,
                 due_datetime=due_datetime,
-                due_lang=due_lang,
                 assignee_id=assignee_id,
                 order=order,
                 auto_reminder=auto_reminder,
@@ -213,6 +212,34 @@ class TodoistAPIAsync:
                 duration_unit=duration_unit,
                 deadline_date=deadline_date,
                 deadline_lang=deadline_lang,
+            )
+        )
+
+    async def add_task_quick(
+        self,
+        text: str,
+        *,
+        note: str | None = None,
+        reminder: str | None = None,
+        auto_reminder: bool = True,
+    ) -> Task:
+        """
+        Create a new task using Todoist's Quick Add syntax.
+
+        This automatically parses dates, deadlines, projects, labels, priorities, etc,
+        from the provided text (e.g., "Buy milk #Shopping @groceries tomorrow p1").
+
+        :param text: The task text using Quick Add syntax.
+        :param note: Optional note to be added to the task.
+        :param reminder: Optional reminder date in free form text.
+        :param auto_reminder: Whether to add default reminder if date with time is set.
+        :return: A result object containing the parsed task data and metadata.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response cannot be parsed into a QuickAddResult.
+        """
+        return await run_async(
+            lambda: self._api.add_task_quick(
+                text, note=note, reminder=reminder, auto_reminder=auto_reminder
             )
         )
 
@@ -225,15 +252,15 @@ class TodoistAPIAsync:
         labels: list[Annotated[str, MaxLen(60)]] | None = None,
         priority: Annotated[int, Ge(1), Le(4)] | None = None,
         due_string: Annotated[str, MaxLen(150)] | None = None,
-        due_date: DateFormat | None = None,
-        due_datetime: DateTimeFormat | None = None,
         due_lang: LanguageCode | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
         assignee_id: str | None = None,
         day_order: int | None = None,
         collapsed: bool | None = None,
         duration: Annotated[int, Ge(1)] | None = None,
         duration_unit: Literal["minute", "day"] | None = None,
-        deadline_date: DateFormat | None = None,
+        deadline_date: date | None = None,
         deadline_lang: LanguageCode | None = None,
     ) -> Task:
         """
@@ -247,15 +274,15 @@ class TodoistAPIAsync:
         :param labels: The task's labels (a list of names).
         :param priority: The priority of the task (4 for very urgent).
         :param due_string: The due date in natural language format.
-        :param due_date: The due date in YYYY-MM-DD format.
-        :param due_datetime: The due date and time in RFC 3339 format.
         :param due_lang: Language for parsing the due date (e.g., 'en').
+        :param due_date: The due date as a date object.
+        :param due_datetime: The due date and time as a datetime object.
         :param assignee_id: User ID to whom the task is assigned.
         :param day_order: The order of the task inside Today or Next 7 days view.
         :param collapsed: Whether the task's sub-tasks are collapsed.
         :param duration: The amount of time the task will take.
         :param duration_unit: The unit of time for duration.
-        :param deadline_date: The deadline date in YYYY-MM-DD format.
+        :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: the updated Task.
         :raises requests.exceptions.HTTPError: If the API request fails.
@@ -319,34 +346,6 @@ class TodoistAPIAsync:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         return await run_async(lambda: self._api.delete_task(task_id))
-
-    async def add_task_quick(
-        self,
-        text: str,
-        *,
-        note: str | None = None,
-        reminder: str | None = None,
-        auto_reminder: bool = True,
-    ) -> Task:
-        """
-        Create a new task using Todoist's Quick Add syntax.
-
-        This automatically parses dates, deadlines, projects, labels, priorities, etc,
-        from the provided text (e.g., "Buy milk #Shopping @groceries tomorrow p1").
-
-        :param text: The task text using Quick Add syntax.
-        :param note: Optional note to be added to the task.
-        :param reminder: Optional reminder date in free form text.
-        :param auto_reminder: Whether to add default reminder if date with time is set.
-        :return: A result object containing the parsed task data and metadata.
-        :raises requests.exceptions.HTTPError: If the API request fails.
-        :raises TypeError: If the API response cannot be parsed into a QuickAddResult.
-        """
-        return await run_async(
-            lambda: self._api.add_task_quick(
-                text, note=note, reminder=reminder, auto_reminder=auto_reminder
-            )
-        )
 
     async def get_project(self, project_id: str) -> Project:
         """
