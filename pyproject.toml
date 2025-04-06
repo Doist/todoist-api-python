@@ -12,7 +12,11 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-dependencies = ["requests>=2.32.3,<3", "dataclass-wizard>=0.35.0,<1.0"]
+dependencies = [
+  "requests>=2.32.3,<3",
+  "dataclass-wizard>=0.35.0,<1.0",
+  "annotated-types",
+]
 
 [project.urls]
 Homepage = "https://github.com/Doist/todoist-api-python"
@@ -118,16 +122,14 @@ ignore = [
   "D203",    # incorrect-blank-line-before-class
   "D212",    # multi-line-summary-first-line
   "PLR0913", # too-many-arguments
+  "TRY00",   # raise-vanilla-args
 
   # All listed below are not intentional and should be fixed
-  "D100",   # undocumented-public-module
-  "D101",   # undocumented-public-class
-  "D102",   # undocumented-public-method
-  "D103",   # undocumented-public-function
-  "D104",   # undocumented-public-package
-  "D105",   # undocumented-magic-method
-  "D107",   # undocumented-public-init
-  "ANN003", # missing-type-kwargs
+  "D100", # undocumented-public-module
+  "D101", # undocumented-public-class
+  "D102", # undocumented-public-method
+  "D103", # undocumented-public-function
+  "D104", # undocumented-public-package
 ]
 
 [tool.ruff.lint.extend-per-file-ignores]

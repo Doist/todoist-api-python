@@ -1,23 +1,22 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any
-from urllib.parse import quote
 
 import pytest
 import responses
 
-from tests.data.test_defaults import (
-    DEFAULT_REQUEST_ID,
-    REST_API_BASE_URL,
-    SYNC_API_BASE_URL,
+from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
+from tests.utils.test_utils import (
+    auth_matcher,
+    data_matcher,
+    enumerate_async,
+    param_matcher,
 )
-from tests.utils.test_utils import assert_auth_header, assert_request_id_header
 
 if TYPE_CHECKING:
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
-    from todoist_api_python.models import QuickAddResult, Task
+from todoist_api_python.models import Task
 
 
 @pytest.mark.asyncio
@@ -28,105 +27,183 @@ async def test_get_task(
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
-    task_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}"
+    task_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}"
 
     requests_mock.add(
-        responses.GET,
-        expected_endpoint,
+        method=responses.GET,
+        url=endpoint,
         json=default_task_response,
-        status=200,
+        match=[auth_matcher()],
     )
 
     task = todoist_api.get_task(task_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert task == default_task
 
     task = await todoist_api_async.get_task(task_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert task == default_task
 
 
 @pytest.mark.asyncio
-async def test_get_tasks_minimal(
+async def test_get_tasks(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_tasks_response: list[dict[str, Any]],
-    default_tasks_list: list[Task],
+    default_tasks_response: list[PaginatedResults],
+    default_tasks_list: list[list[Task]],
 ) -> None:
-    requests_mock.add(
-        responses.GET,
-        f"{REST_API_BASE_URL}/tasks",
-        json=default_tasks_response,
-        status=200,
-    )
+    endpoint = f"{DEFAULT_API_URL}/tasks"
 
-    tasks = todoist_api.get_tasks()
+    cursor: str | None = None
+    for page in default_tasks_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[auth_matcher(), param_matcher({}, cursor)],
+        )
+        cursor = page["next_cursor"]
 
-    assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert tasks == default_tasks_list
+    count = 0
 
-    tasks = await todoist_api_async.get_tasks()
+    tasks_iter = todoist_api.get_tasks()
 
-    assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert tasks == default_tasks_list
+    for i, tasks in enumerate(tasks_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert tasks == default_tasks_list[i]
+        count += 1
+
+    tasks_async_iter = await todoist_api_async.get_tasks()
+
+    async for i, tasks in enumerate_async(tasks_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert tasks == default_tasks_list[i]
+        count += 1
 
 
 @pytest.mark.asyncio
-async def test_get_tasks_full(
+async def test_get_tasks_with_filters(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_tasks_response: list[dict[str, Any]],
-    default_tasks_list: list[Task],
+    default_tasks_response: list[PaginatedResults],
+    default_tasks_list: list[list[Task]],
 ) -> None:
-    project_id = "1234"
-    label_id = 2345
-    filter_query = "today"
+    project_id = "123"
+    section_id = "456"
+    parent_id = "789"
+    label = "test-label"
+    ids = ["1", "2", "3"]
+    limit = 30
+
+    params: dict[str, Any] = {
+        "project_id": project_id,
+        "section_id": section_id,
+        "parent_id": parent_id,
+        "label": label,
+        "ids": ",".join(ids),
+        "limit": limit,
+    }
+
+    endpoint = f"{DEFAULT_API_URL}/tasks"
+
+    cursor: str | None = None
+    for page in default_tasks_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[auth_matcher(), param_matcher(params, cursor)],
+        )
+        cursor = page["next_cursor"]
+
+    count = 0
+
+    tasks_iter = todoist_api.get_tasks(
+        project_id=project_id,
+        section_id=section_id,
+        parent_id=parent_id,
+        label=label,
+        ids=ids,
+        limit=limit,
+    )
+
+    for i, tasks in enumerate(tasks_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert tasks == default_tasks_list[i]
+        count += 1
+
+    tasks_async_iter = await todoist_api_async.get_tasks(
+        project_id=project_id,
+        section_id=section_id,
+        parent_id=parent_id,
+        label=label,
+        ids=ids,
+        limit=limit,
+    )
+
+    async for i, tasks in enumerate_async(tasks_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert tasks == default_tasks_list[i]
+        count += 1
+
+
+@pytest.mark.asyncio
+async def test_filter_tasks(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_tasks_response: list[PaginatedResults],
+    default_tasks_list: list[list[Task]],
+) -> None:
+    query = "today or overdue"
     lang = "en"
-    ids = [1, 2, 3, 4]
+    params = {
+        "query": "today or overdue",
+        "lang": "en",
+    }
 
-    encoded_ids = quote(",".join(str(x) for x in ids))
-    expected_endpoint = (
-        f"{REST_API_BASE_URL}/tasks"
-        f"?project_id={project_id}&label_id={label_id}"
-        f"&filter={filter_query}&lang={lang}&ids={encoded_ids}"
-    )
+    endpoint = f"{DEFAULT_API_URL}/tasks/filter"
 
-    requests_mock.add(
-        responses.GET, expected_endpoint, json=default_tasks_response, status=200
-    )
+    cursor: str | None = None
+    for page in default_tasks_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[auth_matcher(), param_matcher(params, cursor)],
+        )
+        cursor = page["next_cursor"]
 
-    tasks = todoist_api.get_tasks(
-        project_id=project_id,
-        label_id=label_id,
-        filter=filter_query,
+    count = 0
+
+    tasks_iter = todoist_api.filter_tasks(
+        query=query,
         lang=lang,
-        ids=ids,
     )
 
-    assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert tasks == default_tasks_list
+    for i, tasks in enumerate(tasks_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert tasks == default_tasks_list[i]
+        count += 1
 
-    tasks = await todoist_api_async.get_tasks(
-        project_id=project_id,
-        label_id=label_id,
-        filter=filter_query,
+    # Test async iterator
+    tasks_async_iter = await todoist_api_async.filter_tasks(
+        query=query,
         lang=lang,
-        ids=ids,
     )
 
-    assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert tasks == default_tasks_list
+    async for i, tasks in enumerate_async(tasks_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert tasks == default_tasks_list[i]
+        count += 1
 
 
 @pytest.mark.asyncio
@@ -137,32 +214,24 @@ async def test_add_task_minimal(
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
-    task_content = "Some content"
-    expected_payload = {"content": task_content}
+    content = "Some content"
 
     requests_mock.add(
-        responses.POST,
-        f"{REST_API_BASE_URL}/tasks",
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
+        match=[auth_matcher(), data_matcher({"content": content})],
     )
 
-    new_task = todoist_api.add_task(content=task_content, request_id=DEFAULT_REQUEST_ID)
+    new_task = todoist_api.add_task(content=content)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
     assert new_task == default_task
 
-    new_task = await todoist_api_async.add_task(
-        content=task_content, request_id=DEFAULT_REQUEST_ID
-    )
+    new_task = await todoist_api_async.add_task(content=content)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
     assert new_task == default_task
 
 
@@ -174,52 +243,92 @@ async def test_add_task_full(
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
-    task_content = "Some content"
-
-    optional_args = {
+    content = "Some content"
+    args: dict[str, Any] = {
         "description": "A description",
-        "project_id": 123,
-        "section_id": 456,
-        "parent_id": 789,
-        "order": 3,
-        "label_ids": [123, 456],
+        "project_id": "123",
+        "section_id": "456",
+        "parent_id": "789",
+        "labels": ["label1", "label2"],
         "priority": 4,
         "due_string": "today",
         "due_date": "2021-01-01",
         "due_datetime": "2021-01-01T11:00:00Z",
-        "due_lang": "ja",
-        "assignee": 321,
+        "due_lang": "en",
+        "assignee_id": "321",
+        "order": 3,
+        "auto_reminder": True,
+        "auto_parse_labels": True,
+        "duration": 60,
+        "duration_unit": "minute",
     }
 
-    expected_payload: dict[str, Any] = {"content": task_content}
-    expected_payload.update(optional_args)
-
     requests_mock.add(
-        responses.POST,
-        f"{REST_API_BASE_URL}/tasks",
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
+        match=[auth_matcher(), data_matcher({"content": content} | args)],
     )
 
-    new_task = todoist_api.add_task(
-        content=task_content, request_id=DEFAULT_REQUEST_ID, **optional_args
+    new_task = todoist_api.add_task(content=content, **args)
+
+    assert len(requests_mock.calls) == 1
+    assert new_task == default_task
+
+    new_task = await todoist_api_async.add_task(content=content, **args)
+
+    assert len(requests_mock.calls) == 2
+    assert new_task == default_task
+
+
+@pytest.mark.asyncio
+async def test_add_task_quick(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_task_meta_response: dict[str, Any],
+    default_task_meta: Task,
+) -> None:
+    text = "Buy milk tomorrow at 9am #Shopping @errands"
+    note = "Whole milk x6"
+    auto_reminder = True
+
+    requests_mock.add(
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/tasks/quick",
+        json=default_task_meta_response,
+        status=200,
+        match=[
+            auth_matcher(),
+            data_matcher(
+                {
+                    "meta": True,
+                    "text": text,
+                    "auto_reminder": auto_reminder,
+                    "note": note,
+                }
+            ),
+        ],
+    )
+
+    task = todoist_api.add_task_quick(
+        text=text,
+        note=note,
+        auto_reminder=auto_reminder,
     )
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
-    assert new_task == default_task
+    assert task == default_task_meta
 
-    new_task = await todoist_api_async.add_task(
-        content=task_content, request_id=DEFAULT_REQUEST_ID, **optional_args
+    task = await todoist_api_async.add_task_quick(
+        text=text,
+        note=note,
+        auto_reminder=auto_reminder,
     )
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
-    assert new_task == default_task
+    assert task == default_task_meta
 
 
 @pytest.mark.asyncio
@@ -227,99 +336,86 @@ async def test_update_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
+    default_task: Task,
 ) -> None:
-    task_id = "123"
-
-    args = {
-        "content": "Some updated content",
-        "description": "An updated description",
-        "label_ids": ["123", "456"],
-        "priority": 4,
-        "due_string": "today",
-        "due_date": "2021-01-01",
-        "due_datetime": "2021-01-01T11:00:00Z",
-        "due_lang": "ja",
-        "assignee": "321",
+    args: dict[str, Any] = {
+        "content": "Updated content",
+        "description": "Updated description",
+        "labels": ["label1", "label2"],
+        "priority": 2,
     }
+    updated_task_dict = default_task.to_dict() | args
 
     requests_mock.add(
-        responses.POST, f"{REST_API_BASE_URL}/tasks/{task_id}", status=204
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/tasks/{default_task.id}",
+        json=updated_task_dict,
+        status=200,
+        match=[auth_matcher(), data_matcher(args)],
     )
 
-    response = todoist_api.update_task(
-        task_id=task_id, request_id=DEFAULT_REQUEST_ID, **args
-    )
+    response = todoist_api.update_task(task_id=default_task.id, **args)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(args)
-    assert response is True
+    assert response == Task.from_dict(updated_task_dict)
 
-    response = await todoist_api_async.update_task(
-        task_id=task_id, request_id=DEFAULT_REQUEST_ID, **args
-    )
+    response = await todoist_api_async.update_task(task_id=default_task.id, **args)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(args)
-    assert response is True
+    assert response == Task.from_dict(updated_task_dict)
 
 
 @pytest.mark.asyncio
-async def test_close_task(
+async def test_complete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ) -> None:
-    task_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}/close"
+    task_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/close"
 
     requests_mock.add(
-        responses.POST,
-        expected_endpoint,
+        method=responses.POST,
+        url=endpoint,
         status=204,
+        match=[auth_matcher()],
     )
 
-    response = todoist_api.close_task(task_id)
+    response = todoist_api.complete_task(task_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert response is True
 
-    response = await todoist_api_async.close_task(task_id)
+    response = await todoist_api_async.complete_task(task_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert response is True
 
 
 @pytest.mark.asyncio
-async def test_reopen_task(
+async def test_uncomplete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ) -> None:
-    task_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}/reopen"
+    task_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/reopen"
 
     requests_mock.add(
-        responses.POST,
-        expected_endpoint,
+        method=responses.POST,
+        url=endpoint,
         status=204,
+        match=[auth_matcher()],
     )
 
-    response = todoist_api.reopen_task(task_id)
+    response = todoist_api.uncomplete_task(task_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert response is True
 
-    response = await todoist_api_async.reopen_task(task_id)
+    response = await todoist_api_async.uncomplete_task(task_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert response is True
 
 
@@ -329,56 +425,22 @@ async def test_delete_task(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ) -> None:
-    task_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/tasks/{task_id}"
+    task_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}"
 
     requests_mock.add(
-        responses.DELETE,
-        expected_endpoint,
+        method=responses.DELETE,
+        url=endpoint,
         status=204,
+        match=[auth_matcher()],
     )
 
     response = todoist_api.delete_task(task_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert response is True
 
     response = await todoist_api_async.delete_task(task_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert response is True
-
-
-@pytest.mark.asyncio
-async def test_quick_add_task(
-    todoist_api: TodoistAPI,
-    todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
-    default_quick_add_response: dict[str, Any],
-    default_quick_add_result: QuickAddResult,
-) -> None:
-    text = "some task"
-    expected_payload = {"text": text, "meta": True, "auto_reminder": True}
-
-    requests_mock.add(
-        responses.POST,
-        f"{SYNC_API_BASE_URL}/quick/add",
-        json=default_quick_add_response,
-        status=200,
-    )
-
-    response = todoist_api.quick_add_task(text=text)
-
-    assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
-    assert response == default_quick_add_result
-
-    response = await todoist_api_async.quick_add_task(text=text)
-
-    assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
-    assert response == default_quick_add_result

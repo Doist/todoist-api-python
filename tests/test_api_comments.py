@@ -1,18 +1,27 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any
 
 import pytest
 import responses
 
-from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
-from tests.utils.test_utils import assert_auth_header, assert_request_id_header
+from tests.data.test_defaults import (
+    DEFAULT_API_URL,
+    PaginatedResults,
+)
+from tests.utils.test_utils import (
+    auth_matcher,
+    data_matcher,
+    enumerate_async,
+    param_matcher,
+)
+from todoist_api_python.models import Attachment
 
 if TYPE_CHECKING:
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
-    from todoist_api_python.models import Comment
+
+from todoist_api_python.models import Comment
 
 
 @pytest.mark.asyncio
@@ -23,26 +32,25 @@ async def test_get_comment(
     default_comment_response: dict[str, Any],
     default_comment: Comment,
 ) -> None:
-    comment_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
+    comment_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/comments/{comment_id}"
 
     requests_mock.add(
-        responses.GET,
-        expected_endpoint,
+        method=responses.GET,
+        url=endpoint,
         json=default_comment_response,
         status=200,
+        match=[auth_matcher()],
     )
 
     comment = todoist_api.get_comment(comment_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert comment == default_comment
 
     comment = await todoist_api_async.get_comment(comment_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert comment == default_comment
 
 
@@ -51,29 +59,41 @@ async def test_get_comments(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_comments_response: list[dict[str, Any]],
-    default_comments_list: list[Comment],
+    default_comments_response: list[PaginatedResults],
+    default_comments_list: list[list[Comment]],
 ) -> None:
-    task_id = "1234"
+    task_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/comments"
 
-    requests_mock.add(
-        responses.GET,
-        f"{REST_API_BASE_URL}/comments?task_id={task_id}",
-        json=default_comments_response,
-        status=200,
-    )
+    cursor: str | None = None
+    for page in default_comments_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[
+                auth_matcher(),
+                param_matcher({"task_id": task_id}, cursor),
+            ],
+        )
+        cursor = page["next_cursor"]
 
-    comments = todoist_api.get_comments(task_id=task_id)
+    count = 0
 
-    assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert comments == default_comments_list
+    comments_iter = todoist_api.get_comments(task_id=task_id)
 
-    comments = await todoist_api_async.get_comments(task_id=task_id)
+    for i, comments in enumerate(comments_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert comments == default_comments_list[i]
+        count += 1
 
-    assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert comments == default_comments_list
+    comments_async_iter = await todoist_api_async.get_comments(task_id=task_id)
+
+    async for i, comments in enumerate_async(comments_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert comments == default_comments_list[i]
+        count += 1
 
 
 @pytest.mark.asyncio
@@ -85,51 +105,47 @@ async def test_add_comment(
     default_comment: Comment,
 ) -> None:
     content = "A Comment"
-    project_id = 123
-    attachment_data = {
-        "resource_type": "file",
-        "file_url": "https://s3.amazonaws.com/domorebetter/Todoist+Setup+Guide.pdf",
-        "file_type": "application/pdf",
-        "file_name": "File.pdf",
-    }
-
-    expected_payload: dict[str, Any] = {
-        "content": content,
-        "project_id": project_id,
-        "attachment": attachment_data,
-    }
+    project_id = "6HWcc9PJCvPjCxC9"
+    attachment = Attachment(
+        resource_type="file",
+        file_url="https://s3.amazonaws.com/domorebetter/Todoist+Setup+Guide.pdf",
+        file_type="application/pdf",
+        file_name="File.pdf",
+    )
 
     requests_mock.add(
-        responses.POST,
-        f"{REST_API_BASE_URL}/comments",
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/comments",
         json=default_comment_response,
         status=200,
+        match=[
+            auth_matcher(),
+            data_matcher(
+                {
+                    "content": content,
+                    "project_id": project_id,
+                    "attachment": attachment.to_dict(),
+                }
+            ),
+        ],
     )
 
     new_comment = todoist_api.add_comment(
         content=content,
         project_id=project_id,
-        attachment=attachment_data,
-        request_id=DEFAULT_REQUEST_ID,
+        attachment=attachment,
     )
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
     assert new_comment == default_comment
 
     new_comment = await todoist_api_async.add_comment(
         content=content,
         project_id=project_id,
-        attachment=attachment_data,
-        request_id=DEFAULT_REQUEST_ID,
+        attachment=attachment,
     )
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
     assert new_comment == default_comment
 
 
@@ -138,36 +154,32 @@ async def test_update_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
+    default_comment: Comment,
 ) -> None:
-    comment_id = "1234"
-
     args = {
         "content": "An updated comment",
     }
+    updated_comment_dict = default_comment.to_dict() | args
 
     requests_mock.add(
-        responses.POST, f"{REST_API_BASE_URL}/comments/{comment_id}", status=204
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/comments/{default_comment.id}",
+        json=updated_comment_dict,
+        status=200,
+        match=[auth_matcher(), data_matcher(args)],
     )
 
-    response = todoist_api.update_comment(
-        comment_id=comment_id, request_id=DEFAULT_REQUEST_ID, **args
-    )
+    response = todoist_api.update_comment(comment_id=default_comment.id, **args)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(args)
-    assert response is True
+    assert response == Comment.from_dict(updated_comment_dict)
 
     response = await todoist_api_async.update_comment(
-        comment_id=comment_id, request_id=DEFAULT_REQUEST_ID, **args
+        comment_id=default_comment.id, **args
     )
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(args)
-    assert response is True
+    assert response == Comment.from_dict(updated_comment_dict)
 
 
 @pytest.mark.asyncio
@@ -176,23 +188,22 @@ async def test_delete_comment(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ) -> None:
-    comment_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/comments/{comment_id}"
+    comment_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/comments/{comment_id}"
 
     requests_mock.add(
-        responses.DELETE,
-        expected_endpoint,
+        method=responses.DELETE,
+        url=endpoint,
         status=204,
+        match=[auth_matcher()],
     )
 
     response = todoist_api.delete_comment(comment_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert response is True
 
     response = await todoist_api_async.delete_comment(comment_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert response is True

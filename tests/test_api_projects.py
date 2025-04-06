@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any
 
 import pytest
 import responses
 
-from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
-from tests.utils.test_utils import assert_auth_header, assert_request_id_header
+from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
+from tests.utils.test_utils import (
+    auth_matcher,
+    data_matcher,
+    enumerate_async,
+    param_matcher,
+)
 
 if TYPE_CHECKING:
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
-    from todoist_api_python.models import Project
+from todoist_api_python.models import Collaborator, Project
 
 
 @pytest.mark.asyncio
@@ -23,26 +27,25 @@ async def test_get_project(
     default_project_response: dict[str, Any],
     default_project: Project,
 ) -> None:
-    project_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
+    project_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/projects/{project_id}"
 
     requests_mock.add(
-        responses.GET,
-        expected_endpoint,
+        method=responses.GET,
+        url=endpoint,
         json=default_project_response,
         status=200,
+        match=[auth_matcher()],
     )
 
     project = todoist_api.get_project(project_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert project == default_project
 
     project = await todoist_api_async.get_project(project_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert project == default_project
 
 
@@ -51,27 +54,37 @@ async def test_get_projects(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_projects_response: list[dict[str, Any]],
-    default_projects_list: list[Project],
+    default_projects_response: list[PaginatedResults],
+    default_projects_list: list[list[Project]],
 ) -> None:
-    requests_mock.add(
-        responses.GET,
-        f"{REST_API_BASE_URL}/projects",
-        json=default_projects_response,
-        status=200,
-    )
+    endpoint = f"{DEFAULT_API_URL}/projects"
 
-    projects = todoist_api.get_projects()
+    cursor: str | None = None
+    for page in default_projects_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[auth_matcher(), param_matcher({}, cursor)],
+        )
+        cursor = page["next_cursor"]
 
-    assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert projects == default_projects_list
+    count = 0
 
-    projects = await todoist_api_async.get_projects()
+    projects_iter = todoist_api.get_projects()
 
-    assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert projects == default_projects_list
+    for i, projects in enumerate(projects_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert projects == default_projects_list[i]
+        count += 1
+
+    projects_async_iter = await todoist_api_async.get_projects()
+
+    async for i, projects in enumerate_async(projects_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert projects == default_projects_list[i]
+        count += 1
 
 
 @pytest.mark.asyncio
@@ -83,33 +96,23 @@ async def test_add_project_minimal(
     default_project: Project,
 ) -> None:
     project_name = "A Project"
-    expected_payload = {"name": project_name}
 
     requests_mock.add(
-        responses.POST,
-        f"{REST_API_BASE_URL}/projects",
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
+        match=[auth_matcher(), data_matcher({"name": project_name})],
     )
 
-    new_project = todoist_api.add_project(
-        name=project_name, request_id=DEFAULT_REQUEST_ID
-    )
+    new_project = todoist_api.add_project(name=project_name)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
     assert new_project == default_project
 
-    new_project = await todoist_api_async.add_project(
-        name=project_name, request_id=DEFAULT_REQUEST_ID
-    )
+    new_project = await todoist_api_async.add_project(name=project_name)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
     assert new_project == default_project
 
 
@@ -123,41 +126,22 @@ async def test_add_project_full(
 ) -> None:
     project_name = "A Project"
 
-    optional_args = {
-        "parent_id": 789,
-        "color": 30,
-        "order": 3,
-        "favorite": True,
-    }
-
-    expected_payload: dict[str, Any] = {"name": project_name}
-    expected_payload.update(optional_args)
-
     requests_mock.add(
-        responses.POST,
-        f"{REST_API_BASE_URL}/projects",
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
+        match=[auth_matcher(), data_matcher({"name": project_name})],
     )
 
-    new_project = todoist_api.add_project(
-        name=project_name, request_id=DEFAULT_REQUEST_ID, **optional_args
-    )
+    new_project = todoist_api.add_project(name=project_name)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
     assert new_project == default_project
 
-    new_project = await todoist_api_async.add_project(
-        name=project_name, request_id=DEFAULT_REQUEST_ID, **optional_args
-    )
+    new_project = await todoist_api_async.add_project(name=project_name)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
     assert new_project == default_project
 
 
@@ -166,38 +150,34 @@ async def test_update_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
+    default_project: Project,
 ) -> None:
-    project_id = "123"
-
-    args = {
+    args: dict[str, Any] = {
         "name": "An updated project",
-        "color": 31,
-        "favorite": False,
+        "color": "red",
+        "is_favorite": False,
     }
+    updated_project_dict = default_project.to_dict() | args
 
     requests_mock.add(
-        responses.POST, f"{REST_API_BASE_URL}/projects/{project_id}", status=204
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/projects/{default_project.id}",
+        json=updated_project_dict,
+        status=200,
+        match=[auth_matcher(), data_matcher(args)],
     )
 
-    response = todoist_api.update_project(
-        project_id=project_id, request_id=DEFAULT_REQUEST_ID, **args
-    )
+    response = todoist_api.update_project(project_id=default_project.id, **args)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(args)
-    assert response is True
+    assert response == Project.from_dict(updated_project_dict)
 
     response = await todoist_api_async.update_project(
-        project_id=project_id, request_id=DEFAULT_REQUEST_ID, **args
+        project_id=default_project.id, **args
     )
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(args)
-    assert response is True
+    assert response == Project.from_dict(updated_project_dict)
 
 
 @pytest.mark.asyncio
@@ -206,25 +186,24 @@ async def test_delete_project(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ) -> None:
-    project_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}"
+    project_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/projects/{project_id}"
 
     requests_mock.add(
-        responses.DELETE,
-        expected_endpoint,
+        method=responses.DELETE,
+        url=endpoint,
         status=204,
+        match=[auth_matcher()],
     )
 
     response = todoist_api.delete_project(project_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert response is True
 
     response = await todoist_api_async.delete_project(project_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert response is True
 
 
@@ -233,27 +212,35 @@ async def test_get_collaborators(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_collaborators_response: list[dict[str, Any]],
-    default_collaborators_list: list[Project],
+    default_collaborators_response: list[PaginatedResults],
+    default_collaborators_list: list[list[Collaborator]],
 ) -> None:
-    project_id = "123"
-    expected_endpoint = f"{REST_API_BASE_URL}/projects/{project_id}/collaborators"
+    project_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/projects/{project_id}/collaborators"
 
-    requests_mock.add(
-        responses.GET,
-        expected_endpoint,
-        json=default_collaborators_response,
-        status=200,
-    )
+    cursor: str | None = None
+    for page in default_collaborators_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[auth_matcher(), param_matcher({}, cursor)],
+        )
+        cursor = page["next_cursor"]
 
-    collaborators = todoist_api.get_collaborators(project_id)
+    count = 0
 
-    assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert collaborators == default_collaborators_list
+    collaborators_iter = todoist_api.get_collaborators(project_id)
 
-    collaborators = await todoist_api_async.get_collaborators(project_id)
+    for i, collaborators in enumerate(collaborators_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert collaborators == default_collaborators_list[i]
+        count += 1
 
-    assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert collaborators == default_collaborators_list
+    collaborators_async_iter = await todoist_api_async.get_collaborators(project_id)
+
+    async for i, collaborators in enumerate_async(collaborators_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert collaborators == default_collaborators_list[i]
+        count += 1
