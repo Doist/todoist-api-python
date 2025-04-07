@@ -11,6 +11,8 @@ from todoist_api_python._core.endpoints import (
     COLLABORATORS_PATH,
     COMMENTS_PATH,
     LABELS_PATH,
+    PROJECT_ARCHIVE_PATH_SUFFIX,
+    PROJECT_UNARCHIVE_PATH_SUFFIX,
     PROJECTS_PATH,
     SECTIONS_PATH,
     SHARED_LABELS_PATH,
@@ -710,6 +712,41 @@ class TodoistAPI:
         project_data: dict[str, Any] = post(
             self._session, endpoint, self._token, data=data
         )
+        return Project.from_dict(project_data)
+
+    def archive_project(self, project_id: str) -> Project:
+        """
+        Archive a project.
+
+        For personal projects, archives it only for the user.
+        For workspace projects, archives it for all members.
+
+        :param project_id: The ID of the project to archive.
+        :return: The archived project object.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Project dictionary.
+        """
+        endpoint = get_api_url(
+            f"{PROJECTS_PATH}/{project_id}/{PROJECT_ARCHIVE_PATH_SUFFIX}"
+        )
+        project_data: dict[str, Any] = post(self._session, endpoint, self._token)
+        return Project.from_dict(project_data)
+
+    def unarchive_project(self, project_id: str) -> Project:
+        """
+        Unarchive a project.
+
+        Restores a previously archived project.
+
+        :param project_id: The ID of the project to unarchive.
+        :return: The unarchived project object.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Project dictionary.
+        """
+        endpoint = get_api_url(
+            f"{PROJECTS_PATH}/{project_id}/{PROJECT_UNARCHIVE_PATH_SUFFIX}"
+        )
+        project_data: dict[str, Any] = post(self._session, endpoint, self._token)
         return Project.from_dict(project_data)
 
     def delete_project(self, project_id: str) -> bool:
