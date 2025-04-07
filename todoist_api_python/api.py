@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Iterator
-from datetime import UTC
 from typing import TYPE_CHECKING, Annotated, Any, Literal, Self, TypeVar
 from weakref import finalize
 
@@ -23,6 +22,7 @@ from todoist_api_python._core.endpoints import (
     get_api_url,
 )
 from todoist_api_python._core.http_requests import delete, get, post
+from todoist_api_python._core.utils import format_date, format_datetime
 from todoist_api_python.models import (
     Attachment,
     Collaborator,
@@ -287,9 +287,9 @@ class TodoistAPI:
         if due_lang is not None:
             data["due_lang"] = due_lang
         if due_date is not None:
-            data["due_date"] = _format_date(due_date)
+            data["due_date"] = format_date(due_date)
         if due_datetime is not None:
-            data["due_datetime"] = _format_datetime(due_datetime)
+            data["due_datetime"] = format_datetime(due_datetime)
         if assignee_id is not None:
             data["assignee_id"] = assignee_id
         if order is not None:
@@ -303,7 +303,7 @@ class TodoistAPI:
         if duration_unit is not None:
             data["duration_unit"] = duration_unit
         if deadline_date is not None:
-            data["deadline_date"] = _format_date(deadline_date)
+            data["deadline_date"] = format_date(deadline_date)
         if deadline_lang is not None:
             data["deadline_lang"] = deadline_lang
 
@@ -412,9 +412,9 @@ class TodoistAPI:
         if due_lang is not None:
             data["due_lang"] = due_lang
         if due_date is not None:
-            data["due_date"] = _format_date(due_date)
+            data["due_date"] = format_date(due_date)
         if due_datetime is not None:
-            data["due_datetime"] = _format_datetime(due_datetime)
+            data["due_datetime"] = format_datetime(due_datetime)
         if assignee_id is not None:
             data["assignee_id"] = assignee_id
         if day_order is not None:
@@ -426,7 +426,7 @@ class TodoistAPI:
         if duration_unit is not None:
             data["duration_unit"] = duration_unit
         if deadline_date is not None:
-            data["deadline_date"] = _format_date(deadline_date)
+            data["deadline_date"] = format_date(deadline_date)
         if deadline_lang is not None:
             data["deadline_lang"] = deadline_lang
 
@@ -1151,19 +1151,3 @@ class ResultsPaginator(Iterator[list[T]]):
 
         results: list[Any] = data.get(self._results_field, [])
         return [self._results_inst(result) for result in results]
-
-
-def _format_date(d: date) -> str:
-    """Format a date object as YYYY-MM-DD."""
-    return d.isoformat()
-
-
-def _format_datetime(dt: datetime) -> str:
-    """
-    Format a datetime object.
-
-    YYYY-MM-DDTHH:MM:SS for naive datetimes; YYYY-MM-DDTHH:MM:SSZ for aware datetimes.
-    """
-    if dt.tzinfo is None:
-        return dt.isoformat()
-    return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")

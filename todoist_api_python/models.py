@@ -1,15 +1,21 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Annotated, Literal
+from typing import Annotated, Literal, Union
 
 from dataclass_wizard import JSONPyWizard
+from dataclass_wizard.v1 import DatePattern, DateTimePattern, UTCDateTimePattern
 from dataclass_wizard.v1.models import Alias
 
 from todoist_api_python._core.endpoints import INBOX_URL, get_project_url, get_task_url
 
-VIEW_STYLE = Literal["list", "board", "calendar"]
-DURATION_UNIT = Literal["minute", "day"]
+ViewStyle = Literal["list", "board", "calendar"]
+DurationUnit = Literal["minute", "day"]
+ApiDate = UTCDateTimePattern["%FT%T.%fZ"]  # type: ignore[valid-type]
+ApiDue = Union[  # noqa: UP007
+    # https://github.com/rnag/dataclass-wizard/issues/189
+    DatePattern["%F"], DateTimePattern["%FT%T"], UTCDateTimePattern["%FT%TZ"]  # type: ignore[valid-type]  # noqa: F722
+]
 
 
 @dataclass
@@ -25,10 +31,10 @@ class Project(JSONPyWizard):
     is_collapsed: Annotated[bool, Alias(load=("collapsed", "is_collapsed"))]
     is_shared: Annotated[bool, Alias(load=("shared", "is_shared"))]
     is_favorite: bool
-    can_assign_tasks: bool | None
-    view_style: VIEW_STYLE
-    created_at: str | None = None
-    updated_at: str | None = None
+    can_assign_tasks: bool
+    view_style: ViewStyle
+    created_at: ApiDate
+    updated_at: ApiDate
 
     parent_id: str | None = None
     is_inbox_project: Annotated[
@@ -62,7 +68,7 @@ class Due(JSONPyWizard):
     class _(JSONPyWizard.Meta):  # noqa:N801
         v1 = True
 
-    date: str
+    date: ApiDue
     string: str
     lang: str = "en"
     is_recurring: bool = False
@@ -102,8 +108,8 @@ class Task(JSONPyWizard):
     assigner_id: Annotated[str | None, Alias(load=("assigned_by_uid", "assigner_id"))]
     completed_at: str | None
     creator_id: Annotated[str, Alias(load=("added_by_uid", "creator_id"))]
-    created_at: Annotated[str, Alias(load=("added_at", "created_at"))]
-    updated_at: str | None
+    created_at: Annotated[ApiDate, Alias(load=("added_at", "created_at"))]
+    updated_at: ApiDate
 
     meta: Meta | None = None
 
@@ -152,7 +158,7 @@ class Comment(JSONPyWizard):
     id: str
     content: str
     poster_id: Annotated[str, Alias(load=("posted_uid", "poster_id"))]
-    posted_at: str
+    posted_at: ApiDate
     task_id: Annotated[str | None, Alias(load=("item_id", "task_id"))] = None
     project_id: str | None = None
     attachment: Annotated[
@@ -196,4 +202,4 @@ class Duration(JSONPyWizard):
         v1 = True
 
     amount: int
-    unit: DURATION_UNIT
+    unit: DurationUnit
