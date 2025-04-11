@@ -25,7 +25,7 @@ jobs:
           version: 0.6.11
 
       - name: Install project
-        run: uv sync --group publishing
+        run: uv sync
 
       - name: Build and publish to PyPI
         env:
