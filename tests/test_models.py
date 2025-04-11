@@ -12,6 +12,7 @@ from tests.data.test_defaults import (
     DEFAULT_SECTION_RESPONSE,
     DEFAULT_TASK_RESPONSE,
 )
+from todoist_api_python._core.utils import parse_date, parse_datetime
 from todoist_api_python.models import (
     Attachment,
     AuthResult,
@@ -34,7 +35,7 @@ def test_due_from_dict() -> None:
 
     due = Due.from_dict(sample_data)
 
-    assert due.date == sample_data["date"]
+    assert due.date == parse_date(str(sample_data["date"]))
     assert due.timezone == sample_data["timezone"]
     assert due.string == sample_data["string"]
     assert due.lang == sample_data["lang"]
@@ -71,8 +72,8 @@ def test_project_from_dict() -> None:
     assert project.is_inbox_project == sample_data["is_inbox_project"]
     assert project.can_assign_tasks == sample_data["can_assign_tasks"]
     assert project.view_style == sample_data["view_style"]
-    assert project.created_at == sample_data["created_at"]
-    assert project.updated_at == sample_data["updated_at"]
+    assert project.created_at == parse_datetime(str(sample_data["created_at"]))
+    assert project.updated_at == parse_datetime(str(sample_data["updated_at"]))
 
 
 def test_project_url() -> None:
@@ -104,8 +105,8 @@ def test_task_from_dict() -> None:
     assert task.assigner_id == sample_data["assigned_by_uid"]
     assert task.completed_at == sample_data["completed_at"]
     assert task.creator_id == sample_data["added_by_uid"]
-    assert task.created_at == sample_data["added_at"]
-    assert task.updated_at == sample_data["updated_at"]
+    assert task.created_at == parse_datetime(sample_data["added_at"])
+    assert task.updated_at == parse_datetime(sample_data["updated_at"])
 
 
 def test_task_url() -> None:
@@ -167,7 +168,7 @@ def test_comment_from_dict() -> None:
     assert comment.id == sample_data["id"]
     assert comment.content == sample_data["content"]
     assert comment.poster_id == sample_data["posted_uid"]
-    assert comment.posted_at == sample_data["posted_at"]
+    assert comment.posted_at == parse_datetime(sample_data["posted_at"])
     assert comment.task_id == sample_data["task_id"]
     assert comment.project_id == sample_data["project_id"]
     assert comment.attachment == Attachment.from_dict(sample_data["attachment"])

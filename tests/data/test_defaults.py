@@ -49,8 +49,8 @@ DEFAULT_PROJECT_RESPONSE = {
     "is_inbox_project": True,
     "can_assign_tasks": False,
     "view_style": "list",
-    "created_at": "2023-02-01T00:00:00000Z",
-    "updated_at": "2025-04-03T03:14:15926Z",
+    "created_at": "2023-02-01T00:00:00.000000Z",
+    "updated_at": "2025-04-03T03:14:15.926536Z",
 }
 
 DEFAULT_PROJECT_RESPONSE_2 = dict(DEFAULT_PROJECT_RESPONSE)
@@ -90,8 +90,8 @@ DEFAULT_TASK_RESPONSE: dict[str, Any] = {
     "assigned_by_uid": "2971358",
     "completed_at": None,
     "added_by_uid": "34567",
-    "added_at": "2016-01-02T21:00:30.00000Z",
-    "updated_at": None,
+    "added_at": "2014-09-26T08:25:05.000000Z",
+    "updated_at": "2016-01-02T21:00:30.000000Z",
 }
 
 DEFAULT_TASK_RESPONSE_2 = dict(DEFAULT_TASK_RESPONSE)
