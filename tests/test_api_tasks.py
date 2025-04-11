@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -244,6 +245,7 @@ async def test_add_task_full(
     default_task: Task,
 ) -> None:
     content = "Some content"
+    due_datetime = datetime(2021, 1, 1, 11, 0, 0, tzinfo=UTC)
     args: dict[str, Any] = {
         "description": "A description",
         "project_id": "123",
@@ -252,8 +254,6 @@ async def test_add_task_full(
         "labels": ["label1", "label2"],
         "priority": 4,
         "due_string": "today",
-        "due_date": "2021-01-01",
-        "due_datetime": "2021-01-01T11:00:00Z",
         "due_lang": "en",
         "assignee_id": "321",
         "order": 3,
@@ -268,15 +268,26 @@ async def test_add_task_full(
         url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
-        match=[auth_matcher(), data_matcher({"content": content} | args)],
+        match=[
+            auth_matcher(),
+            data_matcher(
+                {
+                    "content": content,
+                    "due_datetime": due_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                }
+                | args
+            ),
+        ],
     )
 
-    new_task = todoist_api.add_task(content=content, **args)
+    new_task = todoist_api.add_task(content=content, due_datetime=due_datetime, **args)
 
     assert len(requests_mock.calls) == 1
     assert new_task == default_task
 
-    new_task = await todoist_api_async.add_task(content=content, **args)
+    new_task = await todoist_api_async.add_task(
+        content=content, due_datetime=due_datetime, **args
+    )
 
     assert len(requests_mock.calls) == 2
     assert new_task == default_task
