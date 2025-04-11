@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import pytest
 import responses
 
-from tests.data.test_defaults import AUTH_BASE_URL
+from tests.data.test_defaults import DEFAULT_OAUTH_URL
+from tests.utils.test_utils import data_matcher, param_matcher
+from todoist_api_python._core.endpoints import API_URL  # Use new base URL
 from todoist_api_python.authentication import (
     get_auth_token,
     get_auth_token_async,
@@ -15,7 +16,6 @@ from todoist_api_python.authentication import (
     revoke_auth_token,
     revoke_auth_token_async,
 )
-from todoist_api_python.endpoints import SYNC_API
 
 if TYPE_CHECKING:
     from todoist_api_python.models import AuthResult
@@ -29,7 +29,7 @@ def test_get_authentication_url() -> None:
         f"client_id={client_id}&scope={scopes[0]},{scopes[1]},{scopes[2]}&state={state}"
     )
     query = quote(params, safe="=&")
-    expected_url = f"{AUTH_BASE_URL}/oauth/authorize?{query}"
+    expected_url = f"{DEFAULT_OAUTH_URL}/authorize?{query}"
 
     url = get_authentication_url(client_id, scopes, state)
 
@@ -46,27 +46,26 @@ async def test_get_auth_token(
     client_secret = "456"
     code = "789"
 
-    expected_payload = json.dumps(
-        {"client_id": client_id, "client_secret": client_secret, "code": code}
-    )
-
     requests_mock.add(
         responses.POST,
-        f"{AUTH_BASE_URL}/oauth/access_token",
+        f"{DEFAULT_OAUTH_URL}/access_token",
         json=default_auth_response,
         status=200,
+        match=[
+            data_matcher(
+                {"client_id": client_id, "client_secret": client_secret, "code": code}
+            )
+        ],
     )
 
     auth_result = get_auth_token(client_id, client_secret, code)
 
     assert len(requests_mock.calls) == 1
-    assert requests_mock.calls[0].request.body == expected_payload
     assert auth_result == default_auth_result
 
     auth_result = await get_auth_token_async(client_id, client_secret, code)
 
     assert len(requests_mock.calls) == 2
-    assert requests_mock.calls[1].request.body == expected_payload
     assert auth_result == default_auth_result
 
 
@@ -78,24 +77,27 @@ async def test_revoke_auth_token(
     client_secret = "456"
     token = "AToken"
 
-    expected_payload = json.dumps(
-        {"client_id": client_id, "client_secret": client_secret, "access_token": token}
-    )
-
     requests_mock.add(
-        responses.POST,
-        f"{SYNC_API}access_tokens/revoke",
-        status=204,
+        responses.DELETE,
+        f"{API_URL}/access_tokens",
+        match=[
+            param_matcher(
+                {
+                    "client_id": client_id,
+                    "client_secret": client_secret,
+                    "access_token": token,
+                }
+            )
+        ],
+        status=200,
     )
 
     result = revoke_auth_token(client_id, client_secret, token)
 
     assert len(requests_mock.calls) == 1
-    assert requests_mock.calls[0].request.body == expected_payload
     assert result is True
 
     result = await revoke_auth_token_async(client_id, client_secret, token)
 
     assert len(requests_mock.calls) == 2
-    assert requests_mock.calls[1].request.body == expected_payload
     assert result is True

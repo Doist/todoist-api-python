@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from requests.status_codes import codes
 
-from todoist_api_python.headers import create_headers
+from todoist_api_python._core.http_headers import create_headers
 
 if TYPE_CHECKING:
     from requests import Session
 
-    Json = dict[str, "Json"] | list["Json"] | str | int | float | bool | None
 
 # Timeouts for requests.
 #
@@ -21,58 +20,60 @@ if TYPE_CHECKING:
 # forcefully terminated after this time, so there is no point waiting any longer.
 TIMEOUT = (10, 60)
 
+T = TypeVar("T")
+
 
 def get(
     session: Session,
     url: str,
     token: str | None = None,
     params: dict[str, Any] | None = None,
-) -> Json | bool:
+) -> T:  # type: ignore[type-var]
     response = session.get(
         url, params=params, headers=create_headers(token=token), timeout=TIMEOUT
     )
 
     if response.status_code == codes.OK:
-        return response.json()
+        return cast("T", response.json())
 
     response.raise_for_status()
-    return response.ok
+    return cast("T", response.ok)
 
 
 def post(
     session: Session,
     url: str,
     token: str | None = None,
+    *,
+    params: dict[str, Any] | None = None,
     data: dict[str, Any] | None = None,
-) -> Json | bool:
-    request_id = data.pop("request_id", None) if data else None
-
-    headers = create_headers(
-        token=token, with_content=bool(data), request_id=request_id
-    )
+) -> T:  # type: ignore[type-var]
+    headers = create_headers(token=token, with_content=bool(data))
 
     response = session.post(
-        url, headers=headers, data=json.dumps(data) if data else None, timeout=TIMEOUT
+        url,
+        headers=headers,
+        data=json.dumps(data) if data else None,
+        params=params,
+        timeout=TIMEOUT,
     )
 
     if response.status_code == codes.OK:
-        return response.json()
+        return cast("T", response.json())
 
     response.raise_for_status()
-    return response.ok
+    return cast("T", response.ok)
 
 
 def delete(
     session: Session,
     url: str,
     token: str | None = None,
-    args: dict[str, Any] | None = None,
+    params: dict[str, Any] | None = None,
 ) -> bool:
-    request_id = args.pop("request_id", None) if args else None
+    headers = create_headers(token=token)
 
-    headers = create_headers(token=token, request_id=request_id)
-
-    response = session.delete(url, headers=headers, timeout=TIMEOUT)
+    response = session.delete(url, params=params, headers=headers, timeout=TIMEOUT)
 
     response.raise_for_status()
     return response.ok

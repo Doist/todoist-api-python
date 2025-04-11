@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Use `dataclass-wizard` for object mapping
+- Update SDK to use the Todoist API v1 and corresponding changes
+  - Remove deprecated `Task.sync_id`, `Task.comment_count`, and `Project.comment_count`
+  - Replace `Task.is_completed` with `Task.completed_at`
+  - Add support for `calendar` in `Project.view_style`
+  - Rename `quick_add_task` to `add_task_quick`
+  - Add `filter_tasks`, extracting that workflow from `get_tasks`
+  - Paginate results via an `Iterator` in `get_tasks`, `filter_task`, `get_projects`,
+  `get_collaborators`, `get_sections`, `get_comments`, `get_labels`, `get_shared_labels`
+  - Remove support for `X-Request-Id` header, unused on the API level
+- Improve type hints and documentation
+- Hide internal modules and functions
+- Support for `note`, `reminder`, and `auto_reminder` in `add_task_quick`
 
 ### Fixes
 

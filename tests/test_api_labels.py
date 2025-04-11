@@ -1,18 +1,22 @@
 from __future__ import annotations
 
-import json
 from typing import TYPE_CHECKING, Any
 
 import pytest
 import responses
 
-from tests.data.test_defaults import DEFAULT_REQUEST_ID, REST_API_BASE_URL
-from tests.utils.test_utils import assert_auth_header, assert_request_id_header
+from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
+from tests.utils.test_utils import (
+    auth_matcher,
+    data_matcher,
+    enumerate_async,
+    param_matcher,
+)
 
 if TYPE_CHECKING:
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
-    from todoist_api_python.models import Label
+from todoist_api_python.models import Label
 
 
 @pytest.mark.asyncio
@@ -23,26 +27,25 @@ async def test_get_label(
     default_label_response: dict[str, Any],
     default_label: Label,
 ) -> None:
-    label_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/labels/{label_id}"
+    label_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/labels/{label_id}"
 
     requests_mock.add(
-        responses.GET,
-        expected_endpoint,
+        method=responses.GET,
+        url=endpoint,
         json=default_label_response,
         status=200,
+        match=[auth_matcher()],
     )
 
     label = todoist_api.get_label(label_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert label == default_label
 
     label = await todoist_api_async.get_label(label_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert label == default_label
 
 
@@ -51,27 +54,37 @@ async def test_get_labels(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
-    default_labels_response: list[dict[str, Any]],
-    default_labels_list: list[Label],
+    default_labels_response: list[PaginatedResults],
+    default_labels_list: list[list[Label]],
 ) -> None:
-    requests_mock.add(
-        responses.GET,
-        f"{REST_API_BASE_URL}/labels",
-        json=default_labels_response,
-        status=200,
-    )
+    endpoint = f"{DEFAULT_API_URL}/labels"
 
-    labels = todoist_api.get_labels()
+    cursor: str | None = None
+    for page in default_labels_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[auth_matcher(), param_matcher({}, cursor)],
+        )
+        cursor = page["next_cursor"]
 
-    assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert labels == default_labels_list
+    count = 0
 
-    labels = await todoist_api_async.get_labels()
+    labels_iter = todoist_api.get_labels()
 
-    assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert labels == default_labels_list
+    for i, labels in enumerate(labels_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert labels == default_labels_list[i]
+        count += 1
+
+    labels_async_iter = await todoist_api_async.get_labels()
+
+    async for i, labels in enumerate_async(labels_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert labels == default_labels_list[i]
+        count += 1
 
 
 @pytest.mark.asyncio
@@ -83,31 +96,23 @@ async def test_add_label_minimal(
     default_label: Label,
 ) -> None:
     label_name = "A Label"
-    expected_payload = {"name": label_name}
 
     requests_mock.add(
-        responses.POST,
-        f"{REST_API_BASE_URL}/labels",
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/labels",
         json=default_label_response,
         status=200,
+        match=[auth_matcher(), data_matcher({"name": label_name})],
     )
 
-    new_label = todoist_api.add_label(name=label_name, request_id=DEFAULT_REQUEST_ID)
+    new_label = todoist_api.add_label(name=label_name)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
     assert new_label == default_label
 
-    new_label = await todoist_api_async.add_label(
-        name=label_name, request_id=DEFAULT_REQUEST_ID
-    )
+    new_label = await todoist_api_async.add_label(name=label_name)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
     assert new_label == default_label
 
 
@@ -120,41 +125,28 @@ async def test_add_label_full(
     default_label: Label,
 ) -> None:
     label_name = "A Label"
-
-    optional_args = {
-        "color": 30,
-        "order": 3,
-        "favorite": True,
+    args: dict[str, Any] = {
+        "color": "red",
+        "item_order": 3,
+        "is_favorite": True,
     }
 
-    expected_payload: dict[str, Any] = {"name": label_name}
-    expected_payload.update(optional_args)
-
     requests_mock.add(
-        responses.POST,
-        f"{REST_API_BASE_URL}/labels",
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/labels",
         json=default_label_response,
         status=200,
+        match=[auth_matcher(), data_matcher({"name": label_name} | args)],
     )
 
-    new_label = todoist_api.add_label(
-        name=label_name, request_id=DEFAULT_REQUEST_ID, **optional_args
-    )
+    new_label = todoist_api.add_label(name=label_name, **args)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(expected_payload)
     assert new_label == default_label
 
-    new_label = await todoist_api_async.add_label(
-        name=label_name, request_id=DEFAULT_REQUEST_ID, **optional_args
-    )
+    new_label = await todoist_api_async.add_label(name=label_name, **args)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(expected_payload)
     assert new_label == default_label
 
 
@@ -163,39 +155,30 @@ async def test_update_label(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
+    default_label: Label,
 ) -> None:
-    label_id = "123"
-
-    args = {
+    args: dict[str, Any] = {
         "name": "An updated label",
-        "order": 2,
-        "color": 31,
-        "favorite": False,
     }
+    updated_label_dict = default_label.to_dict() | args
 
     requests_mock.add(
-        responses.POST, f"{REST_API_BASE_URL}/labels/{label_id}", status=204
+        method=responses.POST,
+        url=f"{DEFAULT_API_URL}/labels/{default_label.id}",
+        json=updated_label_dict,
+        status=200,
+        match=[auth_matcher(), data_matcher(args)],
     )
 
-    response = todoist_api.update_label(
-        label_id=label_id, request_id=DEFAULT_REQUEST_ID, **args
-    )
+    response = todoist_api.update_label(label_id=default_label.id, **args)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
-    assert_request_id_header(requests_mock.calls[0].request)
-    assert requests_mock.calls[0].request.body == json.dumps(args)
-    assert response is True
+    assert response == Label.from_dict(updated_label_dict)
 
-    response = await todoist_api_async.update_label(
-        label_id=label_id, request_id=DEFAULT_REQUEST_ID, **args
-    )
+    response = await todoist_api_async.update_label(label_id=default_label.id, **args)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
-    assert_request_id_header(requests_mock.calls[1].request)
-    assert requests_mock.calls[1].request.body == json.dumps(args)
-    assert response is True
+    assert response == Label.from_dict(updated_label_dict)
 
 
 @pytest.mark.asyncio
@@ -204,23 +187,21 @@ async def test_delete_label(
     todoist_api_async: TodoistAPIAsync,
     requests_mock: responses.RequestsMock,
 ) -> None:
-    label_id = "1234"
-    expected_endpoint = f"{REST_API_BASE_URL}/labels/{label_id}"
+    label_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/labels/{label_id}"
 
     requests_mock.add(
-        responses.DELETE,
-        expected_endpoint,
+        method=responses.DELETE,
+        url=endpoint,
         status=204,
     )
 
     response = todoist_api.delete_label(label_id)
 
     assert len(requests_mock.calls) == 1
-    assert_auth_header(requests_mock.calls[0].request)
     assert response is True
 
     response = await todoist_api_async.delete_label(label_id)
 
     assert len(requests_mock.calls) == 2
-    assert_auth_header(requests_mock.calls[1].request)
     assert response is True

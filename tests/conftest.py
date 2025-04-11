@@ -5,22 +5,22 @@ from typing import TYPE_CHECKING, Any
 import pytest
 import responses
 
-from tests.data.quick_add_responses import QUICK_ADD_RESPONSE_FULL
 from tests.data.test_defaults import (
     DEFAULT_AUTH_RESPONSE,
     DEFAULT_COLLABORATORS_RESPONSE,
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_COMMENTS_RESPONSE,
-    DEFAULT_COMPLETED_ITEMS_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_LABELS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_PROJECTS_RESPONSE,
     DEFAULT_SECTION_RESPONSE,
     DEFAULT_SECTIONS_RESPONSE,
+    DEFAULT_TASK_META_RESPONSE,
     DEFAULT_TASK_RESPONSE,
     DEFAULT_TASKS_RESPONSE,
     DEFAULT_TOKEN,
+    PaginatedResults,
 )
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
@@ -28,10 +28,8 @@ from todoist_api_python.models import (
     AuthResult,
     Collaborator,
     Comment,
-    CompletedItems,
     Label,
     Project,
-    QuickAddResult,
     Section,
     Task,
 )
@@ -62,18 +60,31 @@ def default_task_response() -> dict[str, Any]:
 
 
 @pytest.fixture
+def default_task_meta() -> Task:
+    return Task.from_dict(DEFAULT_TASK_META_RESPONSE)
+
+
+@pytest.fixture
+def default_task_meta_response() -> dict[str, Any]:
+    return DEFAULT_TASK_META_RESPONSE
+
+
+@pytest.fixture
 def default_task() -> Task:
     return Task.from_dict(DEFAULT_TASK_RESPONSE)
 
 
 @pytest.fixture
-def default_tasks_response() -> list[dict[str, Any]]:
+def default_tasks_response() -> list[PaginatedResults]:
     return DEFAULT_TASKS_RESPONSE
 
 
 @pytest.fixture
-def default_tasks_list() -> list[Task]:
-    return [Task.from_dict(obj) for obj in DEFAULT_TASKS_RESPONSE]
+def default_tasks_list() -> list[list[Task]]:
+    return [
+        [Task.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_TASKS_RESPONSE
+    ]
 
 
 @pytest.fixture
@@ -87,23 +98,29 @@ def default_project() -> Project:
 
 
 @pytest.fixture
-def default_projects_response() -> list[dict[str, Any]]:
+def default_projects_response() -> list[PaginatedResults]:
     return DEFAULT_PROJECTS_RESPONSE
 
 
 @pytest.fixture
-def default_projects_list() -> list[Project]:
-    return [Project.from_dict(obj) for obj in DEFAULT_PROJECTS_RESPONSE]
+def default_projects_list() -> list[list[Project]]:
+    return [
+        [Project.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_PROJECTS_RESPONSE
+    ]
 
 
 @pytest.fixture
-def default_collaborators_response() -> list[dict[str, Any]]:
+def default_collaborators_response() -> list[PaginatedResults]:
     return DEFAULT_COLLABORATORS_RESPONSE
 
 
 @pytest.fixture
-def default_collaborators_list() -> list[Collaborator]:
-    return [Collaborator.from_dict(obj) for obj in DEFAULT_COLLABORATORS_RESPONSE]
+def default_collaborators_list() -> list[list[Collaborator]]:
+    return [
+        [Collaborator.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_COLLABORATORS_RESPONSE
+    ]
 
 
 @pytest.fixture
@@ -117,13 +134,16 @@ def default_section() -> Section:
 
 
 @pytest.fixture
-def default_sections_response() -> list[dict[str, Any]]:
+def default_sections_response() -> list[PaginatedResults]:
     return DEFAULT_SECTIONS_RESPONSE
 
 
 @pytest.fixture
-def default_sections_list() -> list[Section]:
-    return [Section.from_dict(obj) for obj in DEFAULT_SECTIONS_RESPONSE]
+def default_sections_list() -> list[list[Section]]:
+    return [
+        [Section.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_SECTIONS_RESPONSE
+    ]
 
 
 @pytest.fixture
@@ -137,13 +157,16 @@ def default_comment() -> Comment:
 
 
 @pytest.fixture
-def default_comments_response() -> list[dict[str, Any]]:
+def default_comments_response() -> list[PaginatedResults]:
     return DEFAULT_COMMENTS_RESPONSE
 
 
 @pytest.fixture
-def default_comments_list() -> list[Comment]:
-    return [Comment.from_dict(obj) for obj in DEFAULT_COMMENTS_RESPONSE]
+def default_comments_list() -> list[list[Comment]]:
+    return [
+        [Comment.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_COMMENTS_RESPONSE
+    ]
 
 
 @pytest.fixture
@@ -157,23 +180,26 @@ def default_label() -> Label:
 
 
 @pytest.fixture
-def default_labels_response() -> list[dict[str, Any]]:
+def default_labels_response() -> list[PaginatedResults]:
     return DEFAULT_LABELS_RESPONSE
 
 
 @pytest.fixture
-def default_labels_list() -> list[Label]:
-    return [Label.from_dict(obj) for obj in DEFAULT_LABELS_RESPONSE]
+def default_labels_list() -> list[list[Label]]:
+    return [
+        [Label.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_LABELS_RESPONSE
+    ]
 
 
 @pytest.fixture
 def default_quick_add_response() -> dict[str, Any]:
-    return QUICK_ADD_RESPONSE_FULL
+    return DEFAULT_TASK_RESPONSE
 
 
 @pytest.fixture
-def default_quick_add_result() -> QuickAddResult:
-    return QuickAddResult.from_quick_add_response(QUICK_ADD_RESPONSE_FULL)
+def default_quick_add_result() -> Task:
+    return Task.from_dict(DEFAULT_TASK_RESPONSE)
 
 
 @pytest.fixture
@@ -184,13 +210,3 @@ def default_auth_response() -> dict[str, Any]:
 @pytest.fixture
 def default_auth_result() -> AuthResult:
     return AuthResult.from_dict(DEFAULT_AUTH_RESPONSE)
-
-
-@pytest.fixture
-def default_completed_items_response() -> dict[str, Any]:
-    return DEFAULT_COMPLETED_ITEMS_RESPONSE
-
-
-@pytest.fixture
-def default_completed_items() -> CompletedItems:
-    return CompletedItems.from_dict(DEFAULT_COMPLETED_ITEMS_RESPONSE)

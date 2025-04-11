@@ -10,7 +10,7 @@ It is best to integrate to a release tag to ensure a stable dependency:
 ```toml
 dependencies = [
   ...
-  "todoist-api-python>=8.0.0,<9",
+  "todoist-api-python>=3.0.0,<4",
   ...
 ]
 ```
@@ -27,20 +27,20 @@ An example of initializing the API client and fetching a user's tasks:
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.api import TodoistAPI
 
-# Fetch tasks asynchronously
-async def get_tasks_async():
-    api = TodoistAPIAsync("YOURTOKEN")
-    try:
-        tasks = await api.get_tasks()
-        print(tasks)
-    except Exception as error:
-        print(error)
-
 # Fetch tasks synchronously
 def get_tasks_sync():
     api = TodoistAPI("my token")
     try:
         tasks = api.get_tasks()
+        print(tasks)
+    except Exception as error:
+        print(error)
+
+# Fetch tasks asynchronously
+async def get_tasks_async():
+    api = TodoistAPIAsync("YOURTOKEN")
+    try:
+        tasks = await api.get_tasks()
         print(tasks)
     except Exception as error:
         print(error)
