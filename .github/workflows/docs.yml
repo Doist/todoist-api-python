@@ -1,15 +1,19 @@
-name: tests
+name: Publish docs
 
-on: [pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
-  build-test:
+  build-and-publish-docs:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -22,7 +26,7 @@ jobs:
           version: 0.6.11
 
       - name: Install project
-        run: uv sync --group dev
+        run: uv sync --group docs
 
-      - name: Test with pytest
-        run: uv run pytest
+      - name: Deploy to GitHub Pages
+        run: uv run mkdocs gh-deploy
