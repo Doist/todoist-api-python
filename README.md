@@ -1,17 +1,18 @@
 # Todoist API Python Client
 
-This is the official Python API client for the Todoist REST API.
+This is the official Python SDK for the Todoist API.
 
-### Installation
+## Installation
 
-The repository can be included as a dependency in `pyproject.toml`.
-It is best to integrate to a release tag to ensure a stable dependency:
+```bash
+pip install todoist-api-python
+```
+
+Or add the project as a dependency in `pyproject.toml`:
 
 ```toml
 dependencies = [
-  ...
   "todoist-api-python>=3.0.0,<4",
-  ...
 ]
 ```
 
@@ -19,60 +20,29 @@ dependencies = [
 
 While we only actively test under Python 3.13, we strive to support all versions from Python 3.9 and above.
 
-### Usage
+## Usage
 
-An example of initializing the API client and fetching a user's tasks:
+Here's an example of initializing the API client, fetching a task, and paginating through its comments:
 
 ```python
-from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.api import TodoistAPI
 
-# Fetch tasks synchronously
-def get_tasks_sync():
-    api = TodoistAPI("my token")
-    try:
-        tasks = api.get_tasks()
-        print(tasks)
-    except Exception as error:
-        print(error)
+api = TodoistAPI("YOUR_API_TOKEN")
 
-# Fetch tasks asynchronously
-async def get_tasks_async():
-    api = TodoistAPIAsync("YOURTOKEN")
-    try:
-        tasks = await api.get_tasks()
-        print(tasks)
-    except Exception as error:
-        print(error)
+task = api.get_task("6X4Vw2Hfmg73Q2XR")
+print(f"Task: {task.content}")
+
+comments_iter = api.get_comments(task_id=task.id)
+for comments in comments_iter:
+    for comment in comments:
+        print(f"Comment: {comment.content}")
 ```
 
-Example of paginating through a completed project tasks:
+## Documentation
 
-```python
-def get_all_completed_items(original_params: dict):
-    params = original_params.copy()
-    results = []
+For more detailed reference documentation, have a look at the [SDK documentation](https://doist.github.io/todoist-api-python/) and the [API documentation](https://developer.todoist.com).
 
-    while True:
-        response = api.get_completed_items(**(params | {"limit": 100}))
-        results.append(response.items)
-
-        if not response.has_more:
-            break
-
-        params["cursor"] = response.next_cursor
-
-    # flatten the results
-    return [item for sublist in results for item in sublist]
-
-items = get_all_completed_items({"project_id": 123})
-```
-
-### Documentation
-
-For more detailed reference documentation, have a look at the [API documentation with Python examples](https://developer.todoist.com/rest/v2/?python).
-
-### Development
+## Development
 
 To install Python dependencies:
 
@@ -104,10 +74,10 @@ A new update is automatically released by GitHub Actions, by creating a release 
 
 Users of the API client can then update to the new version in their `pyproject.toml` file.
 
-### Feedback
+## Feedback
 
-Any feedback, such as bugs, questions, comments, etc. can be reported as *Issues* in this repository, and will be handled by Doist.
+Any feedback, bugs, questions, comments, etc., can be reported as *Issues* in this repository.
 
 ### Contributions
 
-We would love contributions in the form of *Pull requests* in this repository.
+We would love contributions! *Pull requests* are welcome.

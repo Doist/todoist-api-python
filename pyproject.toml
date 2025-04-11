@@ -34,6 +34,12 @@ dev = [
   "ruff>=0.11.0,<0.12",
 ]
 
+docs = [
+  "mkdocs>=1.6.1,<2.0.0",
+  "mkdocstrings[python]>=0.29.1,<1.0.0",
+  "mkdocs-material>=9.6.11,<10.0.0",
+]
+
 [tool.hatch.build.targets.sdist]
 include = ["LICENSE"]
 
