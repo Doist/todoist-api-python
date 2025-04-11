@@ -112,6 +112,7 @@ class TodoistAPIAsync:
             ids=ids,
             limit=limit,
         )
+
         return generate_async(paginator)
 
     async def filter_tasks(
@@ -530,6 +531,33 @@ class TodoistAPIAsync:
                 view_style=view_style,
             )
         )
+
+    async def archive_project(self, project_id: str) -> Project:
+        """
+        Archive a project.
+
+        For personal projects, archives it only for the user.
+        For workspace projects, archives it for all members.
+
+        :param project_id: The ID of the project to archive.
+        :return: The archived project object.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Project dictionary.
+        """
+        return await run_async(lambda: self._api.archive_project(project_id))
+
+    async def unarchive_project(self, project_id: str) -> Project:
+        """
+        Unarchive a project.
+
+        Restores a previously archived project.
+
+        :param project_id: The ID of the project to unarchive.
+        :return: The unarchived project object.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Project dictionary.
+        """
+        return await run_async(lambda: self._api.unarchive_project(project_id))
 
     async def delete_project(self, project_id: str) -> bool:
         """

@@ -30,6 +30,7 @@ class Project(JSONPyWizard):
     is_collapsed: Annotated[bool, Alias(load=("collapsed", "is_collapsed"))]
     is_shared: Annotated[bool, Alias(load=("shared", "is_shared"))]
     is_favorite: bool
+    is_archived: bool
     can_assign_tasks: bool
     view_style: ViewStyle
     created_at: ApiDate

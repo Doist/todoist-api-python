@@ -181,6 +181,70 @@ async def test_update_project(
 
 
 @pytest.mark.asyncio
+async def test_archive_project(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_project: Project,
+) -> None:
+    project_id = default_project.id
+    endpoint = f"{DEFAULT_API_URL}/projects/{project_id}/archive"
+
+    archived_project_dict = default_project.to_dict()
+    archived_project_dict["is_archived"] = True
+
+    requests_mock.add(
+        method=responses.POST,
+        url=endpoint,
+        json=archived_project_dict,
+        status=200,
+        match=[auth_matcher()],
+    )
+
+    project = todoist_api.archive_project(project_id)
+
+    assert len(requests_mock.calls) == 1
+    assert project == Project.from_dict(archived_project_dict)
+
+    project = await todoist_api_async.archive_project(project_id)
+
+    assert len(requests_mock.calls) == 2
+    assert project == Project.from_dict(archived_project_dict)
+
+
+@pytest.mark.asyncio
+async def test_unarchive_project(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_project: Project,
+) -> None:
+    project_id = default_project.id
+    endpoint = f"{DEFAULT_API_URL}/projects/{project_id}/unarchive"
+
+    unarchived_project_dict = default_project.to_dict()
+    unarchived_project_dict["is_archived"] = False
+
+    requests_mock.add(
+        method=responses.POST,
+        url=endpoint,
+        json=unarchived_project_dict,
+        status=200,
+        match=[auth_matcher()],
+    )
+
+    project = todoist_api.unarchive_project(project_id)
+
+    assert len(requests_mock.calls) == 1
+    assert project == Project.from_dict(unarchived_project_dict)
+
+    project = await todoist_api_async.unarchive_project(project_id)
+
+    assert len(requests_mock.calls) == 2
+    assert project == Project.from_dict(unarchived_project_dict)
+
+
+@pytest.mark.asyncio
 async def test_delete_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,

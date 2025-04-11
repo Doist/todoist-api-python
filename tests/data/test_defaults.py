@@ -59,6 +59,7 @@ DEFAULT_PROJECT_RESPONSE = {
     "is_favorite": False,
     "is_inbox_project": True,
     "can_assign_tasks": False,
+    "is_archived": False,
     "view_style": "list",
     "created_at": "2023-02-01T00:00:00.000000Z",
     "updated_at": "2025-04-03T03:14:15.926536Z",
