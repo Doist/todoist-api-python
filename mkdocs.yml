@@ -2,6 +2,14 @@ site_name: "Todoist Python SDK"
 
 repo_url: https://github.com/Doist/todoist-api-python/
 
+nav:
+  - index.md
+  - authentication.md
+  - api.md
+  - api_async.md
+  - models.md
+  - changelog.md
+
 theme:
   name: material
   logo: assets/logo.svg
