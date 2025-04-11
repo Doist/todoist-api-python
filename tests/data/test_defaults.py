@@ -26,6 +26,11 @@ DEFAULT_DUE_RESPONSE = {
     "is_recurring": True,
 }
 
+DEFAULT_DEADLINE_RESPONSE = {
+    "date": "2016-09-01",
+    "lang": "en",
+}
+
 DEFAULT_DURATION_RESPONSE = {
     "amount": 60,
     "unit": "minute",
@@ -37,6 +42,7 @@ DEFAULT_META_RESPONSE: dict[str, Any] = {
     "assignee": [None, None],
     "labels": {},
     "due": None,
+    "deadline": None,
 }
 
 DEFAULT_PROJECT_RESPONSE = {
@@ -88,6 +94,7 @@ DEFAULT_TASK_RESPONSE: dict[str, Any] = {
     "labels": [],
     "priority": 1,
     "due": DEFAULT_DUE_RESPONSE,
+    "deadline": DEFAULT_DEADLINE_RESPONSE,
     "duration": DEFAULT_DURATION_RESPONSE,
     "collapsed": False,
     "child_order": 3,

@@ -75,6 +75,15 @@ class Due(JSONPyWizard):
 
 
 @dataclass
+class Deadline(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
+    date: ApiDue
+    lang: str = "en"
+
+
+@dataclass
 class Meta(JSONPyWizard):
     class _(JSONPyWizard.Meta):  # noqa:N801
         v1 = True
@@ -84,6 +93,7 @@ class Meta(JSONPyWizard):
     assignee: tuple[str, str]
     labels: dict[int, str]
     due: Due | None
+    deadline: Deadline | None
 
 
 @dataclass
@@ -100,6 +110,7 @@ class Task(JSONPyWizard):
     labels: list[str] | None
     priority: int
     due: Due | None
+    deadline: Deadline | None
     duration: Duration | None
     is_collapsed: Annotated[bool, Alias(load=("collapsed", "is_collapsed"))]
     order: Annotated[int, Alias(load=("child_order", "order"))]
