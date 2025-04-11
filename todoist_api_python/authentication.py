@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 from urllib.parse import urlencode
 
 import requests
@@ -17,8 +17,27 @@ from todoist_api_python._core.http_requests import delete, post
 from todoist_api_python._core.utils import run_async
 from todoist_api_python.models import AuthResult
 
+# task:add - Only create new tasks
+# data:read - Read-only access
+# data:read_write - Read and write access
+# data:delete - Full access including delete
+# project:delete - Can delete projects
 
-def get_authentication_url(client_id: str, scopes: list[str], state: str) -> str:
+"""
+Possible permission scopes:
+
+- data:read: Read-only access
+- data:read_write: Read and write access
+- data:delete: Full access including delete
+- task:add: Can create new tasks
+- project:delete: Can delete projects
+"""
+Scope = Literal[
+    "task:add", "data:read", "data:read_write", "data:delete", "project:delete"
+]
+
+
+def get_authentication_url(client_id: str, scopes: list[Scope], state: str) -> str:
     """Get authorization URL to initiate OAuth flow."""
     if len(scopes) == 0:
         raise ValueError("At least one authorization scope should be requested.")
