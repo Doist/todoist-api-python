@@ -8,6 +8,11 @@ class PaginatedResults(TypedDict):
     next_cursor: str | None
 
 
+class PaginatedItems(TypedDict):
+    items: list[dict[str, Any]]
+    next_cursor: str | None
+
+
 DEFAULT_API_URL = "https://api.todoist.com/api/v1"
 DEFAULT_OAUTH_URL = "https://todoist.com/oauth"
 
@@ -114,6 +119,28 @@ DEFAULT_TASKS_RESPONSE: list[PaginatedResults] = [
 DEFAULT_TASK_META_RESPONSE = dict(DEFAULT_TASK_RESPONSE)
 DEFAULT_TASK_META_RESPONSE["meta"] = DEFAULT_META_RESPONSE
 
+DEFAULT_COMPLETED_TASK_RESPONSE = dict(DEFAULT_TASK_RESPONSE)
+DEFAULT_COMPLETED_TASK_RESPONSE["completed_at"] = "2024-02-13T10:00:00.000000Z"
+
+DEFAULT_COMPLETED_TASK_RESPONSE_2 = dict(DEFAULT_COMPLETED_TASK_RESPONSE)
+DEFAULT_COMPLETED_TASK_RESPONSE_2["id"] = "6X7rfFVPjhvv84XG"
+
+DEFAULT_COMPLETED_TASK_RESPONSE_3 = dict(DEFAULT_COMPLETED_TASK_RESPONSE)
+DEFAULT_COMPLETED_TASK_RESPONSE_3["id"] = "6X7rfEVP8hvv25ZQ"
+
+DEFAULT_COMPLETED_TASKS_RESPONSE: list[PaginatedItems] = [
+    {
+        "items": [
+            DEFAULT_COMPLETED_TASK_RESPONSE,
+            DEFAULT_COMPLETED_TASK_RESPONSE_2,
+        ],
+        "next_cursor": "next",
+    },
+    {
+        "items": [DEFAULT_COMPLETED_TASK_RESPONSE_3],
+        "next_cursor": None,
+    },
+]
 
 DEFAULT_COLLABORATOR_RESPONSE = {
     "id": "6X7rM8997g3RQmvh",

@@ -10,6 +10,7 @@ from tests.data.test_defaults import (
     DEFAULT_COLLABORATORS_RESPONSE,
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_COMMENTS_RESPONSE,
+    DEFAULT_COMPLETED_TASKS_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_LABELS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
@@ -20,6 +21,7 @@ from tests.data.test_defaults import (
     DEFAULT_TASK_RESPONSE,
     DEFAULT_TASKS_RESPONSE,
     DEFAULT_TOKEN,
+    PaginatedItems,
     PaginatedResults,
 )
 from todoist_api_python.api import TodoistAPI
@@ -84,6 +86,19 @@ def default_tasks_list() -> list[list[Task]]:
     return [
         [Task.from_dict(result) for result in response["results"]]
         for response in DEFAULT_TASKS_RESPONSE
+    ]
+
+
+@pytest.fixture
+def default_completed_tasks_response() -> list[PaginatedItems]:
+    return DEFAULT_COMPLETED_TASKS_RESPONSE
+
+
+@pytest.fixture
+def default_completed_tasks_list() -> list[list[Task]]:
+    return [
+        [Task.from_dict(result) for result in response["items"]]
+        for response in DEFAULT_COMPLETED_TASKS_RESPONSE
     ]
 
 

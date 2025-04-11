@@ -16,6 +16,8 @@ from todoist_api_python._core.endpoints import (
     SHARED_LABELS_PATH,
     SHARED_LABELS_REMOVE_PATH,
     SHARED_LABELS_RENAME_PATH,
+    TASKS_COMPLETED_BY_COMPLETION_DATE_PATH,
+    TASKS_COMPLETED_BY_DUE_DATE_PATH,
     TASKS_FILTER_PATH,
     TASKS_PATH,
     TASKS_QUICK_ADD_PATH,
@@ -476,6 +478,116 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
         return delete(self._session, endpoint, self._token)
+
+    def get_completed_tasks_by_due_date(
+        self,
+        *,
+        since: datetime,
+        until: datetime,
+        workspace_id: str | None = None,
+        project_id: str | None = None,
+        section_id: str | None = None,
+        parent_id: str | None = None,
+        filter_query: str | None = None,
+        filter_lang: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[Task]]:
+        """
+        Get an iterable of lists of completed tasks within a due date range.
+
+        Retrieves tasks completed within a specific due date range (up to 6 weeks).
+        Supports filtering by workspace, project, section, parent task, or a query.
+
+        The response is an iterable of lists of completed tasks. Be aware that each
+        iteration fires off a network request to the Todoist API, and may result in
+        rate limiting or other API restrictions.
+
+        :param since: Start of the date range (inclusive).
+        :param until: End of the date range (inclusive).
+        :param workspace_id: Filter by workspace ID.
+        :param project_id: Filter by project ID.
+        :param section_id: Filter by section ID.
+        :param parent_id: Filter by parent task ID.
+        :param filter_query: Filter by a query string.
+        :param filter_lang: Language for the filter query (e.g., 'en').
+        :param limit: Maximum number of tasks per page (default 50).
+        :return: An iterable of lists of completed tasks.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        endpoint = get_api_url(TASKS_COMPLETED_BY_DUE_DATE_PATH)
+
+        params: dict[str, Any] = {
+            "since": format_datetime(since),
+            "until": format_datetime(until),
+        }
+        if workspace_id is not None:
+            params["workspace_id"] = workspace_id
+        if project_id is not None:
+            params["project_id"] = project_id
+        if section_id is not None:
+            params["section_id"] = section_id
+        if parent_id is not None:
+            params["parent_id"] = parent_id
+        if filter_query is not None:
+            params["filter_query"] = filter_query
+        if filter_lang is not None:
+            params["filter_lang"] = filter_lang
+        if limit is not None:
+            params["limit"] = limit
+
+        return ResultsPaginator(
+            self._session, endpoint, "items", Task.from_dict, self._token, params
+        )
+
+    def get_completed_tasks_by_completion_date(
+        self,
+        *,
+        since: datetime,
+        until: datetime,
+        workspace_id: str | None = None,
+        filter_query: str | None = None,
+        filter_lang: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[Task]]:
+        """
+        Get an iterable of lists of completed tasks within a date range.
+
+        Retrieves tasks completed within a specific date range (up to 3 months).
+        Supports filtering by workspace or a filter query.
+
+        The response is an iterable of lists of completed tasks. Be aware that each
+        iteration fires off a network request to the Todoist API, and may result in
+        rate limiting or other API restrictions.
+
+        :param since: Start of the date range (inclusive).
+        :param until: End of the date range (inclusive).
+        :param workspace_id: Filter by workspace ID.
+        :param filter_query: Filter by a query string.
+        :param filter_lang: Language for the filter query (e.g., 'en').
+        :param limit: Maximum number of tasks per page (default 50).
+        :return: An iterable of lists of completed tasks.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        endpoint = get_api_url(TASKS_COMPLETED_BY_COMPLETION_DATE_PATH)
+
+        params: dict[str, Any] = {
+            "since": format_datetime(since),
+            "until": format_datetime(until),
+        }
+        if workspace_id is not None:
+            params["workspace_id"] = workspace_id
+        if filter_query is not None:
+            params["filter_query"] = filter_query
+        if filter_lang is not None:
+            params["filter_lang"] = filter_lang
+        if limit is not None:
+            params["limit"] = limit
+
+        return ResultsPaginator(
+            self._session, endpoint, "items", Task.from_dict, self._token, params
+        )
 
     def get_project(self, project_id: str) -> Project:
         """

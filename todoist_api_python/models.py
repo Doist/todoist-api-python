@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Optional, Union
 
 from dataclass_wizard import JSONPyWizard
 from dataclass_wizard.v1 import DatePattern, DateTimePattern, UTCDateTimePattern
@@ -12,8 +12,7 @@ from todoist_api_python._core.endpoints import INBOX_URL, get_project_url, get_t
 ViewStyle = Literal["list", "board", "calendar"]
 DurationUnit = Literal["minute", "day"]
 ApiDate = UTCDateTimePattern["%FT%T.%fZ"]  # type: ignore[valid-type]
-ApiDue = Union[  # noqa: UP007
-    # https://github.com/rnag/dataclass-wizard/issues/189
+ApiDue = Union[  # noqa: UP007 # https://github.com/rnag/dataclass-wizard/issues/189
     DatePattern["%F"], DateTimePattern["%FT%T"], UTCDateTimePattern["%FT%TZ"]  # type: ignore[valid-type]  # noqa: F722
 ]
 
@@ -106,7 +105,7 @@ class Task(JSONPyWizard):
     order: Annotated[int, Alias(load=("child_order", "order"))]
     assignee_id: Annotated[str | None, Alias(load=("responsible_uid", "assignee_id"))]
     assigner_id: Annotated[str | None, Alias(load=("assigned_by_uid", "assigner_id"))]
-    completed_at: str | None
+    completed_at: Optional[ApiDate]  # noqa: UP007 # https://github.com/rnag/dataclass-wizard/issues/189
     creator_id: Annotated[str, Alias(load=("added_by_uid", "creator_id"))]
     created_at: Annotated[ApiDate, Alias(load=("added_at", "created_at"))]
     updated_at: ApiDate
@@ -116,6 +115,10 @@ class Task(JSONPyWizard):
     @property
     def url(self) -> str:
         return get_task_url(self.id, self.content)
+
+    @property
+    def is_completed(self) -> bool:
+        return self.completed_at is not None
 
 
 @dataclass

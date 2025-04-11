@@ -347,6 +347,95 @@ class TodoistAPIAsync:
         """
         return await run_async(lambda: self._api.delete_task(task_id))
 
+    async def get_completed_tasks_by_due_date(
+        self,
+        *,
+        since: datetime,
+        until: datetime,
+        workspace_id: str | None = None,
+        project_id: str | None = None,
+        section_id: str | None = None,
+        parent_id: str | None = None,
+        filter_query: str | None = None,
+        filter_lang: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> AsyncGenerator[list[Task]]:
+        """
+        Get an iterable of lists of completed tasks within a due date range.
+
+        Retrieves tasks completed within a specific due date range (up to 6 weeks).
+        Supports filtering by workspace, project, section, parent task, or a query.
+
+        The response is an iterable of lists of completed tasks. Be aware that each
+        iteration fires off a network request to the Todoist API, and may result in
+        rate limiting or other API restrictions.
+
+        :param since: Start of the date range (inclusive).
+        :param until: End of the date range (inclusive).
+        :param workspace_id: Filter by workspace ID.
+        :param project_id: Filter by project ID.
+        :param section_id: Filter by section ID.
+        :param parent_id: Filter by parent task ID.
+        :param filter_query: Filter by a query string.
+        :param filter_lang: Language for the filter query (e.g., 'en').
+        :param limit: Maximum number of tasks per page (default 50).
+        :return: An iterable of lists of completed tasks.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        paginator = self._api.get_completed_tasks_by_due_date(
+            since=since,
+            until=until,
+            workspace_id=workspace_id,
+            project_id=project_id,
+            section_id=section_id,
+            parent_id=parent_id,
+            filter_query=filter_query,
+            filter_lang=filter_lang,
+            limit=limit,
+        )
+        return generate_async(paginator)
+
+    async def get_completed_tasks_by_completion_date(
+        self,
+        *,
+        since: datetime,
+        until: datetime,
+        workspace_id: str | None = None,
+        filter_query: str | None = None,
+        filter_lang: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> AsyncGenerator[list[Task]]:
+        """
+        Get an iterable of lists of completed tasks within a date range.
+
+        Retrieves tasks completed within a specific date range (up to 3 months).
+        Supports filtering by workspace or a filter query.
+
+        The response is an iterable of lists of completed tasks. Be aware that each
+        iteration fires off a network request to the Todoist API, and may result in
+        rate limiting or other API restrictions.
+
+        :param since: Start of the date range (inclusive).
+        :param until: End of the date range (inclusive).
+        :param workspace_id: Filter by workspace ID.
+        :param filter_query: Filter by a query string.
+        :param filter_lang: Language for the filter query (e.g., 'en').
+        :param limit: Maximum number of tasks per page (default 50).
+        :return: An iterable of lists of completed tasks.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        paginator = self._api.get_completed_tasks_by_completion_date(
+            since=since,
+            until=until,
+            workspace_id=workspace_id,
+            filter_query=filter_query,
+            filter_lang=filter_lang,
+            limit=limit,
+        )
+        return generate_async(paginator)
+
     async def get_project(self, project_id: str) -> Project:
         """
         Get a project by its ID.
