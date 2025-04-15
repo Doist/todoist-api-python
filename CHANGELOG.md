@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2025-04-15
+
 ### Fixed
 
 - Wheel and source distributions didn't include the package itself
+- Project requiring Python 3.13 to be installed
 
 ## [3.0.0] - 2025-04-11
 
