@@ -40,11 +40,11 @@ docs = [
   "mkdocs-material>=9.6.11,<10.0.0",
 ]
 
-[tool.hatch.build.targets.sdist]
-include = ["LICENSE"]
-
 [tool.hatch.build.targets.wheel]
-include = ["LICENSE"]
+packages = ["todoist_api_python"]
+
+[tool.hatch.build.targets.sdist]
+packages = ["todoist_api_python"]
 
 [build-system]
 requires = ["hatchling"]
