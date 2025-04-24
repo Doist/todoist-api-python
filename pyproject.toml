@@ -81,7 +81,7 @@ warn_required_dynamic_aliases = true
 warn_untyped_fields = true
 
 [tool.ruff]
-target-version = "py313" # used by some linters like UP, FA, PERF
+target-version = "py39" # used by some linters like UP, FA, PERF
 
 [tool.ruff.lint]
 select = [

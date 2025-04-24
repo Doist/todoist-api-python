@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import sys
 from collections.abc import Callable, Iterator
-from typing import TYPE_CHECKING, Annotated, Any, Literal, Self, TypeVar
+from typing import TYPE_CHECKING, Annotated, Any, Literal, TypeVar
 from weakref import finalize
 
 import requests
@@ -40,6 +41,11 @@ from todoist_api_python.models import (
 if TYPE_CHECKING:
     from datetime import date, datetime
     from types import TracebackType
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    Self = TypeVar("Self", bound="TodoistAPI")
 
 
 LanguageCode = Annotated[str, Predicate(lambda x: len(x) == 2)]  # noqa: PLR2004
@@ -103,8 +109,7 @@ class TodoistAPI:
         The with statement will bind this method's return value to the target(s)
         specified in the as clause of the statement, if any.
 
-        :return: The TodoistAPI instance.
-        :rtype: Self
+        :return: This TodoistAPI instance.
         """
         return self
 
@@ -463,7 +468,6 @@ class TodoistAPI:
         :param task_id: The ID of the task to reopen.
         :return: True if the task was uncompleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :rtype: bool
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/reopen")

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Compatibility with Python 3.9 and Python 3.10
+
 ## [3.0.1] - 2025-04-15
 
 ### Fixed
@@ -37,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Add `filter_tasks`, extracting that workflow from `get_tasks`
   - Paginate results via an `Iterator` in `get_tasks`, `filter_task`, `get_projects`,
   `get_collaborators`, `get_sections`, `get_comments`, `get_labels`, `get_shared_labels`
-  - Receive `date` and `datetime` arguments as objects, not strings 
+  - Receive `date` and `datetime` arguments as objects, not strings
   - Remove support for `X-Request-Id` header, unused on the API level
 - "Hide" internal modules and functions
 - Task URLs are now obtained on demand, improving performance when not needed

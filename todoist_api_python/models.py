@@ -12,7 +12,7 @@ from todoist_api_python._core.endpoints import INBOX_URL, get_project_url, get_t
 ViewStyle = Literal["list", "board", "calendar"]
 DurationUnit = Literal["minute", "day"]
 ApiDate = UTCDateTimePattern["%FT%T.%fZ"]  # type: ignore[valid-type]
-ApiDue = Union[  # noqa: UP007 # https://github.com/rnag/dataclass-wizard/issues/189
+ApiDue = Union[  # https://github.com/rnag/dataclass-wizard/issues/189
     DatePattern["%F"], DateTimePattern["%FT%T"], UTCDateTimePattern["%FT%TZ"]  # type: ignore[valid-type]  # noqa: F722
 ]
 

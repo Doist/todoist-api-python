@@ -1,7 +1,13 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+import sys
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
+
+if sys.version_info >= (3, 11):
+    from datetime import UTC
+else:
+    UTC = timezone.utc
 
 import pytest
 import responses

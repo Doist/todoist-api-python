@@ -1,7 +1,17 @@
+from __future__ import annotations
+
 import asyncio
-from collections.abc import AsyncGenerator, Callable, Iterator
-from datetime import UTC, date, datetime
-from typing import TypeVar, cast
+import sys
+from datetime import date, datetime, timezone
+from typing import TYPE_CHECKING, TypeVar, cast
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator, Callable, Iterator
+
+if sys.version_info >= (3, 11):
+    from datetime import UTC
+else:
+    UTC = timezone.utc
 
 T = TypeVar("T")
 
