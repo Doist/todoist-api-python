@@ -150,3 +150,6 @@ convention = "pep257"
 
 [tool.ruff.format]
 docstring-code-format = true
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
