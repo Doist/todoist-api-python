@@ -216,7 +216,7 @@ DEFAULT_COMMENT_RESPONSE: dict[str, Any] = {
     "id": "6X7rM8997g3RQmvh",
     "content": "A comment",
     "posted_uid": "34567",
-    "posted_at": "2019-09-22T07:00:00.00000Z",
+    "posted_at": "2019-09-22T07:00:00.000000Z",
     "task_id": "6X7rM8997g3RQmvh",
     "project_id": "6X7rfEVP8hvv25ZQ",
     "attachment": DEFAULT_ATTACHMENT_RESPONSE,

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Literal, Self
+import sys
+from typing import TYPE_CHECKING, Annotated, Literal, TypeVar
 
 from annotated_types import Ge, Le, MaxLen, MinLen
 
@@ -30,6 +31,11 @@ from todoist_api_python.api import (
     ViewStyle,
 )
 
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:
+    Self = TypeVar("Self", bound="TodoistAPIAsync")
+
 
 class TodoistAPIAsync:
     """
@@ -58,7 +64,7 @@ class TodoistAPIAsync:
         The with statement will bind this method's return value to the target(s)
         specified in the as clause of the statement, if any.
 
-        :return: The TodoistAPIAsync instance.
+        :return: This TodoistAPIAsync instance.
         """
         return self
 
@@ -332,7 +338,6 @@ class TodoistAPIAsync:
         :param task_id: The ID of the task to reopen.
         :return: True if the task was uncompleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :rtype: bool
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         return await run_async(lambda: self._api.uncomplete_task(task_id))
