@@ -486,7 +486,7 @@ class TodoistAPI:
         Move a task to a different project, section, or parent task.
         Project_id takes precedence.
         Moving a task to a section or parent will update its project to match
-        the project of the section or parents task.
+        the project of the section or parent task.
 
         :param task_id: The ID of the task to reopen.
         :param project_id: The ID of the project to add the task to.
