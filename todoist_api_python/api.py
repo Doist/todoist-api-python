@@ -489,7 +489,7 @@ class TodoistAPI:
         and then `parent_id` (which also updates `section_id` and `project_id`).
 
         :param task_id: The ID of the task to move.
-        :param project_id: The ID of the project to add the task to.
+        :param project_id: The ID of the project to move the task to.
         :param section_id: The ID of the section to add the task to.
         :param parent_id: The ID of the parent task.
         :return: True if the task was moved successfully,
