@@ -473,6 +473,39 @@ class TodoistAPI:
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/reopen")
         return post(self._session, endpoint, self._token)
 
+    def move_task(
+        self,
+        task_id: str,
+        project_id: str | None = None,
+        section_id: str | None = None,
+        parent_id: str | None = None,
+    ) -> bool:
+        """
+        Move a task.
+
+        Move a task to a different project, section, or parent task.
+        Project_id takes precedence.
+        Moving a task to a section or parent will update its project to match
+        the section's project or parent's task.
+
+        :param task_id: The ID of the task to reopen.
+        :param project_id: The ID of the project to add the task to.
+        :param section_id: The ID of the section to add the task to.
+        :param parent_id: The ID of the parent task.
+        :return: True if the task was moved successfully,
+                 False otherwise (possibly raise `HTTPError` instead).
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        """
+        data: dict[str, Any] = {}
+        if project_id is not None:
+            data["project_id"] = project_id
+        if section_id is not None:
+            data["section_id"] = section_id
+        if parent_id is not None:
+            data["parent_id"] = parent_id
+        endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/move")
+        return post(self._session, endpoint, self._token, data=data)
+
     def delete_task(self, task_id: str) -> bool:
         """
         Delete a task.

@@ -437,6 +437,38 @@ async def test_uncomplete_task(
 
 
 @pytest.mark.asyncio
+async def test_move_task(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+) -> None:
+    task_id = "6X7rM8997g3RQmvh"
+    endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/move"
+
+    requests_mock.add(
+        method=responses.POST,
+        url=endpoint,
+        status=204,
+        match=[auth_matcher()],
+    )
+
+    response = todoist_api.move_task(task_id, project_id="123")
+
+    assert len(requests_mock.calls) == 1
+    assert response is True
+
+    response = await todoist_api_async.move_task(task_id, section_id="456")
+
+    assert len(requests_mock.calls) == 2
+    assert response is True
+
+    response = await todoist_api_async.move_task(task_id, parent_id="789")
+
+    assert len(requests_mock.calls) == 3
+    assert response is True
+
+
+@pytest.mark.asyncio
 async def test_delete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
