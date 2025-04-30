@@ -495,6 +495,7 @@ class TodoistAPI:
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
         :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises ValueError: If neither `project_id`, `section_id`, nor `parent_id` is provided.
         """
         data: dict[str, Any] = {}
         if project_id is not None:
