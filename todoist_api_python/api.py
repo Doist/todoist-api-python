@@ -491,7 +491,7 @@ class TodoistAPI:
         :param task_id: The ID of the task to move.
         :param project_id: The ID of the project to move the task to.
         :param section_id: The ID of the section to move the task to.
-        :param parent_id: The ID of the parent task.
+        :param parent_id: The ID of the parent to move the task to.
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
         :raises requests.exceptions.HTTPError: If the API request fails.
