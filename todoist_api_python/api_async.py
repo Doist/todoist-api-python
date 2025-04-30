@@ -350,8 +350,6 @@ class TodoistAPIAsync:
         parent_id: str | None = None,
     ) -> bool:
         """
-        Move a task.
-
         Move a task to a different project, section, or parent task.
 
         `project_id` takes predence, followed by
