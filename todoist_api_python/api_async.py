@@ -353,17 +353,21 @@ class TodoistAPIAsync:
         Move a task.
 
         Move a task to a different project, section, or parent task.
-        Project_id takes precedence.
-        Moving a task to a section or parent will update its project to match
-        the project of the section or parent task.
 
-        :param task_id: The ID of the task to reopen.
-        :param project_id: The ID of the project to add the task to.
-        :param section_id: The ID of the section to add the task to.
-        :param parent_id: The ID of the parent task.
+        `project_id` takes predence, followed by
+        `section_id` (which also updates `project_id`),
+        and then `parent_id` (which also updates `section_id` and `project_id`).
+
+        :param task_id: The ID of the task to move.
+        :param project_id: The ID of the project to move the task to.
+        :param section_id: The ID of the section to move the task to.
+        :param parent_id: The ID of the parent to move the task to.
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
         :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises ValueError: When `task_id` is not provided.
+        :raises ValueError: If neither `project_id`, `section_id`,
+                nor `parent_id` is provided.
         """
         return await run_async(
             lambda: self._api.move_task(

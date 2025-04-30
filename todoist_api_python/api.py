@@ -485,7 +485,8 @@ class TodoistAPI:
 
         Move a task to a different project, section, or parent task.
 
-        `project_id` takes predence, followed by `section_id` (which also updates `project_id`),
+        `project_id` takes predence, followed by
+        `section_id` (which also updates `project_id`),
         and then `parent_id` (which also updates `section_id` and `project_id`).
 
         :param task_id: The ID of the task to move.
@@ -495,8 +496,18 @@ class TodoistAPI:
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
         :raises requests.exceptions.HTTPError: If the API request fails.
-        :raises ValueError: If neither `project_id`, `section_id`, nor `parent_id` is provided.
+        :raises ValueError: When `task_id` is not provided.
+        :raises ValueError: If neither `project_id`, `section_id`,
+                nor `parent_id` is provided.
         """
+        if task_id is None:
+            raise ValueError("`task_id` must be provided.")
+
+        if project_id is None and section_id is None and parent_id is None:
+            raise ValueError(
+                "Either `project_id`, `section_id`, or `parent_id` must be provided."
+            )
+
         data: dict[str, Any] = {}
         if project_id is not None:
             data["project_id"] = project_id
