@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Automatic testing across all supported Python versions
+
 ### Fixed
 
 - Compatibility with Python 3.9 and Python 3.10
