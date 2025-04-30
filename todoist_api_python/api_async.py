@@ -365,7 +365,6 @@ class TodoistAPIAsync:
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
         :raises requests.exceptions.HTTPError: If the API request fails.
-        :raises ValueError: When `task_id` is not provided.
         :raises ValueError: If neither `project_id`, `section_id`,
                 nor `parent_id` is provided.
         """

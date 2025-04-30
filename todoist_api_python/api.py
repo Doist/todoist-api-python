@@ -496,13 +496,9 @@ class TodoistAPI:
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
         :raises requests.exceptions.HTTPError: If the API request fails.
-        :raises ValueError: When `task_id` is not provided.
         :raises ValueError: If neither `project_id`, `section_id`,
                 nor `parent_id` is provided.
         """
-        if task_id is None:
-            raise ValueError("`task_id` must be provided.")
-
         if project_id is None and section_id is None and parent_id is None:
             raise ValueError(
                 "Either `project_id`, `section_id`, or `parent_id` must be provided."

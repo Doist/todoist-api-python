@@ -467,6 +467,12 @@ async def test_move_task(
     assert len(requests_mock.calls) == 3
     assert response is True
 
+    with pytest.raises(
+        ValueError,
+        match="Either `project_id`, `section_id`, or `parent_id` must be provided.",
+    ):
+        response = await todoist_api_async.move_task(task_id)
+
 
 @pytest.mark.asyncio
 async def test_delete_task(
