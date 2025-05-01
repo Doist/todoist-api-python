@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+import uuid
 from collections.abc import Callable, Iterator
 from typing import TYPE_CHECKING, Annotated, Any, Literal, TypeVar
 from weakref import finalize
@@ -91,14 +92,21 @@ class TodoistAPI:
     to ensure the session is closed properly.
     """
 
-    def __init__(self, token: str, session: requests.Session | None = None) -> None:
+    def __init__(
+        self,
+        token: str,
+        request_id_fn: Callable[[], str] | None = lambda: str(uuid.uuid4()),
+        session: requests.Session | None = None,
+    ) -> None:
         """
         Initialize the TodoistAPI client.
 
         :param token: Authentication token for the Todoist API.
+        :param request_id_fn: Generator of request IDs for the `X-Request-ID` header.
         :param session: An optional pre-configured requests `Session` object.
         """
-        self._token: str = token
+        self._token = token
+        self._request_id_fn = request_id_fn
         self._session = session or requests.Session()
         self._finalizer = finalize(self, self._session.close)
 
@@ -132,7 +140,12 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Task dictionary.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
-        task_data: dict[str, Any] = get(self._session, endpoint, self._token)
+        task_data: dict[str, Any] = get(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
         return Task.from_dict(task_data)
 
     def get_tasks(
@@ -184,6 +197,7 @@ class TodoistAPI:
             "results",
             Task.from_dict,
             self._token,
+            self._request_id_fn,
             params,
         )
 
@@ -224,6 +238,7 @@ class TodoistAPI:
             "results",
             Task.from_dict,
             self._token,
+            self._request_id_fn,
             params,
         )
 
@@ -317,7 +332,11 @@ class TodoistAPI:
             data["deadline_lang"] = deadline_lang
 
         task_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Task.from_dict(task_data)
 
@@ -357,7 +376,11 @@ class TodoistAPI:
             data["reminder"] = reminder
 
         task_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Task.from_dict(task_data)
 
@@ -440,7 +463,11 @@ class TodoistAPI:
             data["deadline_lang"] = deadline_lang
 
         task_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Task.from_dict(task_data)
 
@@ -457,7 +484,12 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/close")
-        return post(self._session, endpoint, self._token)
+        return post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
 
     def uncomplete_task(self, task_id: str) -> bool:
         """
@@ -471,7 +503,12 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/reopen")
-        return post(self._session, endpoint, self._token)
+        return post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
 
     def move_task(
         self,
@@ -510,7 +547,13 @@ class TodoistAPI:
         if parent_id is not None:
             data["parent_id"] = parent_id
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/move")
-        return post(self._session, endpoint, self._token, data=data)
+        return post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
 
     def delete_task(self, task_id: str) -> bool:
         """
@@ -522,7 +565,12 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
-        return delete(self._session, endpoint, self._token)
+        return delete(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
 
     def get_completed_tasks_by_due_date(
         self,
@@ -582,7 +630,13 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session, endpoint, "items", Task.from_dict, self._token, params
+            self._session,
+            endpoint,
+            "items",
+            Task.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
         )
 
     def get_completed_tasks_by_completion_date(
@@ -631,7 +685,13 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session, endpoint, "items", Task.from_dict, self._token, params
+            self._session,
+            endpoint,
+            "items",
+            Task.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
         )
 
     def get_project(self, project_id: str) -> Project:
@@ -644,7 +704,12 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
-        project_data: dict[str, Any] = get(self._session, endpoint, self._token)
+        project_data: dict[str, Any] = get(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
         return Project.from_dict(project_data)
 
     def get_projects(
@@ -668,7 +733,13 @@ class TodoistAPI:
         if limit is not None:
             params["limit"] = limit
         return ResultsPaginator(
-            self._session, endpoint, "results", Project.from_dict, self._token, params
+            self._session,
+            endpoint,
+            "results",
+            Project.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
         )
 
     def add_project(
@@ -709,7 +780,11 @@ class TodoistAPI:
             data["view_style"] = view_style
 
         project_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Project.from_dict(project_data)
 
@@ -753,7 +828,11 @@ class TodoistAPI:
             data["view_style"] = view_style
 
         project_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Project.from_dict(project_data)
 
@@ -772,7 +851,12 @@ class TodoistAPI:
         endpoint = get_api_url(
             f"{PROJECTS_PATH}/{project_id}/{PROJECT_ARCHIVE_PATH_SUFFIX}"
         )
-        project_data: dict[str, Any] = post(self._session, endpoint, self._token)
+        project_data: dict[str, Any] = post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
         return Project.from_dict(project_data)
 
     def unarchive_project(self, project_id: str) -> Project:
@@ -789,7 +873,12 @@ class TodoistAPI:
         endpoint = get_api_url(
             f"{PROJECTS_PATH}/{project_id}/{PROJECT_UNARCHIVE_PATH_SUFFIX}"
         )
-        project_data: dict[str, Any] = post(self._session, endpoint, self._token)
+        project_data: dict[str, Any] = post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
         return Project.from_dict(project_data)
 
     def delete_project(self, project_id: str) -> bool:
@@ -804,7 +893,12 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
-        return delete(self._session, endpoint, self._token)
+        return delete(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
 
     def get_collaborators(
         self,
@@ -834,6 +928,7 @@ class TodoistAPI:
             "results",
             Collaborator.from_dict,
             self._token,
+            self._request_id_fn,
             params,
         )
 
@@ -847,7 +942,12 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Section dictionary.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
-        section_data: dict[str, Any] = get(self._session, endpoint, self._token)
+        section_data: dict[str, Any] = get(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
         return Section.from_dict(section_data)
 
     def get_sections(
@@ -880,7 +980,13 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session, endpoint, "results", Section.from_dict, self._token, params
+            self._session,
+            endpoint,
+            "results",
+            Section.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
         )
 
     def add_section(
@@ -907,7 +1013,11 @@ class TodoistAPI:
             data["order"] = order
 
         section_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Section.from_dict(section_data)
 
@@ -928,7 +1038,11 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
         section_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data={"name": name}
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data={"name": name},
         )
         return Section.from_dict(section_data)
 
@@ -944,7 +1058,12 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
-        return delete(self._session, endpoint, self._token)
+        return delete(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
 
     def get_comment(self, comment_id: str) -> Comment:
         """
@@ -956,7 +1075,12 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Comment dictionary.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
-        comment_data: dict[str, Any] = get(self._session, endpoint, self._token)
+        comment_data: dict[str, Any] = get(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
         return Comment.from_dict(comment_data)
 
     def get_comments(
@@ -997,7 +1121,13 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session, endpoint, "results", Comment.from_dict, self._token, params
+            self._session,
+            endpoint,
+            "results",
+            Comment.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
         )
 
     def add_comment(
@@ -1041,7 +1171,11 @@ class TodoistAPI:
             data["uids_to_notify"] = uids_to_notify
 
         comment_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Comment.from_dict(comment_data)
 
@@ -1060,7 +1194,11 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
         comment_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data={"content": content}
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data={"content": content},
         )
         return Comment.from_dict(comment_data)
 
@@ -1074,7 +1212,12 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
-        return delete(self._session, endpoint, self._token)
+        return delete(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
 
     def get_label(self, label_id: str) -> Label:
         """
@@ -1086,7 +1229,12 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Label dictionary.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
-        label_data: dict[str, Any] = get(self._session, endpoint, self._token)
+        label_data: dict[str, Any] = get(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
         return Label.from_dict(label_data)
 
     def get_labels(
@@ -1115,7 +1263,13 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session, endpoint, "results", Label.from_dict, self._token, params
+            self._session,
+            endpoint,
+            "results",
+            Label.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
         )
 
     def add_label(
@@ -1149,7 +1303,11 @@ class TodoistAPI:
             data["is_favorite"] = is_favorite
 
         label_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Label.from_dict(label_data)
 
@@ -1188,7 +1346,11 @@ class TodoistAPI:
             data["is_favorite"] = is_favorite
 
         label_data: dict[str, Any] = post(
-            self._session, endpoint, self._token, data=data
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
         )
         return Label.from_dict(label_data)
 
@@ -1204,7 +1366,12 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
-        return delete(self._session, endpoint, self._token)
+        return delete(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
 
     def get_shared_labels(
         self,
@@ -1236,7 +1403,13 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session, endpoint, "results", str, self._token, params
+            self._session,
+            endpoint,
+            "results",
+            str,
+            self._token,
+            self._request_id_fn,
+            params,
         )
 
     def rename_shared_label(
@@ -1274,7 +1447,13 @@ class TodoistAPI:
         """
         endpoint = get_api_url(SHARED_LABELS_REMOVE_PATH)
         data = {"name": name}
-        return post(self._session, endpoint, self._token, data=data)
+        return post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
 
 
 T = TypeVar("T")
@@ -1303,6 +1482,7 @@ class ResultsPaginator(Iterator[list[T]]):
         results_field: str,
         results_inst: Callable[[Any], T],
         token: str,
+        request_id_fn: Callable[[], str] | None,
         params: dict[str, Any],
     ) -> None:
         """
@@ -1320,6 +1500,7 @@ class ResultsPaginator(Iterator[list[T]]):
         self._results_field = results_field
         self._results_inst = results_inst
         self._token = token
+        self._request_id_fn = request_id_fn
         self._params = params
         self._cursor = ""  # empty string for first page
 
@@ -1338,7 +1519,13 @@ class ResultsPaginator(Iterator[list[T]]):
         if self._cursor != "":
             params["cursor"] = self._cursor
 
-        data: dict[str, Any] = get(self._session, self._url, self._token, params)
+        data: dict[str, Any] = get(
+            self._session,
+            self._url,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            params,
+        )
         self._cursor = data.get("next_cursor")
 
         results: list[Any] = data.get(self._results_field, [])

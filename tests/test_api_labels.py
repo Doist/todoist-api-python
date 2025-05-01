@@ -11,6 +11,7 @@ from tests.utils.test_utils import (
     data_matcher,
     enumerate_async,
     param_matcher,
+    request_id_matcher,
 )
 
 if TYPE_CHECKING:
@@ -66,7 +67,7 @@ async def test_get_labels(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher({}, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
         )
         cursor = page["next_cursor"]
 
@@ -102,7 +103,11 @@ async def test_add_label_minimal(
         url=f"{DEFAULT_API_URL}/labels",
         json=default_label_response,
         status=200,
-        match=[auth_matcher(), data_matcher({"name": label_name})],
+        match=[
+            auth_matcher(),
+            request_id_matcher(),
+            data_matcher({"name": label_name}),
+        ],
     )
 
     new_label = todoist_api.add_label(name=label_name)
@@ -136,7 +141,11 @@ async def test_add_label_full(
         url=f"{DEFAULT_API_URL}/labels",
         json=default_label_response,
         status=200,
-        match=[auth_matcher(), data_matcher({"name": label_name} | args)],
+        match=[
+            auth_matcher(),
+            request_id_matcher(),
+            data_matcher({"name": label_name} | args),
+        ],
     )
 
     new_label = todoist_api.add_label(name=label_name, **args)
@@ -167,7 +176,7 @@ async def test_update_label(
         url=f"{DEFAULT_API_URL}/labels/{default_label.id}",
         json=updated_label_dict,
         status=200,
-        match=[auth_matcher(), data_matcher(args)],
+        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_label(label_id=default_label.id, **args)

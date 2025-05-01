@@ -14,11 +14,15 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterable, AsyncIterator, Callable
 
 
-MATCH_ANY_REGEX = re.compile(".*")
+RE_UUID = re.compile(r"^[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}$", re.IGNORECASE)
 
 
 def auth_matcher() -> Callable[..., Any]:
     return matchers.header_matcher({"Authorization": f"Bearer {DEFAULT_TOKEN}"})
+
+
+def request_id_matcher(request_id: str | None = None) -> Callable[..., Any]:
+    return matchers.header_matcher({"X-Request-Id": request_id or RE_UUID})
 
 
 def param_matcher(

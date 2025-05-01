@@ -18,6 +18,7 @@ from tests.utils.test_utils import (
     data_matcher,
     enumerate_async,
     param_matcher,
+    request_id_matcher,
 )
 
 if TYPE_CHECKING:
@@ -41,7 +42,7 @@ async def test_get_task(
         method=responses.GET,
         url=endpoint,
         json=default_task_response,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     task = todoist_api.get_task(task_id)
@@ -72,7 +73,7 @@ async def test_get_tasks(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher({}, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
         )
         cursor = page["next_cursor"]
 
@@ -126,7 +127,7 @@ async def test_get_tasks_with_filters(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher(params, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
         )
         cursor = page["next_cursor"]
 
@@ -185,7 +186,7 @@ async def test_filter_tasks(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher(params, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
         )
         cursor = page["next_cursor"]
 
@@ -228,7 +229,11 @@ async def test_add_task_minimal(
         url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
-        match=[auth_matcher(), data_matcher({"content": content})],
+        match=[
+            auth_matcher(),
+            request_id_matcher(),
+            data_matcher({"content": content}),
+        ],
     )
 
     new_task = todoist_api.add_task(content=content)
@@ -276,6 +281,7 @@ async def test_add_task_full(
         status=200,
         match=[
             auth_matcher(),
+            request_id_matcher(),
             data_matcher(
                 {
                     "content": content,
@@ -318,6 +324,7 @@ async def test_add_task_quick(
         status=200,
         match=[
             auth_matcher(),
+            request_id_matcher(),
             data_matcher(
                 {
                     "meta": True,
@@ -368,7 +375,7 @@ async def test_update_task(
         url=f"{DEFAULT_API_URL}/tasks/{default_task.id}",
         json=updated_task_dict,
         status=200,
-        match=[auth_matcher(), data_matcher(args)],
+        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_task(task_id=default_task.id, **args)
@@ -395,7 +402,7 @@ async def test_complete_task(
         method=responses.POST,
         url=endpoint,
         status=204,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.complete_task(task_id)
@@ -422,7 +429,7 @@ async def test_uncomplete_task(
         method=responses.POST,
         url=endpoint,
         status=204,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.uncomplete_task(task_id)
@@ -449,7 +456,7 @@ async def test_move_task(
         method=responses.POST,
         url=endpoint,
         status=204,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.move_task(task_id, project_id="123")
@@ -487,7 +494,7 @@ async def test_delete_task(
         method=responses.DELETE,
         url=endpoint,
         status=204,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.delete_task(task_id)

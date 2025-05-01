@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import sys
-from typing import TYPE_CHECKING, Annotated, Literal, TypeVar
+import uuid
+from typing import TYPE_CHECKING, Annotated, Callable, Literal, TypeVar
 
 from annotated_types import Ge, Le, MaxLen, MinLen
 
@@ -48,14 +49,19 @@ class TodoistAPIAsync:
     manager to ensure the session is closed properly.
     """
 
-    def __init__(self, token: str, session: requests.Session | None = None) -> None:
+    def __init__(
+        self,
+        token: str,
+        request_id_fn: Callable[[], str] | None = lambda: str(uuid.uuid4()),
+        session: requests.Session | None = None,
+    ) -> None:
         """
         Initialize the TodoistAPIAsync client.
 
         :param token: Authentication token for the Todoist API.
         :param session: An optional pre-configured requests `Session` object.
         """
-        self._api = TodoistAPI(token, session)
+        self._api = TodoistAPI(token, request_id_fn, session)
 
     async def __aenter__(self) -> Self:
         """

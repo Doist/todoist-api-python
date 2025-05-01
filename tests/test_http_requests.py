@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 from typing import Any
 
 import pytest
@@ -8,8 +7,13 @@ import responses
 from requests import HTTPError, Session
 from responses.matchers import query_param_matcher
 
-from tests.data.test_defaults import DEFAULT_TOKEN
-from tests.utils.test_utils import auth_matcher, param_matcher
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, DEFAULT_TOKEN
+from tests.utils.test_utils import (
+    auth_matcher,
+    data_matcher,
+    param_matcher,
+    request_id_matcher,
+)
 from todoist_api_python._core.http_requests import delete, get, post
 
 EXAMPLE_URL = "https://example.com/"
@@ -25,11 +29,19 @@ def test_get_with_params(default_task_response: dict[str, Any]) -> None:
         url=EXAMPLE_URL,
         json=EXAMPLE_RESPONSE,
         status=200,
-        match=[auth_matcher(), param_matcher(EXAMPLE_PARAMS)],
+        match=[
+            auth_matcher(),
+            request_id_matcher(DEFAULT_REQUEST_ID),
+            param_matcher(EXAMPLE_PARAMS),
+        ],
     )
 
     response: dict[str, Any] = get(
-        session=Session(), url=EXAMPLE_URL, token=DEFAULT_TOKEN, params=EXAMPLE_PARAMS
+        session=Session(),
+        url=EXAMPLE_URL,
+        token=DEFAULT_TOKEN,
+        request_id=DEFAULT_REQUEST_ID,
+        params=EXAMPLE_PARAMS,
     )
 
     assert len(responses.calls) == 1
@@ -58,22 +70,22 @@ def test_post_with_data(default_task_response: dict[str, Any]) -> None:
         url=EXAMPLE_URL,
         json=EXAMPLE_RESPONSE,
         status=200,
+        match=[
+            auth_matcher(),
+            request_id_matcher(DEFAULT_REQUEST_ID),
+            data_matcher(EXAMPLE_DATA),
+        ],
     )
 
     response: dict[str, Any] = post(
-        session=Session(), url=EXAMPLE_URL, token=DEFAULT_TOKEN, data=EXAMPLE_DATA
+        session=Session(),
+        url=EXAMPLE_URL,
+        token=DEFAULT_TOKEN,
+        request_id=DEFAULT_REQUEST_ID,
+        data=EXAMPLE_DATA,
     )
 
     assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == EXAMPLE_URL
-    assert (
-        responses.calls[0].request.headers["Authorization"] == f"Bearer {DEFAULT_TOKEN}"
-    )
-    assert (
-        responses.calls[0].request.headers["Content-Type"]
-        == "application/json; charset=utf-8"
-    )
-    assert responses.calls[0].request.body == json.dumps(EXAMPLE_DATA)
     assert response == EXAMPLE_RESPONSE
 
 
@@ -107,13 +119,18 @@ def test_delete_with_params() -> None:
         method=responses.DELETE,
         url=EXAMPLE_URL,
         status=204,
-        match=[auth_matcher(), query_param_matcher(EXAMPLE_PARAMS)],
+        match=[
+            auth_matcher(),
+            request_id_matcher(DEFAULT_REQUEST_ID),
+            query_param_matcher(EXAMPLE_PARAMS),
+        ],
     )
 
     result = delete(
         session=Session(),
         url=EXAMPLE_URL,
         token=DEFAULT_TOKEN,
+        request_id=DEFAULT_REQUEST_ID,
         params=EXAMPLE_PARAMS,
     )
 
