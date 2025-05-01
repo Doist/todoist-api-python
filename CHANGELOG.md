@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Support for moving tasks, courtesy of @radiant-tangent
 - Automatic testing across all supported Python versions
 
 ### Fixed
