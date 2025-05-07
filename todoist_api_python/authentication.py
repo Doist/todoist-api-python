@@ -17,23 +17,23 @@ from todoist_api_python._core.http_requests import delete, post
 from todoist_api_python._core.utils import run_async
 from todoist_api_python.models import AuthResult
 
-# task:add - Only create new tasks
-# data:read - Read-only access
-# data:read_write - Read and write access
-# data:delete - Full access including delete
-# project:delete - Can delete projects
-
 """
 Possible permission scopes:
 
-- data:read: Read-only access
-- data:read_write: Read and write access
-- data:delete: Full access including delete
-- task:add: Can create new tasks
-- project:delete: Can delete projects
+- `data:read`: Read-only access
+- `data:read_write`: Read and write access
+- `data:delete`: Full access including delete
+- `task:add`: Can create new tasks
+- `project:delete`: Can delete projects
+- `backups:read`: Can access user backups without MFA
 """
 Scope = Literal[
-    "task:add", "data:read", "data:read_write", "data:delete", "project:delete"
+    "task:add",
+    "data:read",
+    "data:read_write",
+    "data:delete",
+    "project:delete",
+    "backups:read",
 ]
 
 
