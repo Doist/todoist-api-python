@@ -18,6 +18,8 @@ DEFAULT_OAUTH_URL = "https://todoist.com/oauth"
 
 DEFAULT_TOKEN = "some-default-token"
 
+DEFAULT_REQUEST_ID = "f00dbeef-cafe-4bad-a555-deadc0decafe"
+
 DEFAULT_DUE_RESPONSE = {
     "date": "2016-09-01",
     "timezone": "Europe/Moscow",

@@ -13,7 +13,12 @@ import pytest
 import responses
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedItems
-from tests.utils.test_utils import auth_matcher, enumerate_async, param_matcher
+from tests.utils.test_utils import (
+    auth_matcher,
+    enumerate_async,
+    param_matcher,
+    request_id_matcher,
+)
 from todoist_api_python._core.utils import format_datetime
 
 if TYPE_CHECKING:
@@ -51,7 +56,7 @@ async def test_get_completed_tasks_by_due_date(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher(params, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
         )
         cursor = page["next_cursor"]
 
@@ -111,7 +116,7 @@ async def test_get_completed_tasks_by_completion_date(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher(params, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
         )
         cursor = page["next_cursor"]
 

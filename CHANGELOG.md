@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for moving tasks, courtesy of @radiant-tangent
+- Re-add support for `X-Request-ID`
+  - Configurable via `request_id_fn` API constructor argument
+  - Defaults to random UUID v4
 - Automatic testing across all supported Python versions
 
 ### Fixed

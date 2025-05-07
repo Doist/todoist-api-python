@@ -27,10 +27,16 @@ def get(
     session: Session,
     url: str,
     token: str | None = None,
+    request_id: str | None = None,
     params: dict[str, Any] | None = None,
 ) -> T:  # type: ignore[type-var]
+    headers = create_headers(token=token, request_id=request_id)
+
     response = session.get(
-        url, params=params, headers=create_headers(token=token), timeout=TIMEOUT
+        url,
+        params=params,
+        headers=headers,
+        timeout=TIMEOUT,
     )
 
     if response.status_code == codes.OK:
@@ -44,11 +50,14 @@ def post(
     session: Session,
     url: str,
     token: str | None = None,
+    request_id: str | None = None,
     *,
     params: dict[str, Any] | None = None,
     data: dict[str, Any] | None = None,
 ) -> T:  # type: ignore[type-var]
-    headers = create_headers(token=token, with_content=bool(data))
+    headers = create_headers(
+        token=token, with_content=bool(data), request_id=request_id
+    )
 
     response = session.post(
         url,
@@ -69,9 +78,10 @@ def delete(
     session: Session,
     url: str,
     token: str | None = None,
+    request_id: str | None = None,
     params: dict[str, Any] | None = None,
 ) -> bool:
-    headers = create_headers(token=token)
+    headers = create_headers(token=token, request_id=request_id)
 
     response = session.delete(url, params=params, headers=headers, timeout=TIMEOUT)
 

@@ -14,6 +14,7 @@ from tests.utils.test_utils import (
     data_matcher,
     enumerate_async,
     param_matcher,
+    request_id_matcher,
 )
 from todoist_api_python.models import Attachment
 
@@ -40,7 +41,7 @@ async def test_get_comment(
         url=endpoint,
         json=default_comment_response,
         status=200,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     comment = todoist_api.get_comment(comment_id)
@@ -74,6 +75,7 @@ async def test_get_comments(
             status=200,
             match=[
                 auth_matcher(),
+                request_id_matcher(),
                 param_matcher({"task_id": task_id}, cursor),
             ],
         )
@@ -120,6 +122,7 @@ async def test_add_comment(
         status=200,
         match=[
             auth_matcher(),
+            request_id_matcher(),
             data_matcher(
                 {
                     "content": content,
@@ -166,7 +169,7 @@ async def test_update_comment(
         url=f"{DEFAULT_API_URL}/comments/{default_comment.id}",
         json=updated_comment_dict,
         status=200,
-        match=[auth_matcher(), data_matcher(args)],
+        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_comment(comment_id=default_comment.id, **args)
@@ -195,7 +198,7 @@ async def test_delete_comment(
         method=responses.DELETE,
         url=endpoint,
         status=204,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.delete_comment(comment_id)

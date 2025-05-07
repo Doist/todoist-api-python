@@ -11,6 +11,7 @@ from tests.utils.test_utils import (
     data_matcher,
     enumerate_async,
     param_matcher,
+    request_id_matcher,
 )
 
 if TYPE_CHECKING:
@@ -66,7 +67,7 @@ async def test_get_sections(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher({}, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
         )
         cursor = page["next_cursor"]
 
@@ -107,6 +108,7 @@ async def test_get_sections_by_project(
             status=200,
             match=[
                 auth_matcher(),
+                request_id_matcher(),
                 param_matcher({"project_id": project_id}, cursor),
             ],
         )
@@ -150,6 +152,7 @@ async def test_add_section(
         status=200,
         match=[
             auth_matcher(),
+            request_id_matcher(),
             data_matcher({"name": section_name, "project_id": project_id} | args),
         ],
     )
@@ -186,7 +189,7 @@ async def test_update_section(
         url=f"{DEFAULT_API_URL}/sections/{default_section.id}",
         json=updated_section_dict,
         status=200,
-        match=[auth_matcher(), data_matcher(args)],
+        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_section(section_id=default_section.id, **args)
@@ -215,7 +218,7 @@ async def test_delete_section(
         method=responses.DELETE,
         url=endpoint,
         status=204,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.delete_section(section_id)

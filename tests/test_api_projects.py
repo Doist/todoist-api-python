@@ -11,6 +11,7 @@ from tests.utils.test_utils import (
     data_matcher,
     enumerate_async,
     param_matcher,
+    request_id_matcher,
 )
 
 if TYPE_CHECKING:
@@ -66,7 +67,7 @@ async def test_get_projects(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher({}, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
         )
         cursor = page["next_cursor"]
 
@@ -102,7 +103,11 @@ async def test_add_project_minimal(
         url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
-        match=[auth_matcher(), data_matcher({"name": project_name})],
+        match=[
+            auth_matcher(),
+            request_id_matcher(),
+            data_matcher({"name": project_name}),
+        ],
     )
 
     new_project = todoist_api.add_project(name=project_name)
@@ -131,7 +136,11 @@ async def test_add_project_full(
         url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
-        match=[auth_matcher(), data_matcher({"name": project_name})],
+        match=[
+            auth_matcher(),
+            request_id_matcher(),
+            data_matcher({"name": project_name}),
+        ],
     )
 
     new_project = todoist_api.add_project(name=project_name)
@@ -164,7 +173,7 @@ async def test_update_project(
         url=f"{DEFAULT_API_URL}/projects/{default_project.id}",
         json=updated_project_dict,
         status=200,
-        match=[auth_matcher(), data_matcher(args)],
+        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_project(project_id=default_project.id, **args)
@@ -198,7 +207,7 @@ async def test_archive_project(
         url=endpoint,
         json=archived_project_dict,
         status=200,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     project = todoist_api.archive_project(project_id)
@@ -230,7 +239,7 @@ async def test_unarchive_project(
         url=endpoint,
         json=unarchived_project_dict,
         status=200,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     project = todoist_api.unarchive_project(project_id)
@@ -257,7 +266,7 @@ async def test_delete_project(
         method=responses.DELETE,
         url=endpoint,
         status=204,
-        match=[auth_matcher()],
+        match=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.delete_project(project_id)
@@ -289,7 +298,7 @@ async def test_get_collaborators(
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), param_matcher({}, cursor)],
+            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
         )
         cursor = page["next_cursor"]
 
