@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import sys
-import uuid
 from collections.abc import Callable, Iterator
 from typing import TYPE_CHECKING, Annotated, Any, Literal, TypeVar
 from weakref import finalize
@@ -28,7 +27,11 @@ from todoist_api_python._core.endpoints import (
     get_api_url,
 )
 from todoist_api_python._core.http_requests import delete, get, post
-from todoist_api_python._core.utils import format_date, format_datetime
+from todoist_api_python._core.utils import (
+    default_request_id_fn,
+    format_date,
+    format_datetime,
+)
 from todoist_api_python.models import (
     Attachment,
     Collaborator,
@@ -95,7 +98,7 @@ class TodoistAPI:
     def __init__(
         self,
         token: str,
-        request_id_fn: Callable[[], str] | None = lambda: str(uuid.uuid4()),
+        request_id_fn: Callable[[], str] | None = default_request_id_fn,
         session: requests.Session | None = None,
     ) -> None:
         """

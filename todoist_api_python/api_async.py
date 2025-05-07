@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import sys
-import uuid
 from typing import TYPE_CHECKING, Annotated, Callable, Literal, TypeVar
 
 from annotated_types import Ge, Le, MaxLen, MinLen
 
-from todoist_api_python._core.utils import generate_async, run_async
+from todoist_api_python._core.utils import (
+    default_request_id_fn,
+    generate_async,
+    run_async,
+)
 from todoist_api_python.api import TodoistAPI
 
 if TYPE_CHECKING:
@@ -52,7 +55,7 @@ class TodoistAPIAsync:
     def __init__(
         self,
         token: str,
-        request_id_fn: Callable[[], str] | None = lambda: str(uuid.uuid4()),
+        request_id_fn: Callable[[], str] | None = default_request_id_fn,
         session: requests.Session | None = None,
     ) -> None:
         """

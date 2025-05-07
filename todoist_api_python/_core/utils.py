@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import sys
+import uuid
 from datetime import date, datetime, timezone
 from typing import TYPE_CHECKING, TypeVar, cast
 
@@ -69,3 +70,8 @@ def parse_datetime(datetime_str: str) -> datetime:
         datetime_str = datetime_str[:-1] + "+00:00"
         return datetime.fromisoformat(datetime_str)
     return datetime.fromisoformat(datetime_str)
+
+
+def default_request_id_fn() -> str:
+    """Generate random UUIDv4s as the default request ID."""
+    return str(uuid.uuid4())
