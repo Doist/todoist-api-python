@@ -12,7 +12,7 @@ Or add the project as a dependency in `pyproject.toml`:
 
 ```toml
 dependencies = [
-  "todoist-api-python>=3.0.1,<4",
+  "todoist-api-python>=3.1.0,<4",
 ]
 ```
 
