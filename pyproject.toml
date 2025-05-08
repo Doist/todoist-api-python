@@ -21,7 +21,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/Doist/todoist-api-python"
 Repository = "https://github.com/Doist/todoist-api-python"
-Documentation = "https://developer.todoist.com/rest/"
+Documentation = "https://doist.github.io/todoist-api-python"
 
 [dependency-groups]
 dev = [
