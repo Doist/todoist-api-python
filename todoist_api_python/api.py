@@ -31,6 +31,7 @@ from todoist_api_python._core.utils import (
     default_request_id_fn,
     format_date,
     format_datetime,
+    log_method_calls
 )
 from todoist_api_python.models import (
     Attachment,
@@ -84,6 +85,7 @@ ColorString = Annotated[
 ViewStyle = Annotated[str, Predicate(lambda x: x in ("list", "board", "calendar"))]
 
 
+@log_method_calls(exclude_dunder=True)
 class TodoistAPI:
     """
     Client for the Todoist API.
