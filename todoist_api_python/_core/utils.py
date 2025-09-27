@@ -3,6 +3,9 @@ from __future__ import annotations
 import asyncio
 import sys
 import uuid
+import inspect
+import logging
+from functools import wraps
 from datetime import date, datetime, timezone
 from typing import TYPE_CHECKING, TypeVar, cast
 
@@ -75,3 +78,51 @@ def parse_datetime(datetime_str: str) -> datetime:
 def default_request_id_fn() -> str:
     """Generate random UUIDv4s as the default request ID."""
     return str(uuid.uuid4())
+
+
+def log_calls(func: Callable[..., T]) -> Callable[..., T]:
+    """
+    Decorator to log calls to a callable. Arguments and returned values are included in the log
+    """
+    # Create a 'call count' variable to differentiate between multiple calls to the same function
+    # Useful for recursion
+    func._call_count = 0
+
+    # Use inspect to get the module of the caller and the appropriate logger
+    funcs_module = inspect.getmodule(func)
+    logger = logging.getLogger(funcs_module.__name__ if funcs_module else "")
+    logger.debug(f"Wrapping function {func.__name__} with logger {logger}")
+
+    # Create the wrapped function which logs on function entry, with the arguments
+    # and on exit, with the return value
+    # Function calls are numbered to make the log file easier to search
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        func._call_count += 1
+        logger.debug(f"Call to function {func.__name__} (#{func._call_count}): Entering with args={args}, kwargs={kwargs}")
+        result = func(*args, **kwargs)
+        logger.debug(f"Call to function {func.__name__} (#{func._call_count}): Exiting with result={result}")
+        return result
+
+    return wrapper
+
+
+def log_method_calls(exclude_dunder: bool = True) -> Callable[[type], type]:
+    """
+    Class decorator to log calls to all methods of a class. Arguments and returned values are
+    included in the log.
+
+    Args:
+        exclude_dunder (bool): If True, exclude dunder methods (methods with names starting and
+            ending with '__') from logging. Default is True.
+    """
+    def class_decorator(cls: type) -> type:
+        for attr_name, attr_value in cls.__dict__.items():
+            if callable(attr_value):
+                if exclude_dunder and attr_name.startswith("__") and attr_name.endswith("__"):
+                    continue
+                decorated_attr = log_calls(attr_value)
+                setattr(cls, attr_name, decorated_attr)
+        return cls
+
+    return class_decorator
