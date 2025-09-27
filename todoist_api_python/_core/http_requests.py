@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from requests.status_codes import codes
 
 from todoist_api_python._core.http_headers import create_headers
+from todoist_api_python._core.utils import log_calls
 
 if TYPE_CHECKING:
     from requests import Session
@@ -22,7 +23,7 @@ TIMEOUT = (10, 60)
 
 T = TypeVar("T")
 
-
+@log_calls
 def get(
     session: Session,
     url: str,
@@ -45,7 +46,7 @@ def get(
     response.raise_for_status()
     return cast("T", response.ok)
 
-
+@log_calls
 def post(
     session: Session,
     url: str,
@@ -73,7 +74,7 @@ def post(
     response.raise_for_status()
     return cast("T", response.ok)
 
-
+@log_calls
 def delete(
     session: Session,
     url: str,
