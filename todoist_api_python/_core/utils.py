@@ -107,7 +107,9 @@ def log_calls(func: Callable[..., T]) -> Callable[..., T]:
     return wrapper
 
 
-def log_method_calls(exclude_dunder: bool = True) -> Callable[[type], type]:
+def log_method_calls(
+    exclude_properties: bool = True, exclude_private: bool = True, exclude_dunder: bool = True
+) -> Callable[[type], type]:
     """
     Class decorator to log calls to all methods of a class. Arguments and returned values are
     included in the log.
@@ -120,6 +122,10 @@ def log_method_calls(exclude_dunder: bool = True) -> Callable[[type], type]:
         for attr_name, attr_value in cls.__dict__.items():
             if callable(attr_value):
                 if exclude_dunder and attr_name.startswith("__") and attr_name.endswith("__"):
+                    continue
+                if exclude_private and attr_name.startswith("_"):
+                    continue
+                if exclude_properties and isinstance(getattr(cls, attr_name, None), property):
                     continue
                 decorated_attr = log_calls(attr_value)
                 setattr(cls, attr_name, decorated_attr)

@@ -85,7 +85,7 @@ ColorString = Annotated[
 ViewStyle = Annotated[str, Predicate(lambda x: x in ("list", "board", "calendar"))]
 
 
-@log_method_calls(exclude_dunder=True)
+@log_method_calls()
 class TodoistAPI:
     """
     Client for the Todoist API.
