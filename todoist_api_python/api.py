@@ -12,6 +12,7 @@ from todoist_api_python._core.endpoints import (
     COLLABORATORS_PATH,
     COMMENTS_PATH,
     LABELS_PATH,
+    LABELS_SEARCH_PATH_SUFFIX,
     PROJECT_ARCHIVE_PATH_SUFFIX,
     PROJECT_UNARCHIVE_PATH_SUFFIX,
     PROJECTS_PATH,
@@ -1330,7 +1331,7 @@ class TodoistAPI:
         Be aware that each iteration fires off a network request to the Todoist API,
         and may result in rate limiting or other API restrictions.
 
-        :param limit: ` number of labels per page.
+        :param limit: Maximum number of labels per page.
         :return: An iterable of lists of personal labels.
         :raises requests.exceptions.HTTPError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
@@ -1338,6 +1339,41 @@ class TodoistAPI:
         endpoint = get_api_url(LABELS_PATH)
 
         params: dict[str, Any] = {}
+        if limit is not None:
+            params["limit"] = limit
+
+        return ResultsPaginator(
+            self._session,
+            endpoint,
+            "results",
+            Label.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
+        )
+
+    def search_labels(
+        self,
+        query: Annotated[str, MinLen(1), MaxLen(1024)],
+        *,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[Label]]:
+        """
+        Search personal labels by name.
+
+        The response is an iterable of lists of labels matching the query.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param query: Query string for label names.
+        :param limit: Maximum number of labels per page.
+        :return: An iterable of lists of labels.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        endpoint = get_api_url(f"{LABELS_PATH}/{LABELS_SEARCH_PATH_SUFFIX}")
+
+        params: dict[str, Any] = {"query": query}
         if limit is not None:
             params["limit"] = limit
 

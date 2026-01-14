@@ -894,6 +894,28 @@ class TodoistAPIAsync:
         paginator = self._api.get_labels(limit=limit)
         return generate_async(paginator)
 
+    async def search_labels(
+        self,
+        query: Annotated[str, MinLen(1), MaxLen(1024)],
+        *,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> AsyncGenerator[list[Label]]:
+        """
+        Search personal labels by name.
+
+        The response is an iterable of lists of labels matching the query.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param query: Query string for label names.
+        :param limit: Maximum number of labels per page.
+        :return: An iterable of lists of labels.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        paginator = self._api.search_labels(query, limit=limit)
+        return generate_async(paginator)
+
     async def add_label(
         self,
         name: Annotated[str, MinLen(1), MaxLen(60)],
