@@ -689,6 +689,34 @@ class TodoistAPIAsync:
         paginator = self._api.get_sections(project_id=project_id, limit=limit)
         return generate_async(paginator)
 
+    async def search_sections(
+        self,
+        query: Annotated[str, MinLen(1), MaxLen(1024)],
+        *,
+        project_id: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> AsyncGenerator[list[Section]]:
+        """
+        Search active sections by name.
+
+        The response is an iterable of lists of sections matching the query.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param query: Query string for section names.
+        :param project_id: If set, search sections within the given project only.
+        :param limit: Maximum number of sections per page.
+        :return: An iterable of lists of sections.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        paginator = self._api.search_sections(
+            query,
+            project_id=project_id,
+            limit=limit,
+        )
+        return generate_async(paginator)
+
     async def add_section(
         self,
         name: Annotated[str, MinLen(1), MaxLen(2048)],

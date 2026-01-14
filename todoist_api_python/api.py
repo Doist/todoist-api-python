@@ -17,6 +17,7 @@ from todoist_api_python._core.endpoints import (
     PROJECTS_PATH,
     PROJECTS_SEARCH_PATH_SUFFIX,
     SECTIONS_PATH,
+    SECTIONS_SEARCH_PATH_SUFFIX,
     SHARED_LABELS_PATH,
     SHARED_LABELS_REMOVE_PATH,
     SHARED_LABELS_RENAME_PATH,
@@ -1013,6 +1014,45 @@ class TodoistAPI:
         endpoint = get_api_url(SECTIONS_PATH)
 
         params: dict[str, Any] = {}
+        if project_id is not None:
+            params["project_id"] = project_id
+        if limit is not None:
+            params["limit"] = limit
+
+        return ResultsPaginator(
+            self._session,
+            endpoint,
+            "results",
+            Section.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
+        )
+
+    def search_sections(
+        self,
+        query: Annotated[str, MinLen(1), MaxLen(1024)],
+        *,
+        project_id: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[Section]]:
+        """
+        Search active sections by name.
+
+        The response is an iterable of lists of sections matching the query.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param query: Query string for section names.
+        :param project_id: If set, search sections within the given project only.
+        :param limit: Maximum number of sections per page.
+        :return: An iterable of lists of sections.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        endpoint = get_api_url(f"{SECTIONS_PATH}/{SECTIONS_SEARCH_PATH_SUFFIX}")
+
+        params: dict[str, Any] = {"query": query}
         if project_id is not None:
             params["project_id"] = project_id
         if limit is not None:
