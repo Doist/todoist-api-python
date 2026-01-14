@@ -89,6 +89,49 @@ async def test_get_projects(
 
 
 @pytest.mark.asyncio
+async def test_search_projects(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_projects_response: list[PaginatedResults],
+    default_projects_list: list[list[Project]],
+) -> None:
+    endpoint = f"{DEFAULT_API_URL}/projects/search"
+    query = "Inbox"
+
+    cursor: str | None = None
+    for page in default_projects_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[
+                auth_matcher(),
+                request_id_matcher(),
+                param_matcher({"query": query}, cursor),
+            ],
+        )
+        cursor = page["next_cursor"]
+
+    count = 0
+
+    projects_iter = todoist_api.search_projects(query)
+
+    for i, projects in enumerate(projects_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert projects == default_projects_list[i]
+        count += 1
+
+    projects_async_iter = await todoist_api_async.search_projects(query)
+
+    async for i, projects in enumerate_async(projects_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert projects == default_projects_list[i]
+        count += 1
+
+
+@pytest.mark.asyncio
 async def test_add_project_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,

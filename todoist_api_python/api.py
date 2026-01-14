@@ -15,6 +15,7 @@ from todoist_api_python._core.endpoints import (
     PROJECT_ARCHIVE_PATH_SUFFIX,
     PROJECT_UNARCHIVE_PATH_SUFFIX,
     PROJECTS_PATH,
+    PROJECTS_SEARCH_PATH_SUFFIX,
     SECTIONS_PATH,
     SHARED_LABELS_PATH,
     SHARED_LABELS_REMOVE_PATH,
@@ -735,6 +736,41 @@ class TodoistAPI:
         params: dict[str, Any] = {}
         if limit is not None:
             params["limit"] = limit
+        return ResultsPaginator(
+            self._session,
+            endpoint,
+            "results",
+            Project.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
+        )
+
+    def search_projects(
+        self,
+        query: Annotated[str, MinLen(1), MaxLen(1024)],
+        *,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[Project]]:
+        """
+        Search active projects by name.
+
+        The response is an iterable of lists of projects matching the query.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param query: Query string for project names.
+        :param limit: Maximum number of projects per page.
+        :return: An iterable of lists of projects.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        endpoint = get_api_url(f"{PROJECTS_PATH}/{PROJECTS_SEARCH_PATH_SUFFIX}")
+
+        params: dict[str, Any] = {"query": query}
+        if limit is not None:
+            params["limit"] = limit
+
         return ResultsPaginator(
             self._session,
             endpoint,

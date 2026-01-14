@@ -510,6 +510,28 @@ class TodoistAPIAsync:
         paginator = self._api.get_projects(limit=limit)
         return generate_async(paginator)
 
+    async def search_projects(
+        self,
+        query: Annotated[str, MinLen(1), MaxLen(1024)],
+        *,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> AsyncGenerator[list[Project]]:
+        """
+        Search active projects by name.
+
+        The response is an iterable of lists of projects matching the query.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param query: Query string for project names.
+        :param limit: Maximum number of projects per page.
+        :return: An iterable of lists of projects.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        paginator = self._api.search_projects(query, limit=limit)
+        return generate_async(paginator)
+
     async def add_project(
         self,
         name: Annotated[str, MinLen(1), MaxLen(120)],
