@@ -89,6 +89,49 @@ async def test_get_labels(
 
 
 @pytest.mark.asyncio
+async def test_search_labels(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_labels_response: list[PaginatedResults],
+    default_labels_list: list[list[Label]],
+) -> None:
+    endpoint = f"{DEFAULT_API_URL}/labels/search"
+    query = "A label"
+
+    cursor: str | None = None
+    for page in default_labels_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[
+                auth_matcher(),
+                request_id_matcher(),
+                param_matcher({"query": query}, cursor),
+            ],
+        )
+        cursor = page["next_cursor"]
+
+    count = 0
+
+    labels_iter = todoist_api.search_labels(query)
+
+    for i, labels in enumerate(labels_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert labels == default_labels_list[i]
+        count += 1
+
+    labels_async_iter = await todoist_api_async.search_labels(query)
+
+    async for i, labels in enumerate_async(labels_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert labels == default_labels_list[i]
+        count += 1
+
+
+@pytest.mark.asyncio
 async def test_add_label_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,

@@ -132,6 +132,95 @@ async def test_get_sections_by_project(
 
 
 @pytest.mark.asyncio
+async def test_search_sections(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_sections_response: list[PaginatedResults],
+    default_sections_list: list[list[Section]],
+) -> None:
+    endpoint = f"{DEFAULT_API_URL}/sections/search"
+    query = "A Section"
+
+    cursor: str | None = None
+    for page in default_sections_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[
+                auth_matcher(),
+                request_id_matcher(),
+                param_matcher({"query": query}, cursor),
+            ],
+        )
+        cursor = page["next_cursor"]
+
+    count = 0
+
+    sections_iter = todoist_api.search_sections(query)
+
+    for i, sections in enumerate(sections_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert sections == default_sections_list[i]
+        count += 1
+
+    sections_async_iter = await todoist_api_async.search_sections(query)
+
+    async for i, sections in enumerate_async(sections_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert sections == default_sections_list[i]
+        count += 1
+
+
+@pytest.mark.asyncio
+async def test_search_sections_by_project(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    requests_mock: responses.RequestsMock,
+    default_sections_response: list[PaginatedResults],
+    default_sections_list: list[list[Section]],
+) -> None:
+    endpoint = f"{DEFAULT_API_URL}/sections/search"
+    project_id = "123"
+    query = "A Section"
+
+    cursor: str | None = None
+    for page in default_sections_response:
+        requests_mock.add(
+            method=responses.GET,
+            url=endpoint,
+            json=page,
+            status=200,
+            match=[
+                auth_matcher(),
+                request_id_matcher(),
+                param_matcher({"query": query, "project_id": project_id}, cursor),
+            ],
+        )
+        cursor = page["next_cursor"]
+
+    count = 0
+
+    sections_iter = todoist_api.search_sections(query, project_id=project_id)
+
+    for i, sections in enumerate(sections_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert sections == default_sections_list[i]
+        count += 1
+
+    sections_async_iter = await todoist_api_async.search_sections(
+        query, project_id=project_id
+    )
+
+    async for i, sections in enumerate_async(sections_async_iter):
+        assert len(requests_mock.calls) == count + 1
+        assert sections == default_sections_list[i]
+        count += 1
+
+
+@pytest.mark.asyncio
 async def test_add_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
