@@ -1,6 +1,6 @@
 [project]
 name = "todoist_api_python"
-version = "3.1.0"
+version = "3.2.0"
 description = "Official Python SDK for the Todoist API."
 authors = [{ name = "Doist Developers", email = "dev@doist.com" }]
 requires-python = "~=3.9"
