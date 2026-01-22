@@ -89,9 +89,9 @@ class Meta(JSONPyWizard):
     class _(JSONPyWizard.Meta):  # noqa:N801
         v1 = True
 
-    project: tuple[str, str]
-    section: tuple[str, str]
-    assignee: tuple[str, str]
+    project: tuple[str | None, str | None]
+    section: tuple[str | None, str | None]
+    assignee: tuple[str | None, str | None]
     labels: dict[int, str]
     due: Due | None
     deadline: Deadline | None
