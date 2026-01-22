@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.1] - 2026-01-22
+
+### Fixed
+
+- Type hints for `Meta` class fields (`project`, `section`, `assignee`) now correctly indicate that tuple values can be `None`
+
 ## [3.2.0] - 2026-01-16
 
 ### Added
