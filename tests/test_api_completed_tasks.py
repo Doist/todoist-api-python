@@ -10,7 +10,6 @@ else:
     UTC = timezone.utc
 
 import pytest
-import responses
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedItems
 from tests.utils.test_utils import (
@@ -22,6 +21,7 @@ from tests.utils.test_utils import (
 from todoist_api_python._core.utils import format_datetime
 
 if TYPE_CHECKING:
+    from tests.utils.http_mock import RequestsMock
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
     from todoist_api_python.models import Task
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 async def test_get_completed_tasks_by_due_date(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_completed_tasks_response: list[PaginatedItems],
     default_completed_tasks_list: list[list[Task]],
 ) -> None:
@@ -52,7 +52,7 @@ async def test_get_completed_tasks_by_due_date(
     cursor: str | None = None
     for page in default_completed_tasks_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -91,7 +91,7 @@ async def test_get_completed_tasks_by_due_date(
 async def test_get_completed_tasks_by_completion_date(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_completed_tasks_response: list[PaginatedItems],
     default_completed_tasks_list: list[list[Task]],
 ) -> None:
@@ -112,7 +112,7 @@ async def test_get_completed_tasks_by_completion_date(
     cursor: str | None = None
     for page in default_completed_tasks_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,

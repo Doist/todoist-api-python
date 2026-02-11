@@ -10,7 +10,6 @@ else:
     UTC = timezone.utc
 
 import pytest
-import responses
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
 from tests.utils.test_utils import (
@@ -22,6 +21,7 @@ from tests.utils.test_utils import (
 )
 
 if TYPE_CHECKING:
+    from tests.utils.http_mock import RequestsMock
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Task
@@ -31,7 +31,7 @@ from todoist_api_python.models import Task
 async def test_get_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
@@ -39,7 +39,7 @@ async def test_get_task(
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}"
 
     requests_mock.add(
-        method=responses.GET,
+        method="GET",
         url=endpoint,
         json=default_task_response,
         match=[auth_matcher(), request_id_matcher()],
@@ -60,7 +60,7 @@ async def test_get_task(
 async def test_get_tasks(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_tasks_response: list[PaginatedResults],
     default_tasks_list: list[list[Task]],
 ) -> None:
@@ -69,7 +69,7 @@ async def test_get_tasks(
     cursor: str | None = None
     for page in default_tasks_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -98,7 +98,7 @@ async def test_get_tasks(
 async def test_get_tasks_with_filters(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_tasks_response: list[PaginatedResults],
     default_tasks_list: list[list[Task]],
 ) -> None:
@@ -123,7 +123,7 @@ async def test_get_tasks_with_filters(
     cursor: str | None = None
     for page in default_tasks_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -166,7 +166,7 @@ async def test_get_tasks_with_filters(
 async def test_filter_tasks(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_tasks_response: list[PaginatedResults],
     default_tasks_list: list[list[Task]],
 ) -> None:
@@ -182,7 +182,7 @@ async def test_filter_tasks(
     cursor: str | None = None
     for page in default_tasks_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -218,14 +218,14 @@ async def test_filter_tasks(
 async def test_add_task_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
     content = "Some content"
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
@@ -251,7 +251,7 @@ async def test_add_task_minimal(
 async def test_add_task_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
@@ -275,7 +275,7 @@ async def test_add_task_full(
     }
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
@@ -309,7 +309,7 @@ async def test_add_task_full(
 async def test_add_task_quick(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_task_meta_response: dict[str, Any],
     default_task_meta: Task,
 ) -> None:
@@ -318,7 +318,7 @@ async def test_add_task_quick(
     auto_reminder = True
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/tasks/quick",
         json=default_task_meta_response,
         status=200,
@@ -359,7 +359,7 @@ async def test_add_task_quick(
 async def test_update_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_task: Task,
 ) -> None:
     args: dict[str, Any] = {
@@ -371,7 +371,7 @@ async def test_update_task(
     updated_task_dict = default_task.to_dict() | args
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/tasks/{default_task.id}",
         json=updated_task_dict,
         status=200,
@@ -393,13 +393,13 @@ async def test_update_task(
 async def test_complete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/close"
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=endpoint,
         status=204,
         match=[auth_matcher(), request_id_matcher()],
@@ -420,13 +420,13 @@ async def test_complete_task(
 async def test_uncomplete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/reopen"
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=endpoint,
         status=204,
         match=[auth_matcher(), request_id_matcher()],
@@ -447,13 +447,13 @@ async def test_uncomplete_task(
 async def test_move_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/move"
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=endpoint,
         status=204,
         match=[auth_matcher(), request_id_matcher()],
@@ -485,13 +485,13 @@ async def test_move_task(
 async def test_delete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}"
 
     requests_mock.add(
-        method=responses.DELETE,
+        method="DELETE",
         url=endpoint,
         status=204,
         match=[auth_matcher(), request_id_matcher()],

@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
-import responses
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
 from tests.utils.test_utils import (
@@ -15,6 +14,7 @@ from tests.utils.test_utils import (
 )
 
 if TYPE_CHECKING:
+    from tests.utils.http_mock import RequestsMock
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Section
@@ -24,7 +24,7 @@ from todoist_api_python.models import Section
 async def test_get_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_section_response: dict[str, Any],
     default_section: Section,
 ) -> None:
@@ -32,7 +32,7 @@ async def test_get_section(
     endpoint = f"{DEFAULT_API_URL}/sections/{section_id}"
 
     requests_mock.add(
-        method=responses.GET,
+        method="GET",
         url=endpoint,
         json=default_section_response,
         status=200,
@@ -54,7 +54,7 @@ async def test_get_section(
 async def test_get_sections(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_sections_response: list[PaginatedResults],
     default_sections_list: list[list[Section]],
 ) -> None:
@@ -63,7 +63,7 @@ async def test_get_sections(
     cursor: str | None = None
     for page in default_sections_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -92,7 +92,7 @@ async def test_get_sections(
 async def test_get_sections_by_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_sections_response: list[PaginatedResults],
     default_sections_list: list[list[Section]],
 ) -> None:
@@ -102,7 +102,7 @@ async def test_get_sections_by_project(
     cursor: str | None = None
     for page in default_sections_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -135,7 +135,7 @@ async def test_get_sections_by_project(
 async def test_search_sections(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_sections_response: list[PaginatedResults],
     default_sections_list: list[list[Section]],
 ) -> None:
@@ -145,7 +145,7 @@ async def test_search_sections(
     cursor: str | None = None
     for page in default_sections_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -178,7 +178,7 @@ async def test_search_sections(
 async def test_search_sections_by_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_sections_response: list[PaginatedResults],
     default_sections_list: list[list[Section]],
 ) -> None:
@@ -189,7 +189,7 @@ async def test_search_sections_by_project(
     cursor: str | None = None
     for page in default_sections_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -224,7 +224,7 @@ async def test_search_sections_by_project(
 async def test_add_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_section_response: dict[str, Any],
     default_section: Section,
 ) -> None:
@@ -235,7 +235,7 @@ async def test_add_section(
     }
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/sections",
         json=default_section_response,
         status=200,
@@ -265,7 +265,7 @@ async def test_add_section(
 async def test_update_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_section: Section,
 ) -> None:
     args = {
@@ -274,7 +274,7 @@ async def test_update_section(
     updated_section_dict = default_section.to_dict() | args
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/sections/{default_section.id}",
         json=updated_section_dict,
         status=200,
@@ -298,13 +298,13 @@ async def test_update_section(
 async def test_delete_section(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
 ) -> None:
     section_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/sections/{section_id}"
 
     requests_mock.add(
-        method=responses.DELETE,
+        method="DELETE",
         url=endpoint,
         status=204,
         match=[auth_matcher(), request_id_matcher()],

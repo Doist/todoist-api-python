@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
-import responses
+import pytest_asyncio
 
 from tests.data.test_defaults import (
     DEFAULT_AUTH_RESPONSE,
@@ -24,6 +24,7 @@ from tests.data.test_defaults import (
     PaginatedItems,
     PaginatedResults,
 )
+from tests.utils.http_mock import RequestsMock
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import (
@@ -37,23 +38,30 @@ from todoist_api_python.models import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import AsyncIterator, Iterator
+
+    import respx
 
 
 @pytest.fixture
-def requests_mock() -> Iterator[responses.RequestsMock]:
-    with responses.RequestsMock() as requests_mock:
-        yield requests_mock
+def requests_mock(respx_mock: respx.MockRouter) -> Iterator[RequestsMock]:
+    mock = RequestsMock(respx_mock)
+    yield mock
+    mock.assert_all_called()
 
 
 @pytest.fixture
-def todoist_api() -> TodoistAPI:
-    return TodoistAPI(DEFAULT_TOKEN)
+def todoist_api(respx_mock: respx.MockRouter) -> Iterator[TodoistAPI]:
+    with TodoistAPI(DEFAULT_TOKEN) as api:
+        yield api
 
 
-@pytest.fixture
-def todoist_api_async() -> TodoistAPIAsync:
-    return TodoistAPIAsync(DEFAULT_TOKEN)
+@pytest_asyncio.fixture
+async def todoist_api_async(
+    respx_mock: respx.MockRouter,
+) -> AsyncIterator[TodoistAPIAsync]:
+    async with TodoistAPIAsync(DEFAULT_TOKEN) as api:
+        yield api
 
 
 @pytest.fixture

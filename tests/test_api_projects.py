@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
-import responses
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
 from tests.utils.test_utils import (
@@ -15,6 +14,7 @@ from tests.utils.test_utils import (
 )
 
 if TYPE_CHECKING:
+    from tests.utils.http_mock import RequestsMock
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Collaborator, Project
@@ -24,7 +24,7 @@ from todoist_api_python.models import Collaborator, Project
 async def test_get_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_project_response: dict[str, Any],
     default_project: Project,
 ) -> None:
@@ -32,7 +32,7 @@ async def test_get_project(
     endpoint = f"{DEFAULT_API_URL}/projects/{project_id}"
 
     requests_mock.add(
-        method=responses.GET,
+        method="GET",
         url=endpoint,
         json=default_project_response,
         status=200,
@@ -54,7 +54,7 @@ async def test_get_project(
 async def test_get_projects(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_projects_response: list[PaginatedResults],
     default_projects_list: list[list[Project]],
 ) -> None:
@@ -63,7 +63,7 @@ async def test_get_projects(
     cursor: str | None = None
     for page in default_projects_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -92,7 +92,7 @@ async def test_get_projects(
 async def test_search_projects(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_projects_response: list[PaginatedResults],
     default_projects_list: list[list[Project]],
 ) -> None:
@@ -102,7 +102,7 @@ async def test_search_projects(
     cursor: str | None = None
     for page in default_projects_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -135,14 +135,14 @@ async def test_search_projects(
 async def test_add_project_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_project_response: dict[str, Any],
     default_project: Project,
 ) -> None:
     project_name = "A Project"
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
@@ -168,14 +168,14 @@ async def test_add_project_minimal(
 async def test_add_project_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_project_response: dict[str, Any],
     default_project: Project,
 ) -> None:
     project_name = "A Project"
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
@@ -201,7 +201,7 @@ async def test_add_project_full(
 async def test_update_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_project: Project,
 ) -> None:
     args: dict[str, Any] = {
@@ -212,7 +212,7 @@ async def test_update_project(
     updated_project_dict = default_project.to_dict() | args
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/projects/{default_project.id}",
         json=updated_project_dict,
         status=200,
@@ -236,7 +236,7 @@ async def test_update_project(
 async def test_archive_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_project: Project,
 ) -> None:
     project_id = default_project.id
@@ -246,7 +246,7 @@ async def test_archive_project(
     archived_project_dict["is_archived"] = True
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=endpoint,
         json=archived_project_dict,
         status=200,
@@ -268,7 +268,7 @@ async def test_archive_project(
 async def test_unarchive_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_project: Project,
 ) -> None:
     project_id = default_project.id
@@ -278,7 +278,7 @@ async def test_unarchive_project(
     unarchived_project_dict["is_archived"] = False
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=endpoint,
         json=unarchived_project_dict,
         status=200,
@@ -300,13 +300,13 @@ async def test_unarchive_project(
 async def test_delete_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
 ) -> None:
     project_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/projects/{project_id}"
 
     requests_mock.add(
-        method=responses.DELETE,
+        method="DELETE",
         url=endpoint,
         status=204,
         match=[auth_matcher(), request_id_matcher()],
@@ -327,7 +327,7 @@ async def test_delete_project(
 async def test_get_collaborators(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_collaborators_response: list[PaginatedResults],
     default_collaborators_list: list[list[Collaborator]],
 ) -> None:
@@ -337,7 +337,7 @@ async def test_get_collaborators(
     cursor: str | None = None
     for page in default_collaborators_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,

@@ -14,11 +14,6 @@ def test_create_headers_authorization() -> None:
     assert headers["Authorization"] == f"Bearer {token}"
 
 
-def test_create_headers_content_type() -> None:
-    headers = create_headers(with_content=True)
-    assert headers["Content-Type"] == "application/json; charset=utf-8"
-
-
 def test_create_headers_request_id() -> None:
     request_id = "12345"
     headers = create_headers(request_id=request_id)

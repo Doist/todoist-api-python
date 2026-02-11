@@ -1,81 +1,123 @@
 from __future__ import annotations
 
-import json
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import Any, TypeVar, cast
 
-from requests.status_codes import codes
+import httpx
 
 from todoist_api_python._core.http_headers import create_headers
 
-if TYPE_CHECKING:
-    from requests import Session
-
-
 # Timeouts for requests.
 #
-# 10 seconds for connecting is a recurring default and adheres to python-requests's
-# recommendation of picking a value slightly larger than a multiple of 3.
+# 10 seconds for connecting is a recurring default and adheres to common HTTP
+# client recommendations of picking a value slightly larger than a multiple of 3.
 #
-# 60 seconds for reading aligns with Todoist's own internal timeout. All requests are
-# forcefully terminated after this time, so there is no point waiting any longer.
-TIMEOUT = (10, 60)
+# 60 seconds for reading aligns with Todoist's own internal timeout. All requests
+# are forcefully terminated after this time, so there is no point waiting longer.
+TIMEOUT = httpx.Timeout(connect=10.0, read=60.0, write=60.0, pool=10.0)
 
 T = TypeVar("T")
 
 
+def _parse_response(
+    response: httpx.Response,
+    _result_type: type[T] | None = None,
+) -> T:
+    response.raise_for_status()
+
+    if response.status_code == httpx.codes.NO_CONTENT:
+        return cast("T", response.is_success)
+
+    return cast("T", response.json())
+
+
 def get(
-    session: Session,
+    client: httpx.Client,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-) -> T:  # type: ignore[type-var]
+    result_type: type[T] | None = None,
+) -> T:
     headers = create_headers(token=token, request_id=request_id)
 
-    response = session.get(
+    response = client.get(
         url,
         params=params,
         headers=headers,
         timeout=TIMEOUT,
     )
 
-    if response.status_code == codes.OK:
-        return cast("T", response.json())
+    return _parse_response(response, result_type)
 
-    response.raise_for_status()
-    return cast("T", response.ok)
+
+async def get_async(
+    client: httpx.AsyncClient,
+    url: str,
+    token: str | None = None,
+    request_id: str | None = None,
+    params: dict[str, Any] | None = None,
+    result_type: type[T] | None = None,
+) -> T:
+    headers = create_headers(token=token, request_id=request_id)
+
+    response = await client.get(
+        url,
+        params=params,
+        headers=headers,
+        timeout=TIMEOUT,
+    )
+
+    return _parse_response(response, result_type)
 
 
 def post(
-    session: Session,
+    client: httpx.Client,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     *,
     params: dict[str, Any] | None = None,
     data: dict[str, Any] | None = None,
-) -> T:  # type: ignore[type-var]
-    headers = create_headers(
-        token=token, with_content=bool(data), request_id=request_id
-    )
+    result_type: type[T] | None = None,
+) -> T:
+    headers = create_headers(token=token, request_id=request_id)
 
-    response = session.post(
+    response = client.post(
         url,
         headers=headers,
-        data=json.dumps(data) if data else None,
+        json=data if data else None,
         params=params,
         timeout=TIMEOUT,
     )
 
-    if response.status_code == codes.OK:
-        return cast("T", response.json())
+    return _parse_response(response, result_type)
 
-    response.raise_for_status()
-    return cast("T", response.ok)
+
+async def post_async(
+    client: httpx.AsyncClient,
+    url: str,
+    token: str | None = None,
+    request_id: str | None = None,
+    *,
+    params: dict[str, Any] | None = None,
+    data: dict[str, Any] | None = None,
+    result_type: type[T] | None = None,
+) -> T:
+    headers = create_headers(token=token, request_id=request_id)
+
+    response = await client.post(
+        url,
+        headers=headers,
+        json=data if data else None,
+        params=params,
+        timeout=TIMEOUT,
+    )
+
+    return _parse_response(response, result_type)
 
 
 def delete(
-    session: Session,
+    client: httpx.Client,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
@@ -83,7 +125,22 @@ def delete(
 ) -> bool:
     headers = create_headers(token=token, request_id=request_id)
 
-    response = session.delete(url, params=params, headers=headers, timeout=TIMEOUT)
+    response = client.delete(url, params=params, headers=headers, timeout=TIMEOUT)
 
     response.raise_for_status()
-    return response.ok
+    return response.is_success
+
+
+async def delete_async(
+    client: httpx.AsyncClient,
+    url: str,
+    token: str | None = None,
+    request_id: str | None = None,
+    params: dict[str, Any] | None = None,
+) -> bool:
+    headers = create_headers(token=token, request_id=request_id)
+
+    response = await client.delete(url, params=params, headers=headers, timeout=TIMEOUT)
+
+    response.raise_for_status()
+    return response.is_success

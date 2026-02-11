@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
-import responses
 
 from tests.data.test_defaults import (
     DEFAULT_API_URL,
@@ -19,6 +18,7 @@ from tests.utils.test_utils import (
 from todoist_api_python.models import Attachment
 
 if TYPE_CHECKING:
+    from tests.utils.http_mock import RequestsMock
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
 
@@ -29,7 +29,7 @@ from todoist_api_python.models import Comment
 async def test_get_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_comment_response: dict[str, Any],
     default_comment: Comment,
 ) -> None:
@@ -37,7 +37,7 @@ async def test_get_comment(
     endpoint = f"{DEFAULT_API_URL}/comments/{comment_id}"
 
     requests_mock.add(
-        method=responses.GET,
+        method="GET",
         url=endpoint,
         json=default_comment_response,
         status=200,
@@ -59,7 +59,7 @@ async def test_get_comment(
 async def test_get_comments(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_comments_response: list[PaginatedResults],
     default_comments_list: list[list[Comment]],
 ) -> None:
@@ -69,7 +69,7 @@ async def test_get_comments(
     cursor: str | None = None
     for page in default_comments_response:
         requests_mock.add(
-            method=responses.GET,
+            method="GET",
             url=endpoint,
             json=page,
             status=200,
@@ -102,7 +102,7 @@ async def test_get_comments(
 async def test_add_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_comment_response: dict[str, Any],
     default_comment: Comment,
 ) -> None:
@@ -116,7 +116,7 @@ async def test_add_comment(
     )
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/comments",
         json=default_comment_response,
         status=200,
@@ -156,7 +156,7 @@ async def test_add_comment(
 async def test_update_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
     default_comment: Comment,
 ) -> None:
     args = {
@@ -165,7 +165,7 @@ async def test_update_comment(
     updated_comment_dict = default_comment.to_dict() | args
 
     requests_mock.add(
-        method=responses.POST,
+        method="POST",
         url=f"{DEFAULT_API_URL}/comments/{default_comment.id}",
         json=updated_comment_dict,
         status=200,
@@ -189,13 +189,13 @@ async def test_update_comment(
 async def test_delete_comment(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    requests_mock: RequestsMock,
 ) -> None:
     comment_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/comments/{comment_id}"
 
     requests_mock.add(
-        method=responses.DELETE,
+        method="DELETE",
         url=endpoint,
         status=204,
         match=[auth_matcher(), request_id_matcher()],
