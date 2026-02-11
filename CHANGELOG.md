@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `TodoistAPIAsync` now performs true async HTTP I/O with `httpx.AsyncClient`.
+
+### Changed
+
+- **Breaking**: `TodoistAPI` now accepts an optional `client: httpx.Client` instead of `session: requests.Session`.
+- **Breaking**: `TodoistAPIAsync` now accepts an optional `client: httpx.AsyncClient` instead of `session: requests.Session`.
+- **Breaking**: Async paginated return types now use `AsyncIterator[...]` instead of `AsyncGenerator[...]`.
+- **Breaking**: API errors now raise `httpx.HTTPStatusError` instead of `requests.exceptions.HTTPError`.
+- **Breaking**: Authentication helpers now accept optional `httpx.Client` / `httpx.AsyncClient` instances instead of `session: requests.Session`.
+
 ## [3.2.1] - 2026-01-22
 
 ### Fixed
