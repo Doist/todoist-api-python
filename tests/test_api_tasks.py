@@ -16,12 +16,13 @@ from tests.utils.test_utils import (
     auth_matcher,
     data_matcher,
     enumerate_async,
-    param_matcher,
+    mock_route,
     request_id_matcher,
 )
 
 if TYPE_CHECKING:
-    from tests.utils.http_mock import RequestsMock
+    import respx
+
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Task
@@ -31,28 +32,29 @@ from todoist_api_python.models import Task
 async def test_get_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="GET",
         url=endpoint,
         json=default_task_response,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     task = todoist_api.get_task(task_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert task == default_task
 
     task = await todoist_api_async.get_task(task_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert task == default_task
 
 
@@ -60,7 +62,7 @@ async def test_get_task(
 async def test_get_tasks(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_tasks_response: list[PaginatedResults],
     default_tasks_list: list[list[Task]],
 ) -> None:
@@ -68,12 +70,14 @@ async def test_get_tasks(
 
     cursor: str | None = None
     for page in default_tasks_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
+            params={"cursor": cursor} if cursor else {},
+            matchers=[auth_matcher(), request_id_matcher()],
         )
         cursor = page["next_cursor"]
 
@@ -82,14 +86,14 @@ async def test_get_tasks(
     tasks_iter = todoist_api.get_tasks()
 
     for i, tasks in enumerate(tasks_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_tasks_list[i]
         count += 1
 
     tasks_async_iter = await todoist_api_async.get_tasks()
 
     async for i, tasks in enumerate_async(tasks_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_tasks_list[i]
         count += 1
 
@@ -98,7 +102,7 @@ async def test_get_tasks(
 async def test_get_tasks_with_filters(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_tasks_response: list[PaginatedResults],
     default_tasks_list: list[list[Task]],
 ) -> None:
@@ -122,12 +126,17 @@ async def test_get_tasks_with_filters(
 
     cursor: str | None = None
     for page in default_tasks_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
+            params=params | ({"cursor": cursor} if cursor else {}),
+            matchers=[
+                auth_matcher(),
+                request_id_matcher(),
+            ],
         )
         cursor = page["next_cursor"]
 
@@ -143,7 +152,7 @@ async def test_get_tasks_with_filters(
     )
 
     for i, tasks in enumerate(tasks_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_tasks_list[i]
         count += 1
 
@@ -157,7 +166,7 @@ async def test_get_tasks_with_filters(
     )
 
     async for i, tasks in enumerate_async(tasks_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_tasks_list[i]
         count += 1
 
@@ -166,7 +175,7 @@ async def test_get_tasks_with_filters(
 async def test_filter_tasks(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_tasks_response: list[PaginatedResults],
     default_tasks_list: list[list[Task]],
 ) -> None:
@@ -181,12 +190,17 @@ async def test_filter_tasks(
 
     cursor: str | None = None
     for page in default_tasks_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
+            params=params | ({"cursor": cursor} if cursor else {}),
+            matchers=[
+                auth_matcher(),
+                request_id_matcher(),
+            ],
         )
         cursor = page["next_cursor"]
 
@@ -198,7 +212,7 @@ async def test_filter_tasks(
     )
 
     for i, tasks in enumerate(tasks_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_tasks_list[i]
         count += 1
 
@@ -209,7 +223,7 @@ async def test_filter_tasks(
     )
 
     async for i, tasks in enumerate_async(tasks_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_tasks_list[i]
         count += 1
 
@@ -218,18 +232,19 @@ async def test_filter_tasks(
 async def test_add_task_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
     content = "Some content"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
-        match=[
+        matchers=[
             auth_matcher(),
             request_id_matcher(),
             data_matcher({"content": content}),
@@ -238,12 +253,12 @@ async def test_add_task_minimal(
 
     new_task = todoist_api.add_task(content=content)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert new_task == default_task
 
     new_task = await todoist_api_async.add_task(content=content)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert new_task == default_task
 
 
@@ -251,7 +266,7 @@ async def test_add_task_minimal(
 async def test_add_task_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_task_response: dict[str, Any],
     default_task: Task,
 ) -> None:
@@ -274,12 +289,13 @@ async def test_add_task_full(
         "duration_unit": "minute",
     }
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks",
         json=default_task_response,
         status=200,
-        match=[
+        matchers=[
             auth_matcher(),
             request_id_matcher(),
             data_matcher(
@@ -294,14 +310,14 @@ async def test_add_task_full(
 
     new_task = todoist_api.add_task(content=content, due_datetime=due_datetime, **args)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert new_task == default_task
 
     new_task = await todoist_api_async.add_task(
         content=content, due_datetime=due_datetime, **args
     )
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert new_task == default_task
 
 
@@ -309,7 +325,7 @@ async def test_add_task_full(
 async def test_add_task_quick(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_task_meta_response: dict[str, Any],
     default_task_meta: Task,
 ) -> None:
@@ -317,12 +333,13 @@ async def test_add_task_quick(
     note = "Whole milk x6"
     auto_reminder = True
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks/quick",
         json=default_task_meta_response,
         status=200,
-        match=[
+        matchers=[
             auth_matcher(),
             request_id_matcher(),
             data_matcher(
@@ -342,7 +359,7 @@ async def test_add_task_quick(
         auto_reminder=auto_reminder,
     )
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert task == default_task_meta
 
     task = await todoist_api_async.add_task_quick(
@@ -351,7 +368,7 @@ async def test_add_task_quick(
         auto_reminder=auto_reminder,
     )
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert task == default_task_meta
 
 
@@ -359,7 +376,7 @@ async def test_add_task_quick(
 async def test_update_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_task: Task,
 ) -> None:
     args: dict[str, Any] = {
@@ -370,22 +387,23 @@ async def test_update_task(
     }
     updated_task_dict = default_task.to_dict() | args
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks/{default_task.id}",
         json=updated_task_dict,
         status=200,
-        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_task(task_id=default_task.id, **args)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response == Task.from_dict(updated_task_dict)
 
     response = await todoist_api_async.update_task(task_id=default_task.id, **args)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response == Task.from_dict(updated_task_dict)
 
 
@@ -393,26 +411,27 @@ async def test_update_task(
 async def test_complete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/close"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=endpoint,
         status=204,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.complete_task(task_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response is True
 
     response = await todoist_api_async.complete_task(task_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response is True
 
 
@@ -420,26 +439,27 @@ async def test_complete_task(
 async def test_uncomplete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/reopen"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=endpoint,
         status=204,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.uncomplete_task(task_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response is True
 
     response = await todoist_api_async.uncomplete_task(task_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response is True
 
 
@@ -447,31 +467,32 @@ async def test_uncomplete_task(
 async def test_move_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}/move"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=endpoint,
         status=204,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.move_task(task_id, project_id="123")
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response is True
 
     response = await todoist_api_async.move_task(task_id, section_id="456")
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response is True
 
     response = await todoist_api_async.move_task(task_id, parent_id="789")
 
-    assert len(requests_mock.calls) == 3
+    assert len(respx_mock.calls) == 3
     assert response is True
 
     with pytest.raises(
@@ -485,24 +506,25 @@ async def test_move_task(
 async def test_delete_task(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/tasks/{task_id}"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="DELETE",
         url=endpoint,
         status=204,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.delete_task(task_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response is True
 
     response = await todoist_api_async.delete_task(task_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response is True

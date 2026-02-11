@@ -24,7 +24,6 @@ from tests.data.test_defaults import (
     PaginatedItems,
     PaginatedResults,
 )
-from tests.utils.http_mock import RequestsMock
 from todoist_api_python.api import TodoistAPI
 from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import (
@@ -40,26 +39,15 @@ from todoist_api_python.models import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator
 
-    import respx
-
 
 @pytest.fixture
-def requests_mock(respx_mock: respx.MockRouter) -> Iterator[RequestsMock]:
-    mock = RequestsMock(respx_mock)
-    yield mock
-    mock.assert_all_called()
-
-
-@pytest.fixture
-def todoist_api(respx_mock: respx.MockRouter) -> Iterator[TodoistAPI]:
+def todoist_api() -> Iterator[TodoistAPI]:
     with TodoistAPI(DEFAULT_TOKEN) as api:
         yield api
 
 
 @pytest_asyncio.fixture
-async def todoist_api_async(
-    respx_mock: respx.MockRouter,
-) -> AsyncIterator[TodoistAPIAsync]:
+async def todoist_api_async() -> AsyncIterator[TodoistAPIAsync]:
     async with TodoistAPIAsync(DEFAULT_TOKEN) as api:
         yield api
 

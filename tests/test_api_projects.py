@@ -9,12 +9,13 @@ from tests.utils.test_utils import (
     auth_matcher,
     data_matcher,
     enumerate_async,
-    param_matcher,
+    mock_route,
     request_id_matcher,
 )
 
 if TYPE_CHECKING:
-    from tests.utils.http_mock import RequestsMock
+    import respx
+
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Collaborator, Project
@@ -24,29 +25,30 @@ from todoist_api_python.models import Collaborator, Project
 async def test_get_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_project_response: dict[str, Any],
     default_project: Project,
 ) -> None:
     project_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/projects/{project_id}"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="GET",
         url=endpoint,
         json=default_project_response,
         status=200,
-        match=[auth_matcher()],
+        matchers=[auth_matcher()],
     )
 
     project = todoist_api.get_project(project_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert project == default_project
 
     project = await todoist_api_async.get_project(project_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert project == default_project
 
 
@@ -54,7 +56,7 @@ async def test_get_project(
 async def test_get_projects(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_projects_response: list[PaginatedResults],
     default_projects_list: list[list[Project]],
 ) -> None:
@@ -62,12 +64,14 @@ async def test_get_projects(
 
     cursor: str | None = None
     for page in default_projects_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
+            params={"cursor": cursor} if cursor else {},
+            matchers=[auth_matcher(), request_id_matcher()],
         )
         cursor = page["next_cursor"]
 
@@ -76,14 +80,14 @@ async def test_get_projects(
     projects_iter = todoist_api.get_projects()
 
     for i, projects in enumerate(projects_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert projects == default_projects_list[i]
         count += 1
 
     projects_async_iter = await todoist_api_async.get_projects()
 
     async for i, projects in enumerate_async(projects_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert projects == default_projects_list[i]
         count += 1
 
@@ -92,7 +96,7 @@ async def test_get_projects(
 async def test_search_projects(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_projects_response: list[PaginatedResults],
     default_projects_list: list[list[Project]],
 ) -> None:
@@ -101,15 +105,16 @@ async def test_search_projects(
 
     cursor: str | None = None
     for page in default_projects_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[
+            params={"query": query} | ({"cursor": cursor} if cursor else {}),
+            matchers=[
                 auth_matcher(),
                 request_id_matcher(),
-                param_matcher({"query": query}, cursor),
             ],
         )
         cursor = page["next_cursor"]
@@ -119,14 +124,14 @@ async def test_search_projects(
     projects_iter = todoist_api.search_projects(query)
 
     for i, projects in enumerate(projects_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert projects == default_projects_list[i]
         count += 1
 
     projects_async_iter = await todoist_api_async.search_projects(query)
 
     async for i, projects in enumerate_async(projects_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert projects == default_projects_list[i]
         count += 1
 
@@ -135,18 +140,19 @@ async def test_search_projects(
 async def test_add_project_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_project_response: dict[str, Any],
     default_project: Project,
 ) -> None:
     project_name = "A Project"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
-        match=[
+        matchers=[
             auth_matcher(),
             request_id_matcher(),
             data_matcher({"name": project_name}),
@@ -155,12 +161,12 @@ async def test_add_project_minimal(
 
     new_project = todoist_api.add_project(name=project_name)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert new_project == default_project
 
     new_project = await todoist_api_async.add_project(name=project_name)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert new_project == default_project
 
 
@@ -168,32 +174,40 @@ async def test_add_project_minimal(
 async def test_add_project_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_project_response: dict[str, Any],
     default_project: Project,
 ) -> None:
     project_name = "A Project"
+    args: dict[str, Any] = {
+        "description": "A project description",
+        "parent_id": "3Ty8VQXxpwv28PK3",
+        "color": "red",
+        "is_favorite": True,
+        "view_style": "board",
+    }
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/projects",
         json=default_project_response,
         status=200,
-        match=[
+        matchers=[
             auth_matcher(),
             request_id_matcher(),
-            data_matcher({"name": project_name}),
+            data_matcher({"name": project_name} | args),
         ],
     )
 
-    new_project = todoist_api.add_project(name=project_name)
+    new_project = todoist_api.add_project(name=project_name, **args)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert new_project == default_project
 
-    new_project = await todoist_api_async.add_project(name=project_name)
+    new_project = await todoist_api_async.add_project(name=project_name, **args)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert new_project == default_project
 
 
@@ -201,7 +215,7 @@ async def test_add_project_full(
 async def test_update_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_project: Project,
 ) -> None:
     args: dict[str, Any] = {
@@ -211,24 +225,25 @@ async def test_update_project(
     }
     updated_project_dict = default_project.to_dict() | args
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/projects/{default_project.id}",
         json=updated_project_dict,
         status=200,
-        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_project(project_id=default_project.id, **args)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response == Project.from_dict(updated_project_dict)
 
     response = await todoist_api_async.update_project(
         project_id=default_project.id, **args
     )
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response == Project.from_dict(updated_project_dict)
 
 
@@ -236,7 +251,7 @@ async def test_update_project(
 async def test_archive_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_project: Project,
 ) -> None:
     project_id = default_project.id
@@ -245,22 +260,23 @@ async def test_archive_project(
     archived_project_dict = default_project.to_dict()
     archived_project_dict["is_archived"] = True
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=endpoint,
         json=archived_project_dict,
         status=200,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     project = todoist_api.archive_project(project_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert project == Project.from_dict(archived_project_dict)
 
     project = await todoist_api_async.archive_project(project_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert project == Project.from_dict(archived_project_dict)
 
 
@@ -268,7 +284,7 @@ async def test_archive_project(
 async def test_unarchive_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_project: Project,
 ) -> None:
     project_id = default_project.id
@@ -277,22 +293,23 @@ async def test_unarchive_project(
     unarchived_project_dict = default_project.to_dict()
     unarchived_project_dict["is_archived"] = False
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=endpoint,
         json=unarchived_project_dict,
         status=200,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     project = todoist_api.unarchive_project(project_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert project == Project.from_dict(unarchived_project_dict)
 
     project = await todoist_api_async.unarchive_project(project_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert project == Project.from_dict(unarchived_project_dict)
 
 
@@ -300,26 +317,27 @@ async def test_unarchive_project(
 async def test_delete_project(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
 ) -> None:
     project_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/projects/{project_id}"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="DELETE",
         url=endpoint,
         status=204,
-        match=[auth_matcher(), request_id_matcher()],
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.delete_project(project_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response is True
 
     response = await todoist_api_async.delete_project(project_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response is True
 
 
@@ -327,7 +345,7 @@ async def test_delete_project(
 async def test_get_collaborators(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_collaborators_response: list[PaginatedResults],
     default_collaborators_list: list[list[Collaborator]],
 ) -> None:
@@ -336,12 +354,14 @@ async def test_get_collaborators(
 
     cursor: str | None = None
     for page in default_collaborators_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
+            params={"cursor": cursor} if cursor else {},
+            matchers=[auth_matcher(), request_id_matcher()],
         )
         cursor = page["next_cursor"]
 
@@ -350,13 +370,13 @@ async def test_get_collaborators(
     collaborators_iter = todoist_api.get_collaborators(project_id)
 
     for i, collaborators in enumerate(collaborators_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert collaborators == default_collaborators_list[i]
         count += 1
 
     collaborators_async_iter = await todoist_api_async.get_collaborators(project_id)
 
     async for i, collaborators in enumerate_async(collaborators_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert collaborators == default_collaborators_list[i]
         count += 1

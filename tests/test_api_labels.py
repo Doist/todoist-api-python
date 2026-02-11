@@ -9,12 +9,13 @@ from tests.utils.test_utils import (
     auth_matcher,
     data_matcher,
     enumerate_async,
-    param_matcher,
+    mock_route,
     request_id_matcher,
 )
 
 if TYPE_CHECKING:
-    from tests.utils.http_mock import RequestsMock
+    import respx
+
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
 from todoist_api_python.models import Label
@@ -24,29 +25,30 @@ from todoist_api_python.models import Label
 async def test_get_label(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_label_response: dict[str, Any],
     default_label: Label,
 ) -> None:
     label_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/labels/{label_id}"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="GET",
         url=endpoint,
         json=default_label_response,
         status=200,
-        match=[auth_matcher()],
+        matchers=[auth_matcher()],
     )
 
     label = todoist_api.get_label(label_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert label == default_label
 
     label = await todoist_api_async.get_label(label_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert label == default_label
 
 
@@ -54,7 +56,7 @@ async def test_get_label(
 async def test_get_labels(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_labels_response: list[PaginatedResults],
     default_labels_list: list[list[Label]],
 ) -> None:
@@ -62,12 +64,14 @@ async def test_get_labels(
 
     cursor: str | None = None
     for page in default_labels_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher({}, cursor)],
+            params={"cursor": cursor} if cursor else {},
+            matchers=[auth_matcher(), request_id_matcher()],
         )
         cursor = page["next_cursor"]
 
@@ -76,14 +80,14 @@ async def test_get_labels(
     labels_iter = todoist_api.get_labels()
 
     for i, labels in enumerate(labels_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert labels == default_labels_list[i]
         count += 1
 
     labels_async_iter = await todoist_api_async.get_labels()
 
     async for i, labels in enumerate_async(labels_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert labels == default_labels_list[i]
         count += 1
 
@@ -92,7 +96,7 @@ async def test_get_labels(
 async def test_search_labels(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_labels_response: list[PaginatedResults],
     default_labels_list: list[list[Label]],
 ) -> None:
@@ -101,15 +105,16 @@ async def test_search_labels(
 
     cursor: str | None = None
     for page in default_labels_response:
-        requests_mock.add(
+        mock_route(
+            respx_mock,
             method="GET",
             url=endpoint,
             json=page,
             status=200,
-            match=[
+            params={"query": query} | ({"cursor": cursor} if cursor else {}),
+            matchers=[
                 auth_matcher(),
                 request_id_matcher(),
-                param_matcher({"query": query}, cursor),
             ],
         )
         cursor = page["next_cursor"]
@@ -119,14 +124,14 @@ async def test_search_labels(
     labels_iter = todoist_api.search_labels(query)
 
     for i, labels in enumerate(labels_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert labels == default_labels_list[i]
         count += 1
 
     labels_async_iter = await todoist_api_async.search_labels(query)
 
     async for i, labels in enumerate_async(labels_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert labels == default_labels_list[i]
         count += 1
 
@@ -135,18 +140,19 @@ async def test_search_labels(
 async def test_add_label_minimal(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_label_response: dict[str, Any],
     default_label: Label,
 ) -> None:
     label_name = "A Label"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/labels",
         json=default_label_response,
         status=200,
-        match=[
+        matchers=[
             auth_matcher(),
             request_id_matcher(),
             data_matcher({"name": label_name}),
@@ -155,12 +161,12 @@ async def test_add_label_minimal(
 
     new_label = todoist_api.add_label(name=label_name)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert new_label == default_label
 
     new_label = await todoist_api_async.add_label(name=label_name)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert new_label == default_label
 
 
@@ -168,7 +174,7 @@ async def test_add_label_minimal(
 async def test_add_label_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_label_response: dict[str, Any],
     default_label: Label,
 ) -> None:
@@ -179,12 +185,13 @@ async def test_add_label_full(
         "is_favorite": True,
     }
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/labels",
         json=default_label_response,
         status=200,
-        match=[
+        matchers=[
             auth_matcher(),
             request_id_matcher(),
             data_matcher({"name": label_name} | args),
@@ -193,12 +200,12 @@ async def test_add_label_full(
 
     new_label = todoist_api.add_label(name=label_name, **args)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert new_label == default_label
 
     new_label = await todoist_api_async.add_label(name=label_name, **args)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert new_label == default_label
 
 
@@ -206,7 +213,7 @@ async def test_add_label_full(
 async def test_update_label(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
     default_label: Label,
 ) -> None:
     args: dict[str, Any] = {
@@ -214,22 +221,23 @@ async def test_update_label(
     }
     updated_label_dict = default_label.to_dict() | args
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/labels/{default_label.id}",
         json=updated_label_dict,
         status=200,
-        match=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
     )
 
     response = todoist_api.update_label(label_id=default_label.id, **args)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response == Label.from_dict(updated_label_dict)
 
     response = await todoist_api_async.update_label(label_id=default_label.id, **args)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response == Label.from_dict(updated_label_dict)
 
 
@@ -237,23 +245,27 @@ async def test_update_label(
 async def test_delete_label(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: RequestsMock,
+    respx_mock: respx.MockRouter,
 ) -> None:
     label_id = "6X7rM8997g3RQmvh"
     endpoint = f"{DEFAULT_API_URL}/labels/{label_id}"
 
-    requests_mock.add(
+    mock_route(
+        respx_mock,
         method="DELETE",
         url=endpoint,
         status=204,
+        matchers=[auth_matcher(), request_id_matcher()],
     )
 
     response = todoist_api.delete_label(label_id)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert response is True
 
     response = await todoist_api_async.delete_label(label_id)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert response is True
+
+

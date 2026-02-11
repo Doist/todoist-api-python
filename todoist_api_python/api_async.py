@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import sys
+import warnings
 from collections.abc import AsyncIterator, Callable
 from typing import TYPE_CHECKING, Annotated, Any, Literal, TypeVar
 
 import httpx
-from annotated_types import Ge, Le, MaxLen, MinLen, Predicate
+from annotated_types import Ge, Le, MaxLen, MinLen
 
 from todoist_api_python._core.endpoints import (
     COLLABORATORS_PATH,
@@ -52,53 +53,26 @@ if TYPE_CHECKING:
     from datetime import date, datetime
     from types import TracebackType
 
+    from todoist_api_python.types import ColorString, LanguageCode, ViewStyle
+
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     Self = TypeVar("Self", bound="TodoistAPIAsync")
 
 
-LanguageCode = Annotated[str, Predicate(lambda x: len(x) == 2)]  # noqa: PLR2004
-ColorString = Annotated[
-    str,
-    Predicate(
-        lambda x: x
-        in (
-            "berry_red",
-            "red",
-            "orange",
-            "yellow",
-            "olive_green",
-            "lime_green",
-            "green",
-            "mint_green",
-            "teal",
-            "sky_blue",
-            "light_blue",
-            "blue",
-            "grape",
-            "violet",
-            "lavender",
-            "magenta",
-            "salmon",
-            "charcoal",
-            "grey",
-            "taupe",
-        )
-    ),
-]
-ViewStyle = Annotated[str, Predicate(lambda x: x in ("list", "board", "calendar"))]
-
-
 class TodoistAPIAsync:
     """
     Async client for the Todoist API.
 
-    Provides methods for interacting with Todoist resources like tasks, projects,
-    labels, comments, etc.
+    Provides asynchronous methods for interacting with Todoist resources like
+    tasks, projects, labels, comments, etc.
 
-    Manages an HTTP client and handles authentication. Can be used as an async context
-    manager to ensure the client is closed properly.
+    Manages an HTTP client and handles authentication.
+
+    Prefer using this class as an async context manager to ensure the underlying
+    `httpx.AsyncClient` is always closed. If you do not use `async with`, call
+    `await close()` explicitly.
     """
 
     def __init__(
@@ -112,7 +86,8 @@ class TodoistAPIAsync:
 
         :param token: Authentication token for the Todoist API.
         :param request_id_fn: Generator of request IDs for the `X-Request-ID` header.
-        :param client: An optional pre-configured `httpx.AsyncClient` object.
+        :param client: An optional pre-configured `httpx.AsyncClient` object, to be
+            fully managed by `TodoistAPIAsync`.
         """
         self._token = token
         self._request_id_fn = request_id_fn
@@ -136,7 +111,24 @@ class TodoistAPIAsync:
         traceback: TracebackType | None,
     ) -> None:
         """Exit the async runtime context and close the underlying httpx client."""
+        await self.close()
+
+    async def close(self) -> None:
+        """Close the underlying `httpx.AsyncClient`."""
         await self._client.aclose()
+
+    def __del__(self) -> None:
+        """Warn when the async client was not explicitly closed."""
+        client = getattr(self, "_client", None)
+        if client is None or client.is_closed:
+            return
+
+        warnings.warn(
+            "TodoistAPIAsync client was not closed. "
+            "Use `async with TodoistAPIAsync(...)` or call `await api.close()`.",
+            ResourceWarning,
+            stacklevel=2,
+        )
 
     async def get_task(self, task_id: str) -> Task:
         """
@@ -1548,6 +1540,7 @@ class TodoistAPIAsync:
             self._client,
             endpoint,
             self._token,
+            self._request_id_fn() if self._request_id_fn else None,
             params={"name": name},
             data={"new_name": new_name},
         )

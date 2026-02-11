@@ -8,8 +8,8 @@ from todoist_api_python._core.http_headers import create_headers
 
 # Timeouts for requests.
 #
-# 10 seconds for connecting is a recurring default and adheres to common HTTP
-# client recommendations of picking a value slightly larger than a multiple of 3.
+# 10 seconds for connecting is a recurring default and adheres to python-requests's
+# recommendation of picking a value slightly larger than a multiple of 3.
 #
 # 60 seconds for reading aligns with Todoist's own internal timeout. All requests
 # are forcefully terminated after this time, so there is no point waiting longer.
@@ -85,7 +85,7 @@ def post(
     response = client.post(
         url,
         headers=headers,
-        json=data if data else None,
+        json=data if data is not None else None,
         params=params,
         timeout=TIMEOUT,
     )
@@ -108,7 +108,7 @@ async def post_async(
     response = await client.post(
         url,
         headers=headers,
-        json=data if data else None,
+        json=data if data is not None else None,
         params=params,
         timeout=TIMEOUT,
     )

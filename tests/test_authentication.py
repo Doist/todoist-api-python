@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
 import pytest
-import responses
 
 from tests.data.test_defaults import DEFAULT_OAUTH_URL
-from tests.utils.test_utils import data_matcher, param_matcher
+from tests.utils.test_utils import data_matcher, mock_route
 from todoist_api_python._core.endpoints import API_URL  # Use new base URL
 from todoist_api_python.authentication import (
     get_auth_token,
@@ -18,12 +17,15 @@ from todoist_api_python.authentication import (
 )
 
 if TYPE_CHECKING:
+    import respx
+
+    from todoist_api_python.authentication import Scope
     from todoist_api_python.models import AuthResult
 
 
 def test_get_authentication_url() -> None:
     client_id = "123"
-    scopes = ["task:add", "data:read", "project:delete"]
+    scopes: list[Scope] = ["task:add", "data:read", "project:delete"]
     state = "456"
     params = (
         f"client_id={client_id}&scope={scopes[0]},{scopes[1]},{scopes[2]}&state={state}"
@@ -38,7 +40,7 @@ def test_get_authentication_url() -> None:
 
 @pytest.mark.asyncio
 async def test_get_auth_token(
-    requests_mock: responses.RequestsMock,
+    respx_mock: respx.MockRouter,
     default_auth_response: dict[str, Any],
     default_auth_result: AuthResult,
 ) -> None:
@@ -46,12 +48,13 @@ async def test_get_auth_token(
     client_secret = "456"
     code = "789"
 
-    requests_mock.add(
-        responses.POST,
+    mock_route(
+        respx_mock,
+        "POST",
         f"{DEFAULT_OAUTH_URL}/access_token",
         json=default_auth_response,
         status=200,
-        match=[
+        matchers=[
             data_matcher(
                 {"client_id": client_id, "client_secret": client_secret, "code": code}
             )
@@ -60,44 +63,41 @@ async def test_get_auth_token(
 
     auth_result = get_auth_token(client_id, client_secret, code)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert auth_result == default_auth_result
 
     auth_result = await get_auth_token_async(client_id, client_secret, code)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert auth_result == default_auth_result
 
 
 @pytest.mark.asyncio
 async def test_revoke_auth_token(
-    requests_mock: responses.RequestsMock,
+    respx_mock: respx.MockRouter,
 ) -> None:
     client_id = "123"
     client_secret = "456"
     token = "AToken"
 
-    requests_mock.add(
-        responses.DELETE,
+    mock_route(
+        respx_mock,
+        "DELETE",
         f"{API_URL}/access_tokens",
-        match=[
-            param_matcher(
-                {
-                    "client_id": client_id,
-                    "client_secret": client_secret,
-                    "access_token": token,
-                }
-            )
-        ],
+        params={
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "access_token": token,
+        },
         status=200,
     )
 
     result = revoke_auth_token(client_id, client_secret, token)
 
-    assert len(requests_mock.calls) == 1
+    assert len(respx_mock.calls) == 1
     assert result is True
 
     result = await revoke_auth_token_async(client_id, client_secret, token)
 
-    assert len(requests_mock.calls) == 2
+    assert len(respx_mock.calls) == 2
     assert result is True

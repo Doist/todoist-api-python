@@ -5,8 +5,8 @@ from collections.abc import Callable, Iterator
 from typing import TYPE_CHECKING, Annotated, Any, Literal, TypeVar
 from weakref import finalize
 
-import requests
-from annotated_types import Ge, Le, MaxLen, MinLen, Predicate
+import httpx
+from annotated_types import Ge, Le, MaxLen, MinLen
 
 from todoist_api_python._core.endpoints import (
     COLLABORATORS_PATH,
@@ -49,42 +49,12 @@ if TYPE_CHECKING:
     from datetime import date, datetime
     from types import TracebackType
 
+    from todoist_api_python.types import ColorString, LanguageCode, ViewStyle
+
 if sys.version_info >= (3, 11):
     from typing import Self
 else:
     Self = TypeVar("Self", bound="TodoistAPI")
-
-
-LanguageCode = Annotated[str, Predicate(lambda x: len(x) == 2)]  # noqa: PLR2004
-ColorString = Annotated[
-    str,
-    Predicate(
-        lambda x: x
-        in (
-            "berry_red",
-            "red",
-            "orange",
-            "yellow",
-            "olive_green",
-            "lime_green",
-            "green",
-            "mint_green",
-            "teal",
-            "sky_blue",
-            "light_blue",
-            "blue",
-            "grape",
-            "violet",
-            "lavender",
-            "magenta",
-            "salmon",
-            "charcoal",
-            "grey",
-            "taupe",
-        )
-    ),
-]
-ViewStyle = Annotated[str, Predicate(lambda x: x in ("list", "board", "calendar"))]
 
 
 class TodoistAPI:
@@ -94,27 +64,27 @@ class TodoistAPI:
     Provides methods for interacting with Todoist resources like tasks, projects,
     labels, comments, etc.
 
-    Manages an HTTP session and handles authentication. Can be used as a context manager
-    to ensure the session is closed properly.
+    Manages an HTTP client and handles authentication. Can be used as a context manager
+    to ensure the client is closed properly.
     """
 
     def __init__(
         self,
         token: str,
         request_id_fn: Callable[[], str] | None = default_request_id_fn,
-        session: requests.Session | None = None,
+        client: httpx.Client | None = None,
     ) -> None:
         """
         Initialize the TodoistAPI client.
 
         :param token: Authentication token for the Todoist API.
         :param request_id_fn: Generator of request IDs for the `X-Request-ID` header.
-        :param session: An optional pre-configured requests `Session` object.
+        :param client: An optional pre-configured `httpx.Client` object.
         """
         self._token = token
         self._request_id_fn = request_id_fn
-        self._session = session or requests.Session()
-        self._finalizer = finalize(self, self._session.close)
+        self._client = client or httpx.Client()
+        self._finalizer = finalize(self, self._client.close)
 
     def __enter__(self) -> Self:
         """
@@ -133,7 +103,7 @@ class TodoistAPI:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        """Exit the runtime context and closes the underlying requests session."""
+        """Exit the runtime context and close the underlying httpx client."""
         self._finalizer()
 
     def get_task(self, task_id: str) -> Task:
@@ -142,12 +112,12 @@ class TodoistAPI:
 
         :param task_id: The ID of the task to retrieve.
         :return: The requested task.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Task dictionary.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
         task_data: dict[str, Any] = get(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -178,7 +148,7 @@ class TodoistAPI:
         :param ids: A list of the IDs of the tasks to retrieve.
         :param limit: Maximum number of tasks per page.
         :return: An iterable of lists of tasks.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_PATH)
@@ -198,7 +168,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Task.from_dict,
@@ -225,7 +195,7 @@ class TodoistAPI:
         :param lang: Language for task content (e.g., 'en').
         :param limit: Maximum number of tasks per page.
         :return: An iterable of lists of tasks.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_FILTER_PATH)
@@ -239,7 +209,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Task.from_dict,
@@ -294,7 +264,7 @@ class TodoistAPI:
         :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: The newly created task.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Task dictionary.
         """
         endpoint = get_api_url(TASKS_PATH)
@@ -338,7 +308,7 @@ class TodoistAPI:
             data["deadline_lang"] = deadline_lang
 
         task_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -365,7 +335,7 @@ class TodoistAPI:
         :param reminder: Optional reminder date in free form text.
         :param auto_reminder: Whether to add default reminder if date with time is set.
         :return: A result object containing the parsed task data and metadata.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response cannot be parsed into a QuickAddResult.
         """
         endpoint = get_api_url(TASKS_QUICK_ADD_PATH)
@@ -382,7 +352,7 @@ class TodoistAPI:
             data["reminder"] = reminder
 
         task_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -432,7 +402,7 @@ class TodoistAPI:
         :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: the updated Task.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
 
@@ -469,7 +439,7 @@ class TodoistAPI:
             data["deadline_lang"] = deadline_lang
 
         task_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -487,11 +457,11 @@ class TodoistAPI:
         :param task_id: The ID of the task to close.
         :return: True if the task was closed successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/close")
         return post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -506,11 +476,11 @@ class TodoistAPI:
         :param task_id: The ID of the task to reopen.
         :return: True if the task was uncompleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/reopen")
         return post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -536,7 +506,7 @@ class TodoistAPI:
         :param parent_id: The ID of the parent to move the task to.
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises ValueError: If neither `project_id`, `section_id`,
                 nor `parent_id` is provided.
         """
@@ -554,7 +524,7 @@ class TodoistAPI:
             data["parent_id"] = parent_id
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/move")
         return post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -568,11 +538,11 @@ class TodoistAPI:
         :param task_id: The ID of the task to delete.
         :return: True if the task was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
         return delete(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -611,7 +581,7 @@ class TodoistAPI:
         :param filter_lang: Language for the filter query (e.g., 'en').
         :param limit: Maximum number of tasks per page (default 50).
         :return: An iterable of lists of completed tasks.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_COMPLETED_BY_DUE_DATE_PATH)
@@ -636,7 +606,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "items",
             Task.from_dict,
@@ -672,7 +642,7 @@ class TodoistAPI:
         :param filter_lang: Language for the filter query (e.g., 'en').
         :param limit: Maximum number of tasks per page (default 50).
         :return: An iterable of lists of completed tasks.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_COMPLETED_BY_COMPLETION_DATE_PATH)
@@ -691,7 +661,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "items",
             Task.from_dict,
@@ -706,12 +676,12 @@ class TodoistAPI:
 
         :param project_id: The ID of the project to retrieve.
         :return: The requested project.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
         project_data: dict[str, Any] = get(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -731,7 +701,7 @@ class TodoistAPI:
 
         :param limit: Maximum number of projects per page.
         :return: An iterable of lists of projects.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(PROJECTS_PATH)
@@ -739,7 +709,7 @@ class TodoistAPI:
         if limit is not None:
             params["limit"] = limit
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Project.from_dict,
@@ -764,7 +734,7 @@ class TodoistAPI:
         :param query: Query string for project names.
         :param limit: Maximum number of projects per page.
         :return: An iterable of lists of projects.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{PROJECTS_SEARCH_PATH_SUFFIX}")
@@ -774,7 +744,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Project.from_dict,
@@ -803,7 +773,7 @@ class TodoistAPI:
         :param is_favorite: Whether the project is a favorite.
         :param view_style: A string value (either 'list' or 'board', default is 'list').
         :return: The newly created project.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(PROJECTS_PATH)
@@ -821,7 +791,7 @@ class TodoistAPI:
             data["view_style"] = view_style
 
         project_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -851,7 +821,7 @@ class TodoistAPI:
         :param is_favorite: Whether the project is a favorite.
         :param view_style: A string value (either 'list' or 'board').
         :return: the updated Project.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
 
@@ -869,7 +839,7 @@ class TodoistAPI:
             data["view_style"] = view_style
 
         project_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -886,14 +856,14 @@ class TodoistAPI:
 
         :param project_id: The ID of the project to archive.
         :return: The archived project object.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(
             f"{PROJECTS_PATH}/{project_id}/{PROJECT_ARCHIVE_PATH_SUFFIX}"
         )
         project_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -908,14 +878,14 @@ class TodoistAPI:
 
         :param project_id: The ID of the project to unarchive.
         :return: The unarchived project object.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(
             f"{PROJECTS_PATH}/{project_id}/{PROJECT_UNARCHIVE_PATH_SUFFIX}"
         )
         project_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -931,11 +901,11 @@ class TodoistAPI:
         :param project_id: The ID of the project to delete.
         :return: True if the project was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
         return delete(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -956,7 +926,7 @@ class TodoistAPI:
         :param project_id: The ID of the project.
         :param limit: Maximum number of collaborators per page.
         :return: An iterable of lists of collaborators.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}/{COLLABORATORS_PATH}")
@@ -964,7 +934,7 @@ class TodoistAPI:
         if limit is not None:
             params["limit"] = limit
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Collaborator.from_dict,
@@ -979,12 +949,12 @@ class TodoistAPI:
 
         :param section_id: The ID of the section to retrieve.
         :return: The requested section.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Section dictionary.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
         section_data: dict[str, Any] = get(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1009,7 +979,7 @@ class TodoistAPI:
         :param project_id: Filter sections by project ID.
         :param limit: Maximum number of sections per page.
         :return: An iterable of lists of sections.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(SECTIONS_PATH)
@@ -1021,7 +991,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Section.from_dict,
@@ -1048,7 +1018,7 @@ class TodoistAPI:
         :param project_id: If set, search sections within the given project only.
         :param limit: Maximum number of sections per page.
         :return: An iterable of lists of sections.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{SECTIONS_SEARCH_PATH_SUFFIX}")
@@ -1060,7 +1030,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Section.from_dict,
@@ -1083,7 +1053,7 @@ class TodoistAPI:
         :param project_id: The ID of the project to add the section to.
         :param order: The order of the section among all sections in the project.
         :return: The newly created section.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Section dictionary.
         """
         endpoint = get_api_url(SECTIONS_PATH)
@@ -1093,7 +1063,7 @@ class TodoistAPI:
             data["order"] = order
 
         section_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1114,11 +1084,11 @@ class TodoistAPI:
         :param section_id: The ID of the section to update.
         :param name: The new name for the section.
         :return: the updated Section.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
         section_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1135,11 +1105,11 @@ class TodoistAPI:
         :param section_id: The ID of the section to delete.
         :return: True if the section was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
         return delete(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1151,12 +1121,12 @@ class TodoistAPI:
 
         :param comment_id: The ID of the comment to retrieve.
         :return: The requested comment.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Comment dictionary.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
         comment_data: dict[str, Any] = get(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1184,7 +1154,7 @@ class TodoistAPI:
         :param limit: Maximum number of comments per page.
         :return: An iterable of lists of comments.
         :raises ValueError: If neither `project_id` nor `task_id` is provided.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         if project_id is None and task_id is None:
@@ -1201,7 +1171,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Comment.from_dict,
@@ -1232,7 +1202,7 @@ class TodoistAPI:
         :param uids_to_notify: A list of user IDs to notify.
         :return: The newly created comment.
         :raises ValueError: If neither `project_id` nor `task_id` is provided.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Comment dictionary.
         """
         if project_id is None and task_id is None:
@@ -1251,7 +1221,7 @@ class TodoistAPI:
             data["uids_to_notify"] = uids_to_notify
 
         comment_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1270,11 +1240,11 @@ class TodoistAPI:
         :param comment_id: The ID of the comment to update.
         :param content: The new text content for the comment.
         :return: the updated Comment.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
         comment_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1289,11 +1259,11 @@ class TodoistAPI:
         :param comment_id: The ID of the comment to delete.
         :return: True if the comment was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
         return delete(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1305,12 +1275,12 @@ class TodoistAPI:
 
         :param label_id: The ID of the label to retrieve.
         :return: The requested label.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Label dictionary.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
         label_data: dict[str, Any] = get(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1333,7 +1303,7 @@ class TodoistAPI:
 
         :param limit: Maximum number of labels per page.
         :return: An iterable of lists of personal labels.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(LABELS_PATH)
@@ -1343,7 +1313,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Label.from_dict,
@@ -1368,7 +1338,7 @@ class TodoistAPI:
         :param query: Query string for label names.
         :param limit: Maximum number of labels per page.
         :return: An iterable of lists of labels.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{LABELS_SEARCH_PATH_SUFFIX}")
@@ -1378,7 +1348,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             Label.from_dict,
@@ -1403,7 +1373,7 @@ class TodoistAPI:
         :param item_order: Label's order in the label list.
         :param is_favorite: Whether the label is a favorite.
         :return: The newly created label.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Label dictionary.
         """
         endpoint = get_api_url(LABELS_PATH)
@@ -1418,7 +1388,7 @@ class TodoistAPI:
             data["is_favorite"] = is_favorite
 
         label_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1446,7 +1416,7 @@ class TodoistAPI:
         :param item_order: Label's order in the label list.
         :param is_favorite: Whether the label is a favorite.
         :return: the updated Label.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
 
@@ -1461,7 +1431,7 @@ class TodoistAPI:
             data["is_favorite"] = is_favorite
 
         label_data: dict[str, Any] = post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1478,11 +1448,11 @@ class TodoistAPI:
         :param label_id: The ID of the label to delete.
         :return: True if the label was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
         return delete(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1508,7 +1478,7 @@ class TodoistAPI:
         :param omit_personal: Optional boolean flag to omit personal label names.
         :param limit: Maximum number of labels per page.
         :return: An iterable of lists of shared label names (strings).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(SHARED_LABELS_PATH)
@@ -1518,7 +1488,7 @@ class TodoistAPI:
             params["limit"] = limit
 
         return ResultsPaginator(
-            self._session,
+            self._client,
             endpoint,
             "results",
             str,
@@ -1539,13 +1509,14 @@ class TodoistAPI:
         :param new_name: The new name for the shared label.
         :return: True if the rename was successful,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(SHARED_LABELS_RENAME_PATH)
         return post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
+            self._request_id_fn() if self._request_id_fn else None,
             params={"name": name},
             data={"new_name": new_name},
         )
@@ -1558,12 +1529,12 @@ class TodoistAPI:
 
         :param name: The name of the shared label to remove.
         :return: True if the removal was successful,
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(SHARED_LABELS_REMOVE_PATH)
         data = {"name": name}
         return post(
-            self._session,
+            self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
@@ -1583,7 +1554,7 @@ class ResultsPaginator(Iterator[list[T]]):
     requesting new pages as needed when iterating.
     """
 
-    _session: requests.Session
+    _client: httpx.Client
     _url: str
     _results_field: str
     _results_inst: Callable[[Any], T]
@@ -1592,7 +1563,7 @@ class ResultsPaginator(Iterator[list[T]]):
 
     def __init__(
         self,
-        session: requests.Session,
+        client: httpx.Client,
         url: str,
         results_field: str,
         results_inst: Callable[[Any], T],
@@ -1603,14 +1574,14 @@ class ResultsPaginator(Iterator[list[T]]):
         """
         Initialize the ResultsPaginator.
 
-        :param session: The requests Session to use for API calls.
+        :param client: The httpx client to use for API calls.
         :param url: The API endpoint URL to fetch results from.
         :param results_field: The key in the API response that contains the results.
         :param results_inst: A callable that converts result items to objects of type T.
         :param token: The authentication token for the Todoist API.
         :param params: Query parameters to include in API requests.
         """
-        self._session = session
+        self._client = client
         self._url = url
         self._results_field = results_field
         self._results_inst = results_inst
@@ -1624,7 +1595,7 @@ class ResultsPaginator(Iterator[list[T]]):
         Fetch and return the next page of results from the Todoist API.
 
         :return: A list of results.
-        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         if self._cursor is None:
@@ -1635,7 +1606,7 @@ class ResultsPaginator(Iterator[list[T]]):
             params["cursor"] = self._cursor
 
         data: dict[str, Any] = get(
-            self._session,
+            self._client,
             self._url,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
