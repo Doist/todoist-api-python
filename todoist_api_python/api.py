@@ -34,6 +34,7 @@ from todoist_api_python._core.utils import (
     default_request_id_fn,
     format_date,
     format_datetime,
+    kwargs_without_none,
 )
 from todoist_api_python.models import (
     Attachment,
@@ -153,19 +154,14 @@ class TodoistAPI:
         """
         endpoint = get_api_url(TASKS_PATH)
 
-        params: dict[str, Any] = {}
-        if project_id is not None:
-            params["project_id"] = project_id
-        if section_id is not None:
-            params["section_id"] = section_id
-        if parent_id is not None:
-            params["parent_id"] = parent_id
-        if label is not None:
-            params["label"] = label
-        if ids is not None:
-            params["ids"] = ",".join(str(i) for i in ids)
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(
+            project_id=project_id,
+            section_id=section_id,
+            parent_id=parent_id,
+            label=label,
+            ids=",".join(str(i) for i in ids) if ids is not None else None,
+            limit=limit,
+        )
 
         return ResultsPaginator(
             self._client,
@@ -200,13 +196,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(TASKS_FILTER_PATH)
 
-        params: dict[str, Any] = {}
-        if query is not None:
-            params["query"] = query
-        if lang is not None:
-            params["lang"] = lang
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(query=query, lang=lang, limit=limit)
 
         return ResultsPaginator(
             self._client,
@@ -218,7 +208,7 @@ class TodoistAPI:
             params,
         )
 
-    def add_task(  # noqa: PLR0912
+    def add_task(
         self,
         content: Annotated[str, MinLen(1), MaxLen(500)],
         *,
@@ -269,43 +259,31 @@ class TodoistAPI:
         """
         endpoint = get_api_url(TASKS_PATH)
 
-        data: dict[str, Any] = {"content": content}
-        if description is not None:
-            data["description"] = description
-        if project_id is not None:
-            data["project_id"] = project_id
-        if section_id is not None:
-            data["section_id"] = section_id
-        if parent_id is not None:
-            data["parent_id"] = parent_id
-        if labels is not None:
-            data["labels"] = labels
-        if priority is not None:
-            data["priority"] = priority
-        if due_string is not None:
-            data["due_string"] = due_string
-        if due_lang is not None:
-            data["due_lang"] = due_lang
-        if due_date is not None:
-            data["due_date"] = format_date(due_date)
-        if due_datetime is not None:
-            data["due_datetime"] = format_datetime(due_datetime)
-        if assignee_id is not None:
-            data["assignee_id"] = assignee_id
-        if order is not None:
-            data["order"] = order
-        if auto_reminder is not None:
-            data["auto_reminder"] = auto_reminder
-        if auto_parse_labels is not None:
-            data["auto_parse_labels"] = auto_parse_labels
-        if duration is not None:
-            data["duration"] = duration
-        if duration_unit is not None:
-            data["duration_unit"] = duration_unit
-        if deadline_date is not None:
-            data["deadline_date"] = format_date(deadline_date)
-        if deadline_lang is not None:
-            data["deadline_lang"] = deadline_lang
+        data = kwargs_without_none(
+            content=content,
+            description=description,
+            project_id=project_id,
+            section_id=section_id,
+            parent_id=parent_id,
+            labels=labels,
+            priority=priority,
+            due_string=due_string,
+            due_lang=due_lang,
+            due_date=format_date(due_date) if due_date is not None else None,
+            due_datetime=(
+                format_datetime(due_datetime) if due_datetime is not None else None
+            ),
+            assignee_id=assignee_id,
+            order=order,
+            auto_reminder=auto_reminder,
+            auto_parse_labels=auto_parse_labels,
+            duration=duration,
+            duration_unit=duration_unit,
+            deadline_date=(
+                format_date(deadline_date) if deadline_date is not None else None
+            ),
+            deadline_lang=deadline_lang,
+        )
 
         task_data: dict[str, Any] = post(
             self._client,
@@ -340,16 +318,13 @@ class TodoistAPI:
         """
         endpoint = get_api_url(TASKS_QUICK_ADD_PATH)
 
-        data = {
-            "meta": True,
-            "text": text,
-            "auto_reminder": auto_reminder,
-        }
-
-        if note is not None:
-            data["note"] = note
-        if reminder is not None:
-            data["reminder"] = reminder
+        data = kwargs_without_none(
+            meta=True,
+            text=text,
+            auto_reminder=auto_reminder,
+            note=note,
+            reminder=reminder,
+        )
 
         task_data: dict[str, Any] = post(
             self._client,
@@ -360,7 +335,7 @@ class TodoistAPI:
         )
         return Task.from_dict(task_data)
 
-    def update_task(  # noqa: PLR0912
+    def update_task(
         self,
         task_id: str,
         *,
@@ -406,37 +381,27 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
 
-        data: dict[str, Any] = {}
-        if content is not None:
-            data["content"] = content
-        if description is not None:
-            data["description"] = description
-        if labels is not None:
-            data["labels"] = labels
-        if priority is not None:
-            data["priority"] = priority
-        if due_string is not None:
-            data["due_string"] = due_string
-        if due_lang is not None:
-            data["due_lang"] = due_lang
-        if due_date is not None:
-            data["due_date"] = format_date(due_date)
-        if due_datetime is not None:
-            data["due_datetime"] = format_datetime(due_datetime)
-        if assignee_id is not None:
-            data["assignee_id"] = assignee_id
-        if day_order is not None:
-            data["day_order"] = day_order
-        if collapsed is not None:
-            data["collapsed"] = collapsed
-        if duration is not None:
-            data["duration"] = duration
-        if duration_unit is not None:
-            data["duration_unit"] = duration_unit
-        if deadline_date is not None:
-            data["deadline_date"] = format_date(deadline_date)
-        if deadline_lang is not None:
-            data["deadline_lang"] = deadline_lang
+        data = kwargs_without_none(
+            content=content,
+            description=description,
+            labels=labels,
+            priority=priority,
+            due_string=due_string,
+            due_lang=due_lang,
+            due_date=format_date(due_date) if due_date is not None else None,
+            due_datetime=(
+                format_datetime(due_datetime) if due_datetime is not None else None
+            ),
+            assignee_id=assignee_id,
+            day_order=day_order,
+            collapsed=collapsed,
+            duration=duration,
+            duration_unit=duration_unit,
+            deadline_date=(
+                format_date(deadline_date) if deadline_date is not None else None
+            ),
+            deadline_lang=deadline_lang,
+        )
 
         task_data: dict[str, Any] = post(
             self._client,
@@ -515,13 +480,11 @@ class TodoistAPI:
                 "Either `project_id`, `section_id`, or `parent_id` must be provided."
             )
 
-        data: dict[str, Any] = {}
-        if project_id is not None:
-            data["project_id"] = project_id
-        if section_id is not None:
-            data["section_id"] = section_id
-        if parent_id is not None:
-            data["parent_id"] = parent_id
+        data = kwargs_without_none(
+            project_id=project_id,
+            section_id=section_id,
+            parent_id=parent_id,
+        )
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/move")
         return post(
             self._client,
@@ -586,24 +549,17 @@ class TodoistAPI:
         """
         endpoint = get_api_url(TASKS_COMPLETED_BY_DUE_DATE_PATH)
 
-        params: dict[str, Any] = {
-            "since": format_datetime(since),
-            "until": format_datetime(until),
-        }
-        if workspace_id is not None:
-            params["workspace_id"] = workspace_id
-        if project_id is not None:
-            params["project_id"] = project_id
-        if section_id is not None:
-            params["section_id"] = section_id
-        if parent_id is not None:
-            params["parent_id"] = parent_id
-        if filter_query is not None:
-            params["filter_query"] = filter_query
-        if filter_lang is not None:
-            params["filter_lang"] = filter_lang
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(
+            since=format_datetime(since),
+            until=format_datetime(until),
+            workspace_id=workspace_id,
+            project_id=project_id,
+            section_id=section_id,
+            parent_id=parent_id,
+            filter_query=filter_query,
+            filter_lang=filter_lang,
+            limit=limit,
+        )
 
         return ResultsPaginator(
             self._client,
@@ -647,18 +603,14 @@ class TodoistAPI:
         """
         endpoint = get_api_url(TASKS_COMPLETED_BY_COMPLETION_DATE_PATH)
 
-        params: dict[str, Any] = {
-            "since": format_datetime(since),
-            "until": format_datetime(until),
-        }
-        if workspace_id is not None:
-            params["workspace_id"] = workspace_id
-        if filter_query is not None:
-            params["filter_query"] = filter_query
-        if filter_lang is not None:
-            params["filter_lang"] = filter_lang
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(
+            since=format_datetime(since),
+            until=format_datetime(until),
+            workspace_id=workspace_id,
+            filter_query=filter_query,
+            filter_lang=filter_lang,
+            limit=limit,
+        )
 
         return ResultsPaginator(
             self._client,
@@ -705,9 +657,7 @@ class TodoistAPI:
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(PROJECTS_PATH)
-        params: dict[str, Any] = {}
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(limit=limit)
         return ResultsPaginator(
             self._client,
             endpoint,
@@ -739,9 +689,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{PROJECTS_SEARCH_PATH_SUFFIX}")
 
-        params: dict[str, Any] = {"query": query}
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(query=query, limit=limit)
 
         return ResultsPaginator(
             self._client,
@@ -778,17 +726,14 @@ class TodoistAPI:
         """
         endpoint = get_api_url(PROJECTS_PATH)
 
-        data: dict[str, Any] = {"name": name}
-        if parent_id is not None:
-            data["parent_id"] = parent_id
-        if description is not None:
-            data["description"] = description
-        if color is not None:
-            data["color"] = color
-        if is_favorite is not None:
-            data["is_favorite"] = is_favorite
-        if view_style is not None:
-            data["view_style"] = view_style
+        data = kwargs_without_none(
+            name=name,
+            parent_id=parent_id,
+            description=description,
+            color=color,
+            is_favorite=is_favorite,
+            view_style=view_style,
+        )
 
         project_data: dict[str, Any] = post(
             self._client,
@@ -825,18 +770,13 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
 
-        data: dict[str, Any] = {}
-
-        if name is not None:
-            data["name"] = name
-        if description is not None:
-            data["description"] = description
-        if color is not None:
-            data["color"] = color
-        if is_favorite is not None:
-            data["is_favorite"] = is_favorite
-        if view_style is not None:
-            data["view_style"] = view_style
+        data = kwargs_without_none(
+            name=name,
+            description=description,
+            color=color,
+            is_favorite=is_favorite,
+            view_style=view_style,
+        )
 
         project_data: dict[str, Any] = post(
             self._client,
@@ -930,9 +870,7 @@ class TodoistAPI:
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}/{COLLABORATORS_PATH}")
-        params: dict[str, Any] = {}
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(limit=limit)
         return ResultsPaginator(
             self._client,
             endpoint,
@@ -984,11 +922,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(SECTIONS_PATH)
 
-        params: dict[str, Any] = {}
-        if project_id is not None:
-            params["project_id"] = project_id
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(project_id=project_id, limit=limit)
 
         return ResultsPaginator(
             self._client,
@@ -1023,11 +957,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{SECTIONS_SEARCH_PATH_SUFFIX}")
 
-        params: dict[str, Any] = {"query": query}
-        if project_id is not None:
-            params["project_id"] = project_id
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(query=query, project_id=project_id, limit=limit)
 
         return ResultsPaginator(
             self._client,
@@ -1058,9 +988,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(SECTIONS_PATH)
 
-        data: dict[str, Any] = {"name": name, "project_id": project_id}
-        if order is not None:
-            data["order"] = order
+        data = kwargs_without_none(name=name, project_id=project_id, order=order)
 
         section_data: dict[str, Any] = post(
             self._client,
@@ -1162,13 +1090,11 @@ class TodoistAPI:
 
         endpoint = get_api_url(COMMENTS_PATH)
 
-        params: dict[str, Any] = {}
-        if project_id is not None:
-            params["project_id"] = project_id
-        if task_id is not None:
-            params["task_id"] = task_id
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(
+            project_id=project_id,
+            task_id=task_id,
+            limit=limit,
+        )
 
         return ResultsPaginator(
             self._client,
@@ -1210,15 +1136,13 @@ class TodoistAPI:
 
         endpoint = get_api_url(COMMENTS_PATH)
 
-        data: dict[str, Any] = {"content": content}
-        if project_id is not None:
-            data["project_id"] = project_id
-        if task_id is not None:
-            data["task_id"] = task_id
-        if attachment is not None:
-            data["attachment"] = attachment.to_dict()
-        if uids_to_notify is not None:
-            data["uids_to_notify"] = uids_to_notify
+        data = kwargs_without_none(
+            content=content,
+            project_id=project_id,
+            task_id=task_id,
+            attachment=attachment.to_dict() if attachment is not None else None,
+            uids_to_notify=uids_to_notify,
+        )
 
         comment_data: dict[str, Any] = post(
             self._client,
@@ -1308,9 +1232,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(LABELS_PATH)
 
-        params: dict[str, Any] = {}
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(limit=limit)
 
         return ResultsPaginator(
             self._client,
@@ -1343,9 +1265,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{LABELS_SEARCH_PATH_SUFFIX}")
 
-        params: dict[str, Any] = {"query": query}
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(query=query, limit=limit)
 
         return ResultsPaginator(
             self._client,
@@ -1378,14 +1298,12 @@ class TodoistAPI:
         """
         endpoint = get_api_url(LABELS_PATH)
 
-        data: dict[str, Any] = {"name": name}
-
-        if color is not None:
-            data["color"] = color
-        if item_order is not None:
-            data["item_order"] = item_order
-        if is_favorite is not None:
-            data["is_favorite"] = is_favorite
+        data = kwargs_without_none(
+            name=name,
+            color=color,
+            item_order=item_order,
+            is_favorite=is_favorite,
+        )
 
         label_data: dict[str, Any] = post(
             self._client,
@@ -1420,15 +1338,12 @@ class TodoistAPI:
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
 
-        data: dict[str, Any] = {}
-        if name is not None:
-            data["name"] = name
-        if color is not None:
-            data["color"] = color
-        if item_order is not None:
-            data["item_order"] = item_order
-        if is_favorite is not None:
-            data["is_favorite"] = is_favorite
+        data = kwargs_without_none(
+            name=name,
+            color=color,
+            item_order=item_order,
+            is_favorite=is_favorite,
+        )
 
         label_data: dict[str, Any] = post(
             self._client,
@@ -1483,9 +1398,7 @@ class TodoistAPI:
         """
         endpoint = get_api_url(SHARED_LABELS_PATH)
 
-        params: dict[str, Any] = {"omit_personal": omit_personal}
-        if limit is not None:
-            params["limit"] = limit
+        params = kwargs_without_none(omit_personal=omit_personal, limit=limit)
 
         return ResultsPaginator(
             self._client,

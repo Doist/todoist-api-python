@@ -3,6 +3,7 @@ from __future__ import annotations
 import sys
 import uuid
 from datetime import date, datetime, timezone
+from typing import TypeVar
 
 if sys.version_info >= (3, 11):
     from datetime import UTC
@@ -41,6 +42,14 @@ def parse_datetime(datetime_str: str) -> datetime:
         datetime_str = datetime_str[:-1] + "+00:00"
         return datetime.fromisoformat(datetime_str)
     return datetime.fromisoformat(datetime_str)
+
+
+V = TypeVar("V")
+
+
+def kwargs_without_none(**values: V | None) -> dict[str, V]:
+    """Return a dictionary without keys whose value is `None`."""
+    return {key: value for key, value in values.items() if value is not None}
 
 
 def default_request_id_fn() -> str:
