@@ -8,13 +8,7 @@ from tests.data.test_defaults import (
     DEFAULT_API_URL,
     PaginatedResults,
 )
-from tests.utils.test_utils import (
-    auth_matcher,
-    data_matcher,
-    enumerate_async,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, enumerate_async, mock_route
 from todoist_api_python.models import Attachment
 
 if TYPE_CHECKING:
@@ -41,9 +35,9 @@ async def test_get_comment(
         respx_mock,
         method="GET",
         url=endpoint,
-        json=default_comment_response,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_json=default_comment_response,
+        response_status=200,
     )
 
     comment = todoist_api.get_comment(comment_id)
@@ -74,13 +68,11 @@ async def test_get_comments(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"task_id": task_id} | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params={"task_id": task_id}
+            | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -122,19 +114,14 @@ async def test_add_comment(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/comments",
-        json=default_comment_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher(
-                {
-                    "content": content,
-                    "project_id": project_id,
-                    "attachment": attachment.to_dict(),
-                }
-            ),
-        ],
+        request_headers=api_headers(),
+        request_json={
+            "content": content,
+            "project_id": project_id,
+            "attachment": attachment.to_dict(),
+        },
+        response_json=default_comment_response,
+        response_status=200,
     )
 
     new_comment = todoist_api.add_comment(
@@ -172,9 +159,10 @@ async def test_update_comment(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/comments/{default_comment.id}",
-        json=updated_comment_dict,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        request_headers=api_headers(),
+        request_json=args,
+        response_json=updated_comment_dict,
+        response_status=200,
     )
 
     response = todoist_api.update_comment(comment_id=default_comment.id, **args)
@@ -203,8 +191,8 @@ async def test_delete_comment(
         respx_mock,
         method="DELETE",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.delete_comment(comment_id)

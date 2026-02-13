@@ -12,13 +12,7 @@ else:
 import pytest
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
-from tests.utils.test_utils import (
-    auth_matcher,
-    data_matcher,
-    enumerate_async,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, enumerate_async, mock_route
 
 if TYPE_CHECKING:
     import respx
@@ -43,8 +37,8 @@ async def test_get_task(
         respx_mock,
         method="GET",
         url=endpoint,
-        json=default_task_response,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_json=default_task_response,
     )
 
     task = todoist_api.get_task(task_id)
@@ -74,10 +68,10 @@ async def test_get_tasks(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"cursor": cursor} if cursor else {},
-            matchers=[auth_matcher(), request_id_matcher()],
+            request_params={"cursor": cursor} if cursor else {},
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -130,13 +124,10 @@ async def test_get_tasks_with_filters(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params=params | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params=params | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -194,13 +185,10 @@ async def test_filter_tasks(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params=params | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params=params | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -242,13 +230,10 @@ async def test_add_task_minimal(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks",
-        json=default_task_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"content": content}),
-        ],
+        request_headers=api_headers(),
+        request_json={"content": content},
+        response_json=default_task_response,
+        response_status=200,
     )
 
     new_task = todoist_api.add_task(content=content)
@@ -293,19 +278,14 @@ async def test_add_task_full(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks",
-        json=default_task_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher(
-                {
-                    "content": content,
-                    "due_datetime": due_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                }
-                | args
-            ),
-        ],
+        request_headers=api_headers(),
+        request_json={
+            "content": content,
+            "due_datetime": due_datetime.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+        | args,
+        response_json=default_task_response,
+        response_status=200,
     )
 
     new_task = todoist_api.add_task(content=content, due_datetime=due_datetime, **args)
@@ -337,20 +317,15 @@ async def test_add_task_quick(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks/quick",
-        json=default_task_meta_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher(
-                {
-                    "meta": True,
-                    "text": text,
-                    "auto_reminder": auto_reminder,
-                    "note": note,
-                }
-            ),
-        ],
+        request_headers=api_headers(),
+        request_json={
+            "meta": True,
+            "text": text,
+            "auto_reminder": auto_reminder,
+            "note": note,
+        },
+        response_json=default_task_meta_response,
+        response_status=200,
     )
 
     task = todoist_api.add_task_quick(
@@ -391,9 +366,10 @@ async def test_update_task(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/tasks/{default_task.id}",
-        json=updated_task_dict,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        request_headers=api_headers(),
+        request_json=args,
+        response_json=updated_task_dict,
+        response_status=200,
     )
 
     response = todoist_api.update_task(task_id=default_task.id, **args)
@@ -420,8 +396,8 @@ async def test_complete_task(
         respx_mock,
         method="POST",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.complete_task(task_id)
@@ -448,8 +424,8 @@ async def test_uncomplete_task(
         respx_mock,
         method="POST",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.uncomplete_task(task_id)
@@ -476,8 +452,8 @@ async def test_move_task(
         respx_mock,
         method="POST",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.move_task(task_id, project_id="123")
@@ -515,8 +491,8 @@ async def test_delete_task(
         respx_mock,
         method="DELETE",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.delete_task(task_id)

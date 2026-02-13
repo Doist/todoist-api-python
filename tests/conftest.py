@@ -15,6 +15,7 @@ from tests.data.test_defaults import (
     DEFAULT_LABELS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_PROJECTS_RESPONSE,
+    DEFAULT_REQUEST_ID,
     DEFAULT_SECTION_RESPONSE,
     DEFAULT_SECTIONS_RESPONSE,
     DEFAULT_TASK_META_RESPONSE,
@@ -42,13 +43,19 @@ if TYPE_CHECKING:
 
 @pytest.fixture
 def todoist_api() -> Iterator[TodoistAPI]:
-    with TodoistAPI(DEFAULT_TOKEN) as api:
+    with TodoistAPI(
+        DEFAULT_TOKEN,
+        request_id_fn=lambda: DEFAULT_REQUEST_ID,
+    ) as api:
         yield api
 
 
 @pytest_asyncio.fixture
 async def todoist_api_async() -> AsyncIterator[TodoistAPIAsync]:
-    async with TodoistAPIAsync(DEFAULT_TOKEN) as api:
+    async with TodoistAPIAsync(
+        DEFAULT_TOKEN,
+        request_id_fn=lambda: DEFAULT_REQUEST_ID,
+    ) as api:
         yield api
 
 

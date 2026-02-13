@@ -6,7 +6,7 @@ from urllib.parse import quote
 import pytest
 
 from tests.data.test_defaults import DEFAULT_OAUTH_URL
-from tests.utils.test_utils import data_matcher, mock_route
+from tests.utils.test_utils import mock_route
 from todoist_api_python._core.endpoints import API_URL  # Use new base URL
 from todoist_api_python.authentication import (
     get_auth_token,
@@ -52,13 +52,13 @@ async def test_get_auth_token(
         respx_mock,
         "POST",
         f"{DEFAULT_OAUTH_URL}/access_token",
-        json=default_auth_response,
-        status=200,
-        matchers=[
-            data_matcher(
-                {"client_id": client_id, "client_secret": client_secret, "code": code}
-            )
-        ],
+        request_json={
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "code": code,
+        },
+        response_json=default_auth_response,
+        response_status=200,
     )
 
     auth_result = get_auth_token(client_id, client_secret, code)
@@ -84,12 +84,12 @@ async def test_revoke_auth_token(
         respx_mock,
         "DELETE",
         f"{API_URL}/access_tokens",
-        params={
+        request_params={
             "client_id": client_id,
             "client_secret": client_secret,
             "access_token": token,
         },
-        status=200,
+        response_status=200,
     )
 
     result = revoke_auth_token(client_id, client_secret, token)

@@ -12,12 +12,7 @@ else:
 import pytest
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedItems
-from tests.utils.test_utils import (
-    auth_matcher,
-    enumerate_async,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, enumerate_async, mock_route
 from todoist_api_python._core.utils import format_datetime
 
 if TYPE_CHECKING:
@@ -56,13 +51,10 @@ async def test_get_completed_tasks_by_due_date(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params=params | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params=params | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -121,13 +113,10 @@ async def test_get_completed_tasks_by_completion_date(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params=params | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params=params | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 

@@ -1,54 +1,32 @@
 from __future__ import annotations
 
-import json
-import re
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
-import httpx
-
-from tests.data.test_defaults import (
-    DEFAULT_TOKEN,
-)
+from tests.data.test_defaults import DEFAULT_REQUEST_ID, DEFAULT_TOKEN
 
 if TYPE_CHECKING:
-    from collections.abc import AsyncIterable, AsyncIterator, Callable
+    from collections.abc import AsyncIterable, AsyncIterator
 
     import respx
 
-RE_UUID = re.compile(r"^[\da-f]{8}-([\da-f]{4}-){3}[\da-f]{12}$", re.IGNORECASE)
 _UNSET = object()
 
 JSONValue = Union[dict[str, object], list[object], str, int, float, bool, None]
 
 
-def auth_matcher() -> Callable[[httpx.Request], None]:
-    def matcher(request: httpx.Request) -> None:
-        assert request.headers.get("Authorization") == f"Bearer {DEFAULT_TOKEN}"
-
-    return matcher
+def auth_headers(token: str = DEFAULT_TOKEN) -> dict[str, str]:
+    return {"Authorization": f"Bearer {token}"}
 
 
-def request_id_matcher(
-    request_id: str | None = None,
-) -> Callable[[httpx.Request], None]:
-    def matcher(request: httpx.Request) -> None:
-        value = request.headers.get("X-Request-Id")
-        assert value is not None
-        if request_id is not None:
-            assert value == request_id
-        else:
-            assert RE_UUID.match(value) is not None
-
-    return matcher
+def request_id_headers(request_id: str = DEFAULT_REQUEST_ID) -> dict[str, str]:
+    return {"X-Request-Id": request_id}
 
 
-def data_matcher(data: dict[str, Any]) -> Callable[[httpx.Request], None]:
-    def matcher(request: httpx.Request) -> None:
-        assert request.content
-        actual = json.loads(request.content.decode())
-        assert actual == data
-
-    return matcher
+def api_headers(
+    token: str = DEFAULT_TOKEN,
+    request_id: str = DEFAULT_REQUEST_ID,
+) -> dict[str, str]:
+    return auth_headers(token) | request_id_headers(request_id)
 
 
 def mock_route(
@@ -56,38 +34,28 @@ def mock_route(
     method: str,
     url: str,
     *,
-    status: int = 200,
-    json: JSONValue | object = _UNSET,
-    params: dict[str, Any] | None = None,
-    matchers: list[Callable[[httpx.Request], None]] | None = None,
+    response_status: int = 200,
+    response_json: JSONValue | object = _UNSET,
+    request_params: dict[str, Any] | None = None,
+    request_headers: dict[str, str] | None = None,
+    request_json: JSONValue | object = _UNSET,
 ) -> None:
-    """Register a route with optional runtime request assertions.
+    """Register a route with declarative request lookups and mocked response data."""
+    route_lookups: dict[str, Any] = {"method": method, "url": url}
 
-    Query params use `params__eq` so routes with the same method/path are still
-    matched deterministically by their exact query string values.
-    """
-    normalized_params = _normalize_params(params)
-    runtime_matchers = matchers or []
+    if request_params is not None:
+        route_lookups["params__eq"] = _normalize_params(request_params) or {}
+    if request_headers is not None:
+        route_lookups["headers__contains"] = request_headers
+    if request_json is not _UNSET:
+        route_lookups["json__eq"] = cast("JSONValue", request_json)
 
-    def handler(request: httpx.Request) -> httpx.Response:
-        for matcher in runtime_matchers:
-            matcher(request)
+    route = router.route(**route_lookups)
 
-        if json is _UNSET:
-            return httpx.Response(status_code=status, request=request)
-
-        return httpx.Response(
-            status_code=status,
-            json=cast("JSONValue", json),
-            request=request,
-        )
-
-    if normalized_params is None:
-        route = router.route(method=method, url=url)
+    if response_json is _UNSET:
+        route.respond(status_code=response_status)
     else:
-        route = router.route(method=method, url=url, params__eq=normalized_params)
-
-    route.mock(side_effect=handler)
+        route.respond(status_code=response_status, json=cast("Any", response_json))
 
 
 T = TypeVar("T")

@@ -6,12 +6,7 @@ import httpx
 import pytest
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, DEFAULT_TOKEN
-from tests.utils.test_utils import (
-    auth_matcher,
-    data_matcher,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, mock_route
 from todoist_api_python._core.http_requests import delete, get, post
 
 if TYPE_CHECKING:
@@ -28,13 +23,10 @@ def test_get_with_params(respx_mock: respx.MockRouter) -> None:
         respx_mock,
         method="GET",
         url=EXAMPLE_URL,
-        json=EXAMPLE_RESPONSE,
-        status=200,
-        params=EXAMPLE_PARAMS,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(DEFAULT_REQUEST_ID),
-        ],
+        request_params=EXAMPLE_PARAMS,
+        request_headers=api_headers(request_id=DEFAULT_REQUEST_ID),
+        response_json=EXAMPLE_RESPONSE,
+        response_status=200,
     )
 
     with httpx.Client() as client:
@@ -55,8 +47,8 @@ def test_get_raise_for_status(respx_mock: respx.MockRouter) -> None:
         respx_mock,
         method="GET",
         url=EXAMPLE_URL,
-        json="<error description>",
-        status=500,
+        response_json="<error description>",
+        response_status=500,
     )
 
     with httpx.Client() as client, pytest.raises(httpx.HTTPStatusError) as error_info:
@@ -70,13 +62,10 @@ def test_post_with_data(respx_mock: respx.MockRouter) -> None:
         respx_mock,
         method="POST",
         url=EXAMPLE_URL,
-        json=EXAMPLE_RESPONSE,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(DEFAULT_REQUEST_ID),
-            data_matcher(EXAMPLE_DATA),
-        ],
+        request_headers=api_headers(request_id=DEFAULT_REQUEST_ID),
+        request_json=EXAMPLE_DATA,
+        response_json=EXAMPLE_RESPONSE,
+        response_status=200,
     )
 
     with httpx.Client() as client:
@@ -97,13 +86,10 @@ def test_post_with_empty_data(respx_mock: respx.MockRouter) -> None:
         respx_mock,
         method="POST",
         url=EXAMPLE_URL,
-        json=EXAMPLE_RESPONSE,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(DEFAULT_REQUEST_ID),
-            data_matcher({}),
-        ],
+        request_headers=api_headers(request_id=DEFAULT_REQUEST_ID),
+        request_json={},
+        response_json=EXAMPLE_RESPONSE,
+        response_status=200,
     )
 
     with httpx.Client() as client:
@@ -124,7 +110,7 @@ def test_post_return_ok_when_no_response_body(respx_mock: respx.MockRouter) -> N
         respx_mock,
         method="POST",
         url=EXAMPLE_URL,
-        status=204,
+        response_status=204,
     )
 
     with httpx.Client() as client:
@@ -138,7 +124,7 @@ def test_post_raise_for_status(respx_mock: respx.MockRouter) -> None:
         respx_mock,
         method="POST",
         url=EXAMPLE_URL,
-        status=500,
+        response_status=500,
     )
 
     with httpx.Client() as client, pytest.raises(httpx.HTTPStatusError):
@@ -150,12 +136,9 @@ def test_delete_with_params(respx_mock: respx.MockRouter) -> None:
         respx_mock,
         method="DELETE",
         url=EXAMPLE_URL,
-        status=204,
-        params=EXAMPLE_PARAMS,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(DEFAULT_REQUEST_ID),
-        ],
+        request_params=EXAMPLE_PARAMS,
+        request_headers=api_headers(request_id=DEFAULT_REQUEST_ID),
+        response_status=204,
     )
 
     with httpx.Client() as client:
@@ -176,7 +159,7 @@ def test_delete_raise_for_status(respx_mock: respx.MockRouter) -> None:
         respx_mock,
         method="DELETE",
         url=EXAMPLE_URL,
-        status=500,
+        response_status=500,
     )
 
     with httpx.Client() as client, pytest.raises(httpx.HTTPStatusError):

@@ -5,13 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
-from tests.utils.test_utils import (
-    auth_matcher,
-    data_matcher,
-    enumerate_async,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, enumerate_async, mock_route
 
 if TYPE_CHECKING:
     import respx
@@ -36,9 +30,9 @@ async def test_get_project(
         respx_mock,
         method="GET",
         url=endpoint,
-        json=default_project_response,
-        status=200,
-        matchers=[auth_matcher()],
+        request_headers=api_headers(),
+        response_json=default_project_response,
+        response_status=200,
     )
 
     project = todoist_api.get_project(project_id)
@@ -68,10 +62,10 @@ async def test_get_projects(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"cursor": cursor} if cursor else {},
-            matchers=[auth_matcher(), request_id_matcher()],
+            request_params={"cursor": cursor} if cursor else {},
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -109,13 +103,10 @@ async def test_search_projects(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"query": query} | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params={"query": query} | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -150,13 +141,10 @@ async def test_add_project_minimal(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/projects",
-        json=default_project_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"name": project_name}),
-        ],
+        request_headers=api_headers(),
+        request_json={"name": project_name},
+        response_json=default_project_response,
+        response_status=200,
     )
 
     new_project = todoist_api.add_project(name=project_name)
@@ -191,13 +179,10 @@ async def test_add_project_full(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/projects",
-        json=default_project_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"name": project_name} | args),
-        ],
+        request_headers=api_headers(),
+        request_json={"name": project_name} | args,
+        response_json=default_project_response,
+        response_status=200,
     )
 
     new_project = todoist_api.add_project(name=project_name, **args)
@@ -229,9 +214,10 @@ async def test_update_project(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/projects/{default_project.id}",
-        json=updated_project_dict,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        request_headers=api_headers(),
+        request_json=args,
+        response_json=updated_project_dict,
+        response_status=200,
     )
 
     response = todoist_api.update_project(project_id=default_project.id, **args)
@@ -264,9 +250,9 @@ async def test_archive_project(
         respx_mock,
         method="POST",
         url=endpoint,
-        json=archived_project_dict,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_json=archived_project_dict,
+        response_status=200,
     )
 
     project = todoist_api.archive_project(project_id)
@@ -297,9 +283,9 @@ async def test_unarchive_project(
         respx_mock,
         method="POST",
         url=endpoint,
-        json=unarchived_project_dict,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_json=unarchived_project_dict,
+        response_status=200,
     )
 
     project = todoist_api.unarchive_project(project_id)
@@ -326,8 +312,8 @@ async def test_delete_project(
         respx_mock,
         method="DELETE",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.delete_project(project_id)
@@ -358,10 +344,10 @@ async def test_get_collaborators(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"cursor": cursor} if cursor else {},
-            matchers=[auth_matcher(), request_id_matcher()],
+            request_params={"cursor": cursor} if cursor else {},
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 

@@ -5,13 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
-from tests.utils.test_utils import (
-    auth_matcher,
-    data_matcher,
-    enumerate_async,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, enumerate_async, mock_route
 
 if TYPE_CHECKING:
     import respx
@@ -36,9 +30,9 @@ async def test_get_section(
         respx_mock,
         method="GET",
         url=endpoint,
-        json=default_section_response,
-        status=200,
-        matchers=[auth_matcher()],
+        request_headers=api_headers(),
+        response_json=default_section_response,
+        response_status=200,
     )
 
     section = todoist_api.get_section(section_id)
@@ -68,10 +62,10 @@ async def test_get_sections(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"cursor": cursor} if cursor else {},
-            matchers=[auth_matcher(), request_id_matcher()],
+            request_params={"cursor": cursor} if cursor else {},
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -109,13 +103,11 @@ async def test_get_sections_by_project(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"project_id": project_id} | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params={"project_id": project_id}
+            | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -153,13 +145,10 @@ async def test_search_sections(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"query": query} | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params={"query": query} | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -198,14 +187,11 @@ async def test_search_sections_by_project(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"query": query, "project_id": project_id}
+            request_params={"query": query, "project_id": project_id}
             | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -246,13 +232,10 @@ async def test_add_section(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/sections",
-        json=default_section_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"name": section_name, "project_id": project_id} | args),
-        ],
+        request_headers=api_headers(),
+        request_json={"name": section_name, "project_id": project_id} | args,
+        response_json=default_section_response,
+        response_status=200,
     )
 
     new_section = todoist_api.add_section(
@@ -286,9 +269,10 @@ async def test_update_section(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/sections/{default_section.id}",
-        json=updated_section_dict,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        request_headers=api_headers(),
+        request_json=args,
+        response_json=updated_section_dict,
+        response_status=200,
     )
 
     response = todoist_api.update_section(section_id=default_section.id, **args)
@@ -317,8 +301,8 @@ async def test_delete_section(
         respx_mock,
         method="DELETE",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.delete_section(section_id)

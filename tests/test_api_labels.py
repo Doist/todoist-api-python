@@ -5,13 +5,7 @@ from typing import TYPE_CHECKING, Any
 import pytest
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedResults
-from tests.utils.test_utils import (
-    auth_matcher,
-    data_matcher,
-    enumerate_async,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, enumerate_async, mock_route
 
 if TYPE_CHECKING:
     import respx
@@ -36,9 +30,9 @@ async def test_get_label(
         respx_mock,
         method="GET",
         url=endpoint,
-        json=default_label_response,
-        status=200,
-        matchers=[auth_matcher()],
+        request_headers=api_headers(),
+        response_json=default_label_response,
+        response_status=200,
     )
 
     label = todoist_api.get_label(label_id)
@@ -68,10 +62,10 @@ async def test_get_labels(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"cursor": cursor} if cursor else {},
-            matchers=[auth_matcher(), request_id_matcher()],
+            request_params={"cursor": cursor} if cursor else {},
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -109,13 +103,10 @@ async def test_search_labels(
             respx_mock,
             method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            params={"query": query} | ({"cursor": cursor} if cursor else {}),
-            matchers=[
-                auth_matcher(),
-                request_id_matcher(),
-            ],
+            request_params={"query": query} | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -150,13 +141,10 @@ async def test_add_label_minimal(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/labels",
-        json=default_label_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"name": label_name}),
-        ],
+        request_headers=api_headers(),
+        request_json={"name": label_name},
+        response_json=default_label_response,
+        response_status=200,
     )
 
     new_label = todoist_api.add_label(name=label_name)
@@ -189,13 +177,10 @@ async def test_add_label_full(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/labels",
-        json=default_label_response,
-        status=200,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"name": label_name} | args),
-        ],
+        request_headers=api_headers(),
+        request_json={"name": label_name} | args,
+        response_json=default_label_response,
+        response_status=200,
     )
 
     new_label = todoist_api.add_label(name=label_name, **args)
@@ -225,9 +210,10 @@ async def test_update_label(
         respx_mock,
         method="POST",
         url=f"{DEFAULT_API_URL}/labels/{default_label.id}",
-        json=updated_label_dict,
-        status=200,
-        matchers=[auth_matcher(), request_id_matcher(), data_matcher(args)],
+        request_headers=api_headers(),
+        request_json=args,
+        response_json=updated_label_dict,
+        response_status=200,
     )
 
     response = todoist_api.update_label(label_id=default_label.id, **args)
@@ -254,8 +240,8 @@ async def test_delete_label(
         respx_mock,
         method="DELETE",
         url=endpoint,
-        status=204,
-        matchers=[auth_matcher(), request_id_matcher()],
+        request_headers=api_headers(),
+        response_status=204,
     )
 
     response = todoist_api.delete_label(label_id)
@@ -267,5 +253,3 @@ async def test_delete_label(
 
     assert len(respx_mock.calls) == 2
     assert response is True
-
-

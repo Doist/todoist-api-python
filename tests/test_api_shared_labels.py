@@ -5,12 +5,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from tests.data.test_defaults import DEFAULT_API_URL
-from tests.utils.test_utils import (
-    auth_matcher,
-    data_matcher,
-    mock_route,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, mock_route
 
 if TYPE_CHECKING:
     import respx
@@ -33,13 +28,10 @@ async def test_rename_shared_label(
         respx_mock,
         method="POST",
         url=endpoint,
-        status=204,
-        params={"name": name},
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"new_name": new_name}),
-        ],
+        request_params={"name": name},
+        request_headers=api_headers(),
+        request_json={"new_name": new_name},
+        response_status=204,
     )
 
     result = todoist_api.rename_shared_label(name, new_name)
@@ -66,12 +58,9 @@ async def test_remove_shared_label(
         respx_mock,
         method="POST",
         url=endpoint,
-        status=204,
-        matchers=[
-            auth_matcher(),
-            request_id_matcher(),
-            data_matcher({"name": name}),
-        ],
+        request_headers=api_headers(),
+        request_json={"name": name},
+        response_status=204,
     )
 
     result = todoist_api.remove_shared_label(name)
