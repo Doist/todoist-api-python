@@ -6,6 +6,7 @@ from tests.data.test_defaults import (
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_DUE_RESPONSE,
     DEFAULT_DURATION_RESPONSE,
+    DEFAULT_FOLDER_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_PROJECT_RESPONSE_2,
@@ -20,6 +21,7 @@ from todoist_api_python.models import (
     Comment,
     Due,
     Duration,
+    Folder,
     Label,
     Project,
     Section,
@@ -185,6 +187,20 @@ def test_label_from_dict() -> None:
     assert label.color == sample_data["color"]
     assert label.order == sample_data["order"]
     assert label.is_favorite == sample_data["is_favorite"]
+
+
+def test_folder_from_dict() -> None:
+    sample_data = dict(DEFAULT_FOLDER_RESPONSE)
+    sample_data.update(unexpected_data)
+
+    folder = Folder.from_dict(sample_data)
+
+    assert folder.id == sample_data["id"]
+    assert folder.name == sample_data["name"]
+    assert folder.workspace_id == sample_data["workspace_id"]
+    assert folder.default_order == sample_data["default_order"]
+    assert folder.child_order == sample_data["child_order"]
+    assert folder.is_deleted == sample_data["is_deleted"]
 
 
 def test_auth_result_from_dict() -> None:

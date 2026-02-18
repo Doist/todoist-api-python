@@ -11,6 +11,8 @@ from tests.data.test_defaults import (
     DEFAULT_COMMENT_RESPONSE,
     DEFAULT_COMMENTS_RESPONSE,
     DEFAULT_COMPLETED_TASKS_RESPONSE,
+    DEFAULT_FOLDER_RESPONSE,
+    DEFAULT_FOLDERS_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_LABELS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
@@ -30,6 +32,7 @@ from todoist_api_python.models import (
     AuthResult,
     Collaborator,
     Comment,
+    Folder,
     Label,
     Project,
     Section,
@@ -204,6 +207,29 @@ def default_labels_list() -> list[list[Label]]:
     return [
         [Label.from_dict(result) for result in response["results"]]
         for response in DEFAULT_LABELS_RESPONSE
+    ]
+
+
+@pytest.fixture
+def default_folder_response() -> dict[str, Any]:
+    return DEFAULT_FOLDER_RESPONSE
+
+
+@pytest.fixture
+def default_folder() -> Folder:
+    return Folder.from_dict(DEFAULT_FOLDER_RESPONSE)
+
+
+@pytest.fixture
+def default_folders_response() -> list[PaginatedResults]:
+    return DEFAULT_FOLDERS_RESPONSE
+
+
+@pytest.fixture
+def default_folders_list() -> list[list[Folder]]:
+    return [
+        [Folder.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_FOLDERS_RESPONSE
     ]
 
 

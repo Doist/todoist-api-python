@@ -268,6 +268,32 @@ DEFAULT_LABELS_RESPONSE: list[PaginatedResults] = [
     },
 ]
 
+DEFAULT_FOLDER_RESPONSE = {
+    "id": "6X7rM8997g3RQmvh",
+    "name": "Test Folder",
+    "workspace_id": "ws_001",
+    "default_order": 1,
+    "child_order": 1,
+    "is_deleted": False,
+}
+
+DEFAULT_FOLDER_RESPONSE_2 = dict(DEFAULT_FOLDER_RESPONSE)
+DEFAULT_FOLDER_RESPONSE_2["id"] = "6X7rfFVPjhvv84XG"
+
+DEFAULT_FOLDER_RESPONSE_3 = dict(DEFAULT_FOLDER_RESPONSE)
+DEFAULT_FOLDER_RESPONSE_3["id"] = "6X7rfEVP8hvv25ZQ"
+
+DEFAULT_FOLDERS_RESPONSE: list[PaginatedResults] = [
+    {
+        "results": [DEFAULT_FOLDER_RESPONSE, DEFAULT_FOLDER_RESPONSE_2],
+        "next_cursor": "next",
+    },
+    {
+        "results": [DEFAULT_FOLDER_RESPONSE_3],
+        "next_cursor": None,
+    },
+]
+
 DEFAULT_AUTH_RESPONSE = {
     "access_token": "123456789",
     "state": "somestate",
