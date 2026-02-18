@@ -11,6 +11,7 @@ from annotated_types import Ge, Le, MaxLen, MinLen, Predicate
 from todoist_api_python._core.endpoints import (
     COLLABORATORS_PATH,
     COMMENTS_PATH,
+    FOLDERS_PATH,
     LABELS_PATH,
     LABELS_SEARCH_PATH_SUFFIX,
     PROJECT_ARCHIVE_PATH_SUFFIX,
@@ -39,6 +40,7 @@ from todoist_api_python.models import (
     Attachment,
     Collaborator,
     Comment,
+    Folder,
     Label,
     Project,
     Section,
@@ -934,6 +936,149 @@ class TodoistAPI:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
+        return delete(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
+
+    def get_folder(self, folder_id: str) -> Folder:
+        """
+        Get a specific folder by its ID.
+
+        :param folder_id: The ID of the folder to retrieve.
+        :return: The requested folder.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Folder dictionary.
+        """
+        endpoint = get_api_url(f"{FOLDERS_PATH}/{folder_id}")
+        folder_data: dict[str, Any] = get(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
+        return Folder.from_dict(folder_data)
+
+    def get_folders(
+        self,
+        *,
+        workspace_id: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[Folder]]:
+        """
+        Get an iterable of lists of folders.
+
+        The response is an iterable of lists of folders.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param workspace_id: Filter folders by workspace ID.
+        :param limit: Maximum number of folders per page.
+        :return: An iterable of lists of folders.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        endpoint = get_api_url(FOLDERS_PATH)
+
+        params: dict[str, Any] = {}
+        if workspace_id is not None:
+            params["workspace_id"] = workspace_id
+        if limit is not None:
+            params["limit"] = limit
+
+        return ResultsPaginator(
+            self._session,
+            endpoint,
+            "results",
+            Folder.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
+        )
+
+    def add_folder(
+        self,
+        name: str,
+        workspace_id: str,
+        *,
+        default_order: int | None = None,
+        child_order: int | None = None,
+    ) -> Folder:
+        """
+        Create a new folder.
+
+        :param name: The name of the folder.
+        :param workspace_id: The ID of the workspace to add the folder to.
+        :param default_order: The default order of the folder.
+        :param child_order: The child order of the folder.
+        :return: The newly created folder.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Folder dictionary.
+        """
+        endpoint = get_api_url(FOLDERS_PATH)
+
+        data: dict[str, Any] = {"name": name, "workspace_id": workspace_id}
+        if default_order is not None:
+            data["default_order"] = default_order
+        if child_order is not None:
+            data["child_order"] = child_order
+
+        folder_data: dict[str, Any] = post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
+        return Folder.from_dict(folder_data)
+
+    def update_folder(
+        self,
+        folder_id: str,
+        *,
+        name: str | None = None,
+        default_order: int | None = None,
+    ) -> Folder:
+        """
+        Update an existing folder.
+
+        Only the fields to be updated need to be provided as keyword arguments.
+
+        :param folder_id: The ID of the folder to update.
+        :param name: The name of the folder.
+        :param default_order: The default order of the folder.
+        :return: The updated folder.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{FOLDERS_PATH}/{folder_id}")
+
+        data: dict[str, Any] = {}
+        if name is not None:
+            data["name"] = name
+        if default_order is not None:
+            data["default_order"] = default_order
+
+        folder_data: dict[str, Any] = post(
+            self._session,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
+        return Folder.from_dict(folder_data)
+
+    def delete_folder(self, folder_id: str) -> bool:
+        """
+        Delete a folder.
+
+        :param folder_id: The ID of the folder to delete.
+        :return: True if the folder was deleted successfully,
+                 False otherwise (possibly raise `HTTPError` instead).
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{FOLDERS_PATH}/{folder_id}")
         return delete(
             self._session,
             endpoint,

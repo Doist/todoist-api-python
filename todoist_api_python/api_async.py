@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         Attachment,
         Collaborator,
         Comment,
+        Folder,
         Label,
         Project,
         Section,
@@ -640,6 +641,103 @@ class TodoistAPIAsync:
         :raises requests.exceptions.HTTPError: If the API request fails.
         """
         return await run_async(lambda: self._api.delete_project(project_id))
+
+    async def get_folder(self, folder_id: str) -> Folder:
+        """
+        Get a specific folder by its ID.
+
+        :param folder_id: The ID of the folder to retrieve.
+        :return: The requested folder.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Folder dictionary.
+        """
+        return await run_async(lambda: self._api.get_folder(folder_id))
+
+    async def get_folders(
+        self,
+        *,
+        workspace_id: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> AsyncGenerator[list[Folder]]:
+        """
+        Get a list of folders.
+
+        :param workspace_id: Filter folders by workspace ID.
+        :param limit: Maximum number of folders per page.
+        :return: A list of folders.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response structure is unexpected.
+        """
+        paginator = self._api.get_folders(
+            workspace_id=workspace_id,
+            limit=limit,
+        )
+        return generate_async(paginator)
+
+    async def add_folder(
+        self,
+        name: str,
+        workspace_id: str,
+        *,
+        default_order: int | None = None,
+        child_order: int | None = None,
+    ) -> Folder:
+        """
+        Create a new folder.
+
+        :param name: The name of the folder.
+        :param workspace_id: The ID of the workspace to add the folder to.
+        :param default_order: The default order of the folder.
+        :param child_order: The child order of the folder.
+        :return: The newly created folder.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        :raises TypeError: If the API response is not a valid Folder dictionary.
+        """
+        return await run_async(
+            lambda: self._api.add_folder(
+                name,
+                workspace_id,
+                default_order=default_order,
+                child_order=child_order,
+            )
+        )
+
+    async def update_folder(
+        self,
+        folder_id: str,
+        *,
+        name: str | None = None,
+        default_order: int | None = None,
+    ) -> Folder:
+        """
+        Update an existing folder.
+
+        Only the fields to be updated need to be provided as keyword arguments.
+
+        :param folder_id: The ID of the folder to update.
+        :param name: The name of the folder.
+        :param default_order: The default order of the folder.
+        :return: The updated folder.
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        """
+        return await run_async(
+            lambda: self._api.update_folder(
+                folder_id,
+                name=name,
+                default_order=default_order,
+            )
+        )
+
+    async def delete_folder(self, folder_id: str) -> bool:
+        """
+        Delete a folder.
+
+        :param folder_id: The ID of the folder to delete.
+        :return: True if the folder was deleted successfully,
+                 False otherwise (possibly raise `HTTPError` instead).
+        :raises requests.exceptions.HTTPError: If the API request fails.
+        """
+        return await run_async(lambda: self._api.delete_folder(folder_id))
 
     async def get_collaborators(
         self,

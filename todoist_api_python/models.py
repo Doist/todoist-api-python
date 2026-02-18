@@ -203,6 +203,19 @@ class Label(JSONPyWizard):
 
 
 @dataclass
+class Folder(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
+    id: str
+    name: str
+    workspace_id: str
+    default_order: int
+    child_order: int
+    is_deleted: bool
+
+
+@dataclass
 class AuthResult(JSONPyWizard):
     class _(JSONPyWizard.Meta):  # noqa:N801
         v1 = True
