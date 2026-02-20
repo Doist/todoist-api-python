@@ -34,6 +34,11 @@ for comments in comments_iter:
         print(f"Comment: {comment.content}")
 ```
 
+### Async usage
+
+Use `TodoistAPIAsync` with `async with` (or call `await api.close()` manually)
+to ensure the underlying `httpx.AsyncClient` is closed.
+
 ## Quick start
 
 - [Authentication](authentication.md)

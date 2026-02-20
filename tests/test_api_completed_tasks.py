@@ -10,18 +10,14 @@ else:
     UTC = timezone.utc
 
 import pytest
-import responses
 
 from tests.data.test_defaults import DEFAULT_API_URL, PaginatedItems
-from tests.utils.test_utils import (
-    auth_matcher,
-    enumerate_async,
-    param_matcher,
-    request_id_matcher,
-)
+from tests.utils.test_utils import api_headers, enumerate_async, mock_route
 from todoist_api_python._core.utils import format_datetime
 
 if TYPE_CHECKING:
+    import respx
+
     from todoist_api_python.api import TodoistAPI
     from todoist_api_python.api_async import TodoistAPIAsync
     from todoist_api_python.models import Task
@@ -31,7 +27,7 @@ if TYPE_CHECKING:
 async def test_get_completed_tasks_by_due_date(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    respx_mock: respx.MockRouter,
     default_completed_tasks_response: list[PaginatedItems],
     default_completed_tasks_list: list[list[Task]],
 ) -> None:
@@ -51,12 +47,14 @@ async def test_get_completed_tasks_by_due_date(
 
     cursor: str | None = None
     for page in default_completed_tasks_response:
-        requests_mock.add(
-            method=responses.GET,
+        mock_route(
+            respx_mock,
+            method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
+            request_params=params | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -70,7 +68,7 @@ async def test_get_completed_tasks_by_due_date(
     )
 
     for i, tasks in enumerate(tasks_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_completed_tasks_list[i]
         count += 1
 
@@ -82,7 +80,7 @@ async def test_get_completed_tasks_by_due_date(
     )
 
     async for i, tasks in enumerate_async(tasks_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_completed_tasks_list[i]
         count += 1
 
@@ -91,7 +89,7 @@ async def test_get_completed_tasks_by_due_date(
 async def test_get_completed_tasks_by_completion_date(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
-    requests_mock: responses.RequestsMock,
+    respx_mock: respx.MockRouter,
     default_completed_tasks_response: list[PaginatedItems],
     default_completed_tasks_list: list[list[Task]],
 ) -> None:
@@ -111,12 +109,14 @@ async def test_get_completed_tasks_by_completion_date(
 
     cursor: str | None = None
     for page in default_completed_tasks_response:
-        requests_mock.add(
-            method=responses.GET,
+        mock_route(
+            respx_mock,
+            method="GET",
             url=endpoint,
-            json=page,
-            status=200,
-            match=[auth_matcher(), request_id_matcher(), param_matcher(params, cursor)],
+            request_params=params | ({"cursor": cursor} if cursor else {}),
+            request_headers=api_headers(),
+            response_json=page,
+            response_status=200,
         )
         cursor = page["next_cursor"]
 
@@ -130,7 +130,7 @@ async def test_get_completed_tasks_by_completion_date(
     )
 
     for i, tasks in enumerate(tasks_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_completed_tasks_list[i]
         count += 1
 
@@ -142,6 +142,6 @@ async def test_get_completed_tasks_by_completion_date(
     )
 
     async for i, tasks in enumerate_async(tasks_async_iter):
-        assert len(requests_mock.calls) == count + 1
+        assert len(respx_mock.calls) == count + 1
         assert tasks == default_completed_tasks_list[i]
         count += 1

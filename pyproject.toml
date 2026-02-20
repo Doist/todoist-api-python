@@ -3,7 +3,7 @@ name = "todoist_api_python"
 version = "3.2.1"
 description = "Official Python SDK for the Todoist API."
 authors = [{ name = "Doist Developers", email = "dev@doist.com" }]
-requires-python = "~=3.9"
+requires-python = ">=3.9,<4"
 readme = "README.md"
 license = "MIT"
 keywords = ["todoist", "rest", "sync", "api", "python"]
@@ -13,7 +13,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "requests>=2.32.3,<3",
+  "httpx>=0.28.1,<1",
   "dataclass-wizard>=0.35.0,<1.0",
   "annotated-types",
 ]
@@ -32,8 +32,7 @@ dev = [
   "tox-uv>=1.25.0,<2",
   "mypy~=1.11",
   "ruff>=0.11.0,<0.12",
-  "responses>=0.25.3,<0.26",
-  "types-requests~=2.32",
+  "respx>=0.22.0,<0.23",
 ]
 
 docs = [

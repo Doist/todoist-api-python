@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import pytest
-import responses
+import pytest_asyncio
 
 from tests.data.test_defaults import (
     DEFAULT_AUTH_RESPONSE,
@@ -15,6 +15,7 @@ from tests.data.test_defaults import (
     DEFAULT_LABELS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_PROJECTS_RESPONSE,
+    DEFAULT_REQUEST_ID,
     DEFAULT_SECTION_RESPONSE,
     DEFAULT_SECTIONS_RESPONSE,
     DEFAULT_TASK_META_RESPONSE,
@@ -37,23 +38,25 @@ from todoist_api_python.models import (
 )
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import AsyncIterator, Iterator
 
 
 @pytest.fixture
-def requests_mock() -> Iterator[responses.RequestsMock]:
-    with responses.RequestsMock() as requests_mock:
-        yield requests_mock
+def todoist_api() -> Iterator[TodoistAPI]:
+    with TodoistAPI(
+        DEFAULT_TOKEN,
+        request_id_fn=lambda: DEFAULT_REQUEST_ID,
+    ) as api:
+        yield api
 
 
-@pytest.fixture
-def todoist_api() -> TodoistAPI:
-    return TodoistAPI(DEFAULT_TOKEN)
-
-
-@pytest.fixture
-def todoist_api_async() -> TodoistAPIAsync:
-    return TodoistAPIAsync(DEFAULT_TOKEN)
+@pytest_asyncio.fixture
+async def todoist_api_async() -> AsyncIterator[TodoistAPIAsync]:
+    async with TodoistAPIAsync(
+        DEFAULT_TOKEN,
+        request_id_fn=lambda: DEFAULT_REQUEST_ID,
+    ) as api:
+        yield api
 
 
 @pytest.fixture

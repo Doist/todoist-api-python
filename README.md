@@ -38,9 +38,29 @@ for comments in comments_iter:
         print(f"Comment: {comment.content}")
 ```
 
+### Async usage
+
+Always close `TodoistAPIAsync` explicitly, either via `async with` (recommended) or by calling `await api.close()`.
+
+```python
+from todoist_api_python.api_async import TodoistAPIAsync
+
+async with TodoistAPIAsync("YOUR_API_TOKEN") as api:
+    task = await api.get_task("6X4Vw2Hfmg73Q2XR")
+    print(task.content)
+```
+
 ## Documentation
 
 For more detailed reference documentation, have a look at the [SDK documentation](https://doist.github.io/todoist-api-python/) and the [API documentation](https://developer.todoist.com).
+
+## Migrating from 3.x
+
+Version `4.x` introduces a breaking HTTP stack migration from `requests` to `httpx`.
+
+- `TodoistAPI(..., session=...)` is now `TodoistAPI(..., client=...)` with `httpx.Client`.
+- `TodoistAPIAsync(..., session=...)` is now `TodoistAPIAsync(..., client=...)` with `httpx.AsyncClient`.
+- Error handling should catch `httpx.HTTPStatusError` instead of `requests.exceptions.HTTPError`.
 
 ## Development
 
