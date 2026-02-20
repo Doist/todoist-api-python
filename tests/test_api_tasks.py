@@ -359,6 +359,7 @@ async def test_update_task(
         "description": "Updated description",
         "labels": ["label1", "label2"],
         "priority": 2,
+        "order": 3,
     }
     updated_task_dict = default_task.to_dict() | args
 
