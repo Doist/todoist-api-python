@@ -356,6 +356,7 @@ class TodoistAPI:
         due_date: date | None = None,
         due_datetime: datetime | None = None,
         assignee_id: str | None = None,
+        order: int | None = None,
         day_order: int | None = None,
         collapsed: bool | None = None,
         duration: Annotated[int, Ge(1)] | None = None,
@@ -378,6 +379,7 @@ class TodoistAPI:
         :param due_date: The due date as a date object.
         :param due_datetime: The due date and time as a datetime object.
         :param assignee_id: User ID to whom the task is assigned.
+        :param order: The order of task in the project or section.
         :param day_order: The order of the task inside Today or Next 7 days view.
         :param collapsed: Whether the task's sub-tasks are collapsed.
         :param duration: The amount of time the task will take.
@@ -401,6 +403,7 @@ class TodoistAPI:
                 format_datetime(due_datetime) if due_datetime is not None else None
             ),
             assignee_id=assignee_id,
+            order=order,
             day_order=day_order,
             collapsed=collapsed,
             duration=duration,
