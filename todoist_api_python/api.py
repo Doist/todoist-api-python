@@ -29,7 +29,12 @@ from todoist_api_python._core.endpoints import (
     TASKS_QUICK_ADD_PATH,
     get_api_url,
 )
-from todoist_api_python._core.http_requests import delete, get, post
+from todoist_api_python._core.http_requests import (
+    delete,
+    get,
+    post,
+    response_json_dict,
+)
 from todoist_api_python._core.utils import (
     default_request_id_fn,
     format_date,
@@ -117,13 +122,14 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Task dictionary.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
-        task_data: dict[str, Any] = get(
+        response = get(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
-        return Task.from_dict(task_data)
+        data = response_json_dict(response)
+        return Task.from_dict(data)
 
     def get_tasks(
         self,
@@ -285,14 +291,15 @@ class TodoistAPI:
             deadline_lang=deadline_lang,
         )
 
-        task_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Task.from_dict(task_data)
+        data = response_json_dict(response)
+        return Task.from_dict(data)
 
     def add_task_quick(
         self,
@@ -326,14 +333,15 @@ class TodoistAPI:
             reminder=reminder,
         )
 
-        task_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Task.from_dict(task_data)
+        data = response_json_dict(response)
+        return Task.from_dict(data)
 
     def update_task(
         self,
@@ -403,14 +411,15 @@ class TodoistAPI:
             deadline_lang=deadline_lang,
         )
 
-        task_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Task.from_dict(task_data)
+        data = response_json_dict(response)
+        return Task.from_dict(data)
 
     def complete_task(self, task_id: str) -> bool:
         """
@@ -425,12 +434,13 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/close")
-        return post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
+        return response.is_success
 
     def uncomplete_task(self, task_id: str) -> bool:
         """
@@ -444,12 +454,13 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/reopen")
-        return post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
+        return response.is_success
 
     def move_task(
         self,
@@ -486,13 +497,14 @@ class TodoistAPI:
             parent_id=parent_id,
         )
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/move")
-        return post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
+        return response.is_success
 
     def delete_task(self, task_id: str) -> bool:
         """
@@ -504,12 +516,13 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
-        return delete(
+        response = delete(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
+        return response.is_success
 
     def get_completed_tasks_by_due_date(
         self,
@@ -632,13 +645,14 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
-        project_data: dict[str, Any] = get(
+        response = get(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
-        return Project.from_dict(project_data)
+        data = response_json_dict(response)
+        return Project.from_dict(data)
 
     def get_projects(
         self,
@@ -735,14 +749,15 @@ class TodoistAPI:
             view_style=view_style,
         )
 
-        project_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Project.from_dict(project_data)
+        data = response_json_dict(response)
+        return Project.from_dict(data)
 
     def update_project(
         self,
@@ -778,14 +793,15 @@ class TodoistAPI:
             view_style=view_style,
         )
 
-        project_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Project.from_dict(project_data)
+        data = response_json_dict(response)
+        return Project.from_dict(data)
 
     def archive_project(self, project_id: str) -> Project:
         """
@@ -802,13 +818,14 @@ class TodoistAPI:
         endpoint = get_api_url(
             f"{PROJECTS_PATH}/{project_id}/{PROJECT_ARCHIVE_PATH_SUFFIX}"
         )
-        project_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
-        return Project.from_dict(project_data)
+        data = response_json_dict(response)
+        return Project.from_dict(data)
 
     def unarchive_project(self, project_id: str) -> Project:
         """
@@ -824,13 +841,14 @@ class TodoistAPI:
         endpoint = get_api_url(
             f"{PROJECTS_PATH}/{project_id}/{PROJECT_UNARCHIVE_PATH_SUFFIX}"
         )
-        project_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
-        return Project.from_dict(project_data)
+        data = response_json_dict(response)
+        return Project.from_dict(data)
 
     def delete_project(self, project_id: str) -> bool:
         """
@@ -844,12 +862,13 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
-        return delete(
+        response = delete(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
+        return response.is_success
 
     def get_collaborators(
         self,
@@ -891,13 +910,14 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Section dictionary.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
-        section_data: dict[str, Any] = get(
+        response = get(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
-        return Section.from_dict(section_data)
+        data = response_json_dict(response)
+        return Section.from_dict(data)
 
     def get_sections(
         self,
@@ -990,14 +1010,15 @@ class TodoistAPI:
 
         data = kwargs_without_none(name=name, project_id=project_id, order=order)
 
-        section_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Section.from_dict(section_data)
+        data = response_json_dict(response)
+        return Section.from_dict(data)
 
     def update_section(
         self,
@@ -1015,14 +1036,15 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
-        section_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data={"name": name},
         )
-        return Section.from_dict(section_data)
+        data = response_json_dict(response)
+        return Section.from_dict(data)
 
     def delete_section(self, section_id: str) -> bool:
         """
@@ -1036,12 +1058,13 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
-        return delete(
+        response = delete(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
+        return response.is_success
 
     def get_comment(self, comment_id: str) -> Comment:
         """
@@ -1053,13 +1076,14 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Comment dictionary.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
-        comment_data: dict[str, Any] = get(
+        response = get(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
-        return Comment.from_dict(comment_data)
+        data = response_json_dict(response)
+        return Comment.from_dict(data)
 
     def get_comments(
         self,
@@ -1144,14 +1168,15 @@ class TodoistAPI:
             uids_to_notify=uids_to_notify,
         )
 
-        comment_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Comment.from_dict(comment_data)
+        data = response_json_dict(response)
+        return Comment.from_dict(data)
 
     def update_comment(
         self, comment_id: str, content: Annotated[str, MaxLen(15000)]
@@ -1167,14 +1192,15 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
-        comment_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data={"content": content},
         )
-        return Comment.from_dict(comment_data)
+        data = response_json_dict(response)
+        return Comment.from_dict(data)
 
     def delete_comment(self, comment_id: str) -> bool:
         """
@@ -1186,12 +1212,13 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
-        return delete(
+        response = delete(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
+        return response.is_success
 
     def get_label(self, label_id: str) -> Label:
         """
@@ -1203,13 +1230,14 @@ class TodoistAPI:
         :raises TypeError: If the API response is not a valid Label dictionary.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
-        label_data: dict[str, Any] = get(
+        response = get(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
-        return Label.from_dict(label_data)
+        data = response_json_dict(response)
+        return Label.from_dict(data)
 
     def get_labels(
         self,
@@ -1305,14 +1333,15 @@ class TodoistAPI:
             is_favorite=is_favorite,
         )
 
-        label_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Label.from_dict(label_data)
+        data = response_json_dict(response)
+        return Label.from_dict(data)
 
     def update_label(
         self,
@@ -1345,14 +1374,15 @@ class TodoistAPI:
             is_favorite=is_favorite,
         )
 
-        label_data: dict[str, Any] = post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
-        return Label.from_dict(label_data)
+        data = response_json_dict(response)
+        return Label.from_dict(data)
 
     def delete_label(self, label_id: str) -> bool:
         """
@@ -1366,12 +1396,13 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
-        return delete(
+        response = delete(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
         )
+        return response.is_success
 
     def get_shared_labels(
         self,
@@ -1425,7 +1456,7 @@ class TodoistAPI:
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(SHARED_LABELS_RENAME_PATH)
-        return post(
+        response = post(
             self._client,
             endpoint,
             self._token,
@@ -1433,6 +1464,7 @@ class TodoistAPI:
             params={"name": name},
             data={"new_name": new_name},
         )
+        return response.is_success
 
     def remove_shared_label(self, name: Annotated[str, MaxLen(60)]) -> bool:
         """
@@ -1446,13 +1478,14 @@ class TodoistAPI:
         """
         endpoint = get_api_url(SHARED_LABELS_REMOVE_PATH)
         data = {"name": name}
-        return post(
+        response = post(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
         )
+        return response.is_success
 
 
 T = TypeVar("T")
@@ -1518,13 +1551,14 @@ class ResultsPaginator(Iterator[list[T]]):
         if self._cursor != "":
             params["cursor"] = self._cursor
 
-        data: dict[str, Any] = get(
+        response = get(
             self._client,
             self._url,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             params,
         )
+        data = response_json_dict(response)
         self._cursor = data.get("next_cursor")
 
         results: list[Any] = data.get(self._results_field, [])

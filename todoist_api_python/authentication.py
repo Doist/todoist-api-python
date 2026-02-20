@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from contextlib import asynccontextmanager, contextmanager
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Literal
 from urllib.parse import urlencode
 
 import httpx
@@ -21,6 +21,7 @@ from todoist_api_python._core.http_requests import (
     delete_async,
     post,
     post_async,
+    response_json_dict,
 )
 from todoist_api_python.models import AuthResult
 
@@ -69,13 +70,14 @@ def get_auth_token(
     data = _build_auth_token_data(client_id, client_secret, code)
 
     with _managed_client(client) as managed_client:
-        response: dict[str, Any] = post(
+        response = post(
             client=managed_client,
             url=endpoint,
             data=data,
         )
 
-    return AuthResult.from_dict(response)
+    data = response_json_dict(response)
+    return AuthResult.from_dict(data)
 
 
 async def get_auth_token_async(
@@ -89,13 +91,14 @@ async def get_auth_token_async(
     data = _build_auth_token_data(client_id, client_secret, code)
 
     async with _managed_async_client(client) as managed_client:
-        response: dict[str, Any] = await post_async(
+        response = await post_async(
             client=managed_client,
             url=endpoint,
             data=data,
         )
 
-    return AuthResult.from_dict(response)
+    data = response_json_dict(response)
+    return AuthResult.from_dict(data)
 
 
 def revoke_auth_token(
@@ -109,7 +112,9 @@ def revoke_auth_token(
     params = _build_revoke_auth_token_params(client_id, client_secret, token)
 
     with _managed_client(client) as managed_client:
-        return delete(client=managed_client, url=endpoint, params=params)
+        response = delete(client=managed_client, url=endpoint, params=params)
+
+    return response.is_success
 
 
 async def revoke_auth_token_async(
@@ -123,7 +128,11 @@ async def revoke_auth_token_async(
     params = _build_revoke_auth_token_params(client_id, client_secret, token)
 
     async with _managed_async_client(client) as managed_client:
-        return await delete_async(client=managed_client, url=endpoint, params=params)
+        response = await delete_async(
+            client=managed_client, url=endpoint, params=params
+        )
+
+    return response.is_success
 
 
 @contextmanager

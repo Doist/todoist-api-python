@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeVar, cast
+from typing import Any
 
 import httpx
 
@@ -15,20 +15,6 @@ from todoist_api_python._core.http_headers import create_headers
 # are forcefully terminated after this time, so there is no point waiting longer.
 TIMEOUT = httpx.Timeout(connect=10.0, read=60.0, write=60.0, pool=10.0)
 
-T = TypeVar("T")
-
-
-def _parse_response(
-    response: httpx.Response,
-    _result_type: type[T] | None = None,
-) -> T:
-    response.raise_for_status()
-
-    if response.status_code == httpx.codes.NO_CONTENT:
-        return cast("T", response.is_success)
-
-    return cast("T", response.json())
-
 
 def get(
     client: httpx.Client,
@@ -36,8 +22,7 @@ def get(
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-    result_type: type[T] | None = None,
-) -> T:
+) -> httpx.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = client.get(
@@ -46,8 +31,8 @@ def get(
         headers=headers,
         timeout=TIMEOUT,
     )
-
-    return _parse_response(response, result_type)
+    response.raise_for_status()
+    return response
 
 
 async def get_async(
@@ -56,8 +41,7 @@ async def get_async(
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-    result_type: type[T] | None = None,
-) -> T:
+) -> httpx.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = await client.get(
@@ -66,8 +50,8 @@ async def get_async(
         headers=headers,
         timeout=TIMEOUT,
     )
-
-    return _parse_response(response, result_type)
+    response.raise_for_status()
+    return response
 
 
 def post(
@@ -78,19 +62,18 @@ def post(
     *,
     params: dict[str, Any] | None = None,
     data: dict[str, Any] | None = None,
-    result_type: type[T] | None = None,
-) -> T:
+) -> httpx.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = client.post(
         url,
         headers=headers,
-        json=data if data is not None else None,
+        json=data,
         params=params,
         timeout=TIMEOUT,
     )
-
-    return _parse_response(response, result_type)
+    response.raise_for_status()
+    return response
 
 
 async def post_async(
@@ -101,19 +84,18 @@ async def post_async(
     *,
     params: dict[str, Any] | None = None,
     data: dict[str, Any] | None = None,
-    result_type: type[T] | None = None,
-) -> T:
+) -> httpx.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = await client.post(
         url,
         headers=headers,
-        json=data if data is not None else None,
+        json=data,
         params=params,
         timeout=TIMEOUT,
     )
-
-    return _parse_response(response, result_type)
+    response.raise_for_status()
+    return response
 
 
 def delete(
@@ -122,13 +104,12 @@ def delete(
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-) -> bool:
+) -> httpx.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = client.delete(url, params=params, headers=headers, timeout=TIMEOUT)
-
     response.raise_for_status()
-    return response.is_success
+    return response
 
 
 async def delete_async(
@@ -137,10 +118,18 @@ async def delete_async(
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-) -> bool:
+) -> httpx.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = await client.delete(url, params=params, headers=headers, timeout=TIMEOUT)
-
     response.raise_for_status()
-    return response.is_success
+    return response
+
+
+def response_json_dict(response: httpx.Response) -> dict[str, Any]:
+    data = response.json()
+    if not isinstance(data, dict):
+        raise TypeError(
+            f"Expected response to be a JSON object, got {type(data).__name__}."
+        )
+    return data

@@ -1,13 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 import httpx
 import pytest
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, DEFAULT_TOKEN
 from tests.utils.test_utils import api_headers, mock_route
-from todoist_api_python._core.http_requests import delete, get, post
+from todoist_api_python._core.http_requests import (
+    delete,
+    get,
+    post,
+    response_json_dict,
+)
 
 if TYPE_CHECKING:
     import respx
@@ -30,7 +35,7 @@ def test_get_with_params(respx_mock: respx.MockRouter) -> None:
     )
 
     with httpx.Client() as client:
-        response: dict[str, Any] = get(
+        response = get(
             client=client,
             url=EXAMPLE_URL,
             token=DEFAULT_TOKEN,
@@ -39,7 +44,7 @@ def test_get_with_params(respx_mock: respx.MockRouter) -> None:
         )
 
     assert len(respx_mock.calls) == 1
-    assert response == EXAMPLE_RESPONSE
+    assert response.json() == EXAMPLE_RESPONSE
 
 
 def test_get_raise_for_status(respx_mock: respx.MockRouter) -> None:
@@ -69,7 +74,7 @@ def test_post_with_data(respx_mock: respx.MockRouter) -> None:
     )
 
     with httpx.Client() as client:
-        response: dict[str, Any] = post(
+        response = post(
             client=client,
             url=EXAMPLE_URL,
             token=DEFAULT_TOKEN,
@@ -78,7 +83,7 @@ def test_post_with_data(respx_mock: respx.MockRouter) -> None:
         )
 
     assert len(respx_mock.calls) == 1
-    assert response == EXAMPLE_RESPONSE
+    assert response.json() == EXAMPLE_RESPONSE
 
 
 def test_post_with_empty_data(respx_mock: respx.MockRouter) -> None:
@@ -93,7 +98,7 @@ def test_post_with_empty_data(respx_mock: respx.MockRouter) -> None:
     )
 
     with httpx.Client() as client:
-        response: dict[str, Any] = post(
+        response = post(
             client=client,
             url=EXAMPLE_URL,
             token=DEFAULT_TOKEN,
@@ -102,7 +107,7 @@ def test_post_with_empty_data(respx_mock: respx.MockRouter) -> None:
         )
 
     assert len(respx_mock.calls) == 1
-    assert response == EXAMPLE_RESPONSE
+    assert response.json() == EXAMPLE_RESPONSE
 
 
 def test_post_return_ok_when_no_response_body(respx_mock: respx.MockRouter) -> None:
@@ -114,9 +119,9 @@ def test_post_return_ok_when_no_response_body(respx_mock: respx.MockRouter) -> N
     )
 
     with httpx.Client() as client:
-        result: bool = post(client=client, url=EXAMPLE_URL, token=DEFAULT_TOKEN)
+        response = post(client=client, url=EXAMPLE_URL, token=DEFAULT_TOKEN)
 
-    assert result is True
+    assert response.is_success is True
 
 
 def test_post_raise_for_status(respx_mock: respx.MockRouter) -> None:
@@ -142,7 +147,7 @@ def test_delete_with_params(respx_mock: respx.MockRouter) -> None:
     )
 
     with httpx.Client() as client:
-        result = delete(
+        response = delete(
             client=client,
             url=EXAMPLE_URL,
             token=DEFAULT_TOKEN,
@@ -151,7 +156,7 @@ def test_delete_with_params(respx_mock: respx.MockRouter) -> None:
         )
 
     assert len(respx_mock.calls) == 1
-    assert result is True
+    assert response.is_success is True
 
 
 def test_delete_raise_for_status(respx_mock: respx.MockRouter) -> None:
@@ -164,3 +169,16 @@ def test_delete_raise_for_status(respx_mock: respx.MockRouter) -> None:
 
     with httpx.Client() as client, pytest.raises(httpx.HTTPStatusError):
         delete(client=client, url=EXAMPLE_URL, token=DEFAULT_TOKEN)
+
+
+def test_response_json_dict_returns_dict() -> None:
+    response = httpx.Response(status_code=200, json={"result": "ok"})
+
+    assert response_json_dict(response) == {"result": "ok"}
+
+
+def test_response_json_dict_raises_for_non_dict() -> None:
+    response = httpx.Response(status_code=200, json=["not", "a", "dict"])
+
+    with pytest.raises(TypeError, match="JSON object"):
+        response_json_dict(response)
