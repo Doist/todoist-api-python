@@ -66,10 +66,10 @@ def test_project_from_dict() -> None:
     assert project.workspace_id == sample_data["workspace_id"]
     assert project.order == sample_data["child_order"]
     assert project.color == sample_data["color"]
-    assert project.is_collapsed == sample_data["collapsed"]
-    assert project.is_shared == sample_data["shared"]
+    assert project.is_collapsed == sample_data["is_collapsed"]
+    assert project.is_shared == sample_data["is_shared"]
     assert project.is_favorite == sample_data["is_favorite"]
-    assert project.is_inbox_project == sample_data["is_inbox_project"]
+    assert project.is_inbox_project == sample_data["inbox_project"]
     assert project.can_assign_tasks == sample_data["can_assign_tasks"]
     assert project.view_style == sample_data["view_style"]
     assert project.created_at == parse_datetime(str(sample_data["created_at"]))
@@ -99,7 +99,7 @@ def test_task_from_dict() -> None:
     assert task.priority == sample_data["priority"]
     assert task.due == Due.from_dict(sample_data["due"])
     assert task.duration == Duration.from_dict(sample_data["duration"])
-    assert task.is_collapsed == sample_data["collapsed"]
+    assert task.is_collapsed == sample_data["is_collapsed"]
     assert task.order == sample_data["child_order"]
     assert task.assignee_id == sample_data["responsible_uid"]
     assert task.assigner_id == sample_data["assigned_by_uid"]
@@ -126,7 +126,8 @@ def test_section_from_dict() -> None:
     assert section.id == sample_data["id"]
     assert section.project_id == sample_data["project_id"]
     assert section.name == sample_data["name"]
-    assert section.order == sample_data["order"]
+    assert section.is_collapsed == sample_data["is_collapsed"]
+    assert section.order == sample_data["section_order"]
 
 
 def test_collaborator_from_dict() -> None:
@@ -169,9 +170,9 @@ def test_comment_from_dict() -> None:
     assert comment.content == sample_data["content"]
     assert comment.poster_id == sample_data["posted_uid"]
     assert comment.posted_at == parse_datetime(sample_data["posted_at"])
-    assert comment.task_id == sample_data["task_id"]
-    assert comment.project_id == sample_data["project_id"]
-    assert comment.attachment == Attachment.from_dict(sample_data["attachment"])
+    assert comment.task_id == sample_data["item_id"]
+    assert comment.project_id is None
+    assert comment.attachment == Attachment.from_dict(sample_data["file_attachment"])
 
 
 def test_label_from_dict() -> None:

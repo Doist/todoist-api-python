@@ -56,10 +56,10 @@ DEFAULT_PROJECT_RESPONSE = {
     "workspace_id": None,
     "child_order": 1,
     "color": "red",
-    "shared": False,
-    "collapsed": False,
+    "is_shared": False,
+    "is_collapsed": False,
     "is_favorite": False,
-    "is_inbox_project": True,
+    "inbox_project": True,
     "can_assign_tasks": False,
     "is_archived": False,
     "view_style": "list",
@@ -69,12 +69,12 @@ DEFAULT_PROJECT_RESPONSE = {
 
 DEFAULT_PROJECT_RESPONSE_2 = dict(DEFAULT_PROJECT_RESPONSE)
 DEFAULT_PROJECT_RESPONSE_2["id"] = "6X7rfFVPjhvv84XG"
-DEFAULT_PROJECT_RESPONSE_2["is_inbox_project"] = False
+DEFAULT_PROJECT_RESPONSE_2["inbox_project"] = False
 
 
 DEFAULT_PROJECT_RESPONSE_3 = dict(DEFAULT_PROJECT_RESPONSE)
 DEFAULT_PROJECT_RESPONSE_3["id"] = "6X7rfEVP8hvv25ZQ"
-DEFAULT_PROJECT_RESPONSE_3["is_inbox_project"] = False
+DEFAULT_PROJECT_RESPONSE_3["inbox_project"] = False
 
 DEFAULT_PROJECTS_RESPONSE: list[PaginatedResults] = [
     {
@@ -99,8 +99,9 @@ DEFAULT_TASK_RESPONSE: dict[str, Any] = {
     "due": DEFAULT_DUE_RESPONSE,
     "deadline": DEFAULT_DEADLINE_RESPONSE,
     "duration": DEFAULT_DURATION_RESPONSE,
-    "collapsed": False,
+    "is_collapsed": False,
     "child_order": 3,
+    "day_order": -1,
     "responsible_uid": "2423523",
     "assigned_by_uid": "2971358",
     "completed_at": None,
@@ -179,8 +180,8 @@ DEFAULT_SECTION_RESPONSE = {
     "id": "6X7rM8997g3RQmvh",
     "project_id": "4567",
     "name": "A Section",
-    "collapsed": False,
-    "order": 1,
+    "is_collapsed": False,
+    "section_order": 1,
 }
 
 DEFAULT_SECTION_RESPONSE_2 = dict(DEFAULT_SECTION_RESPONSE)
@@ -219,18 +220,17 @@ DEFAULT_COMMENT_RESPONSE: dict[str, Any] = {
     "content": "A comment",
     "posted_uid": "34567",
     "posted_at": "2019-09-22T07:00:00.000000Z",
-    "task_id": "6X7rM8997g3RQmvh",
-    "project_id": "6X7rfEVP8hvv25ZQ",
-    "attachment": DEFAULT_ATTACHMENT_RESPONSE,
+    "item_id": "6X7rM8997g3RQmvh",
+    "file_attachment": DEFAULT_ATTACHMENT_RESPONSE,
 }
 
 DEFAULT_COMMENT_RESPONSE_2 = dict(DEFAULT_COMMENT_RESPONSE)
 DEFAULT_COMMENT_RESPONSE_2["id"] = "6X7rfFVPjhvv84XG"
-DEFAULT_COMMENT_RESPONSE_2["attachment"] = None
+DEFAULT_COMMENT_RESPONSE_2["file_attachment"] = None
 
 DEFAULT_COMMENT_RESPONSE_3 = dict(DEFAULT_COMMENT_RESPONSE)
 DEFAULT_COMMENT_RESPONSE_3["id"] = "6X7rfFVPjhvv65HG"
-DEFAULT_COMMENT_RESPONSE_3["attachment"] = None
+DEFAULT_COMMENT_RESPONSE_3["file_attachment"] = None
 
 DEFAULT_COMMENTS_RESPONSE: list[PaginatedResults] = [
     {
