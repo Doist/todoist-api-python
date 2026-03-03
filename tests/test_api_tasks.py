@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import sys
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
@@ -353,15 +354,15 @@ async def test_update_task(
     todoist_api_async: TodoistAPIAsync,
     respx_mock: respx.MockRouter,
     default_task: Task,
+    default_task_response: dict[str, Any],
 ) -> None:
     args: dict[str, Any] = {
         "content": "Updated content",
         "description": "Updated description",
         "labels": ["label1", "label2"],
         "priority": 2,
-        "order": 3,
     }
-    updated_task_dict = default_task.to_dict() | args
+    updated_task_response = dict(default_task_response) | args
 
     mock_route(
         respx_mock,
@@ -369,19 +370,67 @@ async def test_update_task(
         url=f"{DEFAULT_API_URL}/tasks/{default_task.id}",
         request_headers=api_headers(),
         request_json=args,
-        response_json=updated_task_dict,
+        response_json=updated_task_response,
         response_status=200,
     )
 
     response = todoist_api.update_task(task_id=default_task.id, **args)
 
     assert len(respx_mock.calls) == 1
-    assert response == Task.from_dict(updated_task_dict)
+    assert response == Task.from_dict(updated_task_response)
 
     response = await todoist_api_async.update_task(task_id=default_task.id, **args)
 
     assert len(respx_mock.calls) == 2
-    assert response == Task.from_dict(updated_task_dict)
+    assert response == Task.from_dict(updated_task_response)
+
+
+@pytest.mark.asyncio
+async def test_update_task_payload_mapping(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    respx_mock: respx.MockRouter,
+    default_task: Task,
+    default_task_response: dict[str, Any],
+) -> None:
+    args: dict[str, Any] = {
+        "order": 3,
+        "day_order": 2,
+        "collapsed": True,
+    }
+    expected_payload: dict[str, Any] = {
+        "child_order": 3,
+        "day_order": 2,
+        "is_collapsed": True,
+    }
+    updated_task_response = dict(default_task_response) | {
+        "child_order": args["order"],
+        "day_order": args["day_order"],
+        "is_collapsed": args["collapsed"],
+    }
+
+    mock_route(
+        respx_mock,
+        method="POST",
+        url=f"{DEFAULT_API_URL}/tasks/{default_task.id}",
+        request_headers=api_headers(),
+        response_json=updated_task_response,
+        response_status=200,
+    )
+
+    response = todoist_api.update_task(task_id=default_task.id, **args)
+
+    assert len(respx_mock.calls) == 1
+    assert response == Task.from_dict(updated_task_response)
+    actual_payload = json.loads(respx_mock.calls[0].request.content)
+    assert actual_payload == expected_payload
+
+    response = await todoist_api_async.update_task(task_id=default_task.id, **args)
+
+    assert len(respx_mock.calls) == 2
+    assert response == Task.from_dict(updated_task_response)
+    actual_payload = json.loads(respx_mock.calls[1].request.content)
+    assert actual_payload == expected_payload
 
 
 @pytest.mark.asyncio
