@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -259,11 +260,12 @@ async def test_update_section(
     todoist_api_async: TodoistAPIAsync,
     respx_mock: respx.MockRouter,
     default_section: Section,
+    default_section_response: dict[str, Any],
 ) -> None:
-    args = {
+    args: dict[str, Any] = {
         "name": "An updated section",
     }
-    updated_section_dict = default_section.to_dict() | args
+    updated_section_response = dict(default_section_response) | args
 
     mock_route(
         respx_mock,
@@ -271,21 +273,68 @@ async def test_update_section(
         url=f"{DEFAULT_API_URL}/sections/{default_section.id}",
         request_headers=api_headers(),
         request_json=args,
-        response_json=updated_section_dict,
+        response_json=updated_section_response,
         response_status=200,
     )
 
     response = todoist_api.update_section(section_id=default_section.id, **args)
 
     assert len(respx_mock.calls) == 1
-    assert response == Section.from_dict(updated_section_dict)
+    assert response == Section.from_dict(updated_section_response)
 
     response = await todoist_api_async.update_section(
         section_id=default_section.id, **args
     )
 
     assert len(respx_mock.calls) == 2
-    assert response == Section.from_dict(updated_section_dict)
+    assert response == Section.from_dict(updated_section_response)
+
+
+@pytest.mark.asyncio
+async def test_update_section_payload_mapping(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    respx_mock: respx.MockRouter,
+    default_section: Section,
+    default_section_response: dict[str, Any],
+) -> None:
+    args: dict[str, Any] = {
+        "order": 2,
+        "collapsed": False,
+    }
+    expected_payload: dict[str, Any] = {
+        "section_order": 2,
+        "is_collapsed": False,
+    }
+    updated_section_response = dict(default_section_response) | {
+        "section_order": args["order"],
+        "is_collapsed": args["collapsed"],
+    }
+
+    mock_route(
+        respx_mock,
+        method="POST",
+        url=f"{DEFAULT_API_URL}/sections/{default_section.id}",
+        request_headers=api_headers(),
+        response_json=updated_section_response,
+        response_status=200,
+    )
+
+    response = todoist_api.update_section(section_id=default_section.id, **args)
+
+    assert len(respx_mock.calls) == 1
+    assert response == Section.from_dict(updated_section_response)
+    actual_payload = json.loads(respx_mock.calls[0].request.content)
+    assert actual_payload == expected_payload
+
+    response = await todoist_api_async.update_section(
+        section_id=default_section.id, **args
+    )
+
+    assert len(respx_mock.calls) == 2
+    assert response == Section.from_dict(updated_section_response)
+    actual_payload = json.loads(respx_mock.calls[1].request.content)
+    assert actual_payload == expected_payload
 
 
 @pytest.mark.asyncio

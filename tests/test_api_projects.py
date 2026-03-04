@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import TYPE_CHECKING, Any
 
 import pytest
@@ -202,13 +203,14 @@ async def test_update_project(
     todoist_api_async: TodoistAPIAsync,
     respx_mock: respx.MockRouter,
     default_project: Project,
+    default_project_response: dict[str, Any],
 ) -> None:
     args: dict[str, Any] = {
         "name": "An updated project",
         "color": "red",
         "is_favorite": False,
     }
-    updated_project_dict = default_project.to_dict() | args
+    updated_project_response = dict(default_project_response) | args
 
     mock_route(
         respx_mock,
@@ -216,21 +218,68 @@ async def test_update_project(
         url=f"{DEFAULT_API_URL}/projects/{default_project.id}",
         request_headers=api_headers(),
         request_json=args,
-        response_json=updated_project_dict,
+        response_json=updated_project_response,
         response_status=200,
     )
 
     response = todoist_api.update_project(project_id=default_project.id, **args)
 
     assert len(respx_mock.calls) == 1
-    assert response == Project.from_dict(updated_project_dict)
+    assert response == Project.from_dict(updated_project_response)
 
     response = await todoist_api_async.update_project(
         project_id=default_project.id, **args
     )
 
     assert len(respx_mock.calls) == 2
-    assert response == Project.from_dict(updated_project_dict)
+    assert response == Project.from_dict(updated_project_response)
+
+
+@pytest.mark.asyncio
+async def test_update_project_payload_mapping(
+    todoist_api: TodoistAPI,
+    todoist_api_async: TodoistAPIAsync,
+    respx_mock: respx.MockRouter,
+    default_project: Project,
+    default_project_response: dict[str, Any],
+) -> None:
+    args: dict[str, Any] = {
+        "order": 3,
+        "collapsed": True,
+    }
+    expected_payload: dict[str, Any] = {
+        "child_order": 3,
+        "is_collapsed": True,
+    }
+    updated_project_response = dict(default_project_response) | {
+        "child_order": args["order"],
+        "is_collapsed": args["collapsed"],
+    }
+
+    mock_route(
+        respx_mock,
+        method="POST",
+        url=f"{DEFAULT_API_URL}/projects/{default_project.id}",
+        request_headers=api_headers(),
+        response_json=updated_project_response,
+        response_status=200,
+    )
+
+    response = todoist_api.update_project(project_id=default_project.id, **args)
+
+    assert len(respx_mock.calls) == 1
+    assert response == Project.from_dict(updated_project_response)
+    actual_payload = json.loads(respx_mock.calls[0].request.content)
+    assert actual_payload == expected_payload
+
+    response = await todoist_api_async.update_project(
+        project_id=default_project.id, **args
+    )
+
+    assert len(respx_mock.calls) == 2
+    assert response == Project.from_dict(updated_project_response)
+    actual_payload = json.loads(respx_mock.calls[1].request.content)
+    assert actual_payload == expected_payload
 
 
 @pytest.mark.asyncio

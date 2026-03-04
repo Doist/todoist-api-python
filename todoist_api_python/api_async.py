@@ -423,9 +423,9 @@ class TodoistAPIAsync:
                 format_datetime(due_datetime) if due_datetime is not None else None
             ),
             assignee_id=assignee_id,
-            order=order,
+            child_order=order,
             day_order=day_order,
-            collapsed=collapsed,
+            is_collapsed=collapsed,
             duration=duration,
             duration_unit=duration_unit,
             deadline_date=(
@@ -791,6 +791,8 @@ class TodoistAPIAsync:
         color: ColorString | None = None,
         is_favorite: bool | None = None,
         view_style: ViewStyle | None = None,
+        order: int | None = None,
+        collapsed: bool | None = None,
     ) -> Project:
         """
         Update an existing project.
@@ -803,6 +805,8 @@ class TodoistAPIAsync:
         :param color: The color of the project icon.
         :param is_favorite: Whether the project is a favorite.
         :param view_style: A string value (either 'list' or 'board').
+        :param order: Position of the project among projects with the same parent.
+        :param collapsed: Whether the project's sub-projects are collapsed.
         :return: the updated Project.
         :raises httpx.HTTPStatusError: If the API request fails.
         """
@@ -814,6 +818,8 @@ class TodoistAPIAsync:
             color=color,
             is_favorite=is_favorite,
             view_style=view_style,
+            child_order=order,
+            is_collapsed=collapsed,
         )
 
         response = await post_async(
@@ -1046,25 +1052,35 @@ class TodoistAPIAsync:
     async def update_section(
         self,
         section_id: str,
-        name: Annotated[str, MinLen(1), MaxLen(2048)],
+        *,
+        name: Annotated[str, MinLen(1), MaxLen(2048)] | None = None,
+        order: int | None = None,
+        collapsed: bool | None = None,
     ) -> Section:
         """
         Update an existing section.
 
-        Currently, only `name` can be updated.
-
         :param section_id: The ID of the section to update.
         :param name: The new name for the section.
+        :param order: Position of the section among sections in the project.
+        :param collapsed: Whether the section's tasks are collapsed.
         :return: the updated Section.
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
+
+        data = kwargs_without_none(
+            name=name,
+            section_order=order,
+            is_collapsed=collapsed,
+        )
+
         response = await post_async(
             self._client,
             endpoint,
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
-            data={"name": name},
+            data=data,
         )
         data = response_json_dict(response)
         return Section.from_dict(data)
