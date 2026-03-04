@@ -6,7 +6,7 @@ jobs:
   test:
     strategy:
       matrix:
-        env: ["py310", "py311", "py312", "py313"]
+        env: ["py310", "py311", "py312", "py313", "py314"]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
