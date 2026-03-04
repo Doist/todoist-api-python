@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `TodoistAPIAsync` now performs true async HTTP I/O with `httpx.AsyncClient`.
 
+### Removed
+
+- Support for Python 3.9 (EOL).
+
 ### Changed
 
 - **Breaking**: `TodoistAPI` now accepts an optional `client: httpx.Client` instead of `session: requests.Session`.
