@@ -18,7 +18,7 @@ dependencies = [
 
 ### Supported Python Versions
 
-Python version 3.9 and above.
+Python version 3.10 and above.
 
 ## Usage
 
