@@ -17,7 +17,7 @@ repos:
       - id: check-shebang-scripts-are-executable
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.2
+    rev: v0.15.5
     hooks:
       # Run the linter
       - id: ruff
