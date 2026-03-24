@@ -233,6 +233,7 @@ class Reminder(JSONPyWizard):
     notify_uid: str
     type: ReminderType
     is_deleted: bool
+    is_urgent: bool
 
     minute_offset: int | None = None
     due: Due | None = None

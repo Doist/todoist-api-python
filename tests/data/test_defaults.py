@@ -274,6 +274,7 @@ DEFAULT_REMINDER_RESPONSE: dict[str, Any] = {
     "notify_uid": "34567",
     "type": "relative",
     "is_deleted": False,
+    "is_urgent": False,
     "minute_offset": 30,
     "due": DEFAULT_DUE_RESPONSE,
     "service": "push",
