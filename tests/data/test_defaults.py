@@ -270,7 +270,7 @@ DEFAULT_LABELS_RESPONSE: list[PaginatedResults] = [
 
 DEFAULT_REMINDER_RESPONSE: dict[str, Any] = {
     "id": "6X7rM8997g3RQmvh",
-    "item_id": "6X7rM8997g3RQmvh",
+    "item_id": "6Jf8VQXxpwv56VQ7",
     "notify_uid": "34567",
     "type": "relative",
     "is_deleted": False,
@@ -299,7 +299,7 @@ DEFAULT_REMINDERS_RESPONSE: list[PaginatedResults] = [
 
 DEFAULT_LOCATION_REMINDER_RESPONSE: dict[str, Any] = {
     "id": "6X7rM8997g3RQmvh",
-    "item_id": "6X7rM8997g3RQmvh",
+    "item_id": "6Jf8VQXxpwv56VQ7",
     "project_id": "6Jf8VQXxpwv56VQ7",
     "notify_uid": "34567",
     "name": "Office",

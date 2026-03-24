@@ -6,11 +6,10 @@ import pytest
 
 from tests.data.test_defaults import (
     DEFAULT_API_URL,
-    DEFAULT_DUE_RESPONSE,
     PaginatedResults,
 )
 from tests.utils.test_utils import api_headers, enumerate_async, mock_route
-from todoist_api_python.models import Due, Reminder
+from todoist_api_python.models import Reminder
 
 if TYPE_CHECKING:
     import respx
@@ -101,7 +100,6 @@ async def test_add_reminder(
     default_reminder: Reminder,
 ) -> None:
     task_id = "6X7rM8997g3RQmvh"
-    due = Due.from_dict(DEFAULT_DUE_RESPONSE)
 
     mock_route(
         respx_mock,
@@ -111,7 +109,7 @@ async def test_add_reminder(
         request_json={
             "task_id": task_id,
             "reminder_type": "absolute",
-            "due": due.to_dict(),
+            "due": {"string": "tomorrow at 12", "lang": "en"},
             "service": "push",
         },
         response_json=default_reminder_response,
@@ -121,7 +119,8 @@ async def test_add_reminder(
     new_reminder = todoist_api.add_reminder(
         task_id=task_id,
         reminder_type="absolute",
-        due=due,
+        due_string="tomorrow at 12",
+        due_lang="en",
         service="push",
     )
 
@@ -131,7 +130,8 @@ async def test_add_reminder(
     new_reminder = await todoist_api_async.add_reminder(
         task_id=task_id,
         reminder_type="absolute",
-        due=due,
+        due_string="tomorrow at 12",
+        due_lang="en",
         service="push",
     )
 

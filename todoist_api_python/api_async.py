@@ -47,7 +47,6 @@ from todoist_api_python.models import (
     Attachment,
     Collaborator,
     Comment,
-    Due,
     Label,
     LocationReminder,
     Project,
@@ -1592,30 +1591,47 @@ class TodoistAPIAsync:
         *,
         reminder_type: Literal["relative", "absolute"] = "relative",
         minute_offset: int | None = None,
-        due: Due | None = None,
+        due_string: str | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
+        due_lang: LanguageCode | None = None,
+        due_timezone: str | None = None,
         service: Literal["email", "push"] | None = None,
     ) -> Reminder:
         """
         Create a new reminder.
 
         For relative reminders, provide `minute_offset`.
-        For absolute reminders, provide `due`.
+        For absolute reminders, provide due date fields.
 
         :param task_id: The ID of the task to add the reminder to.
         :param reminder_type: The type of reminder ("relative" or "absolute").
         :param minute_offset: Minutes before the due date/time to trigger (relative).
-        :param due: The absolute due date/time for the reminder (absolute).
+        :param due_string: The due date in natural language format (absolute).
+        :param due_date: The due date as a date object (absolute).
+        :param due_datetime: The due date and time as a datetime object (absolute).
+        :param due_lang: Language for parsing the due date.
+        :param due_timezone: Timezone for the due date.
         :param service: The notification service ("email" or "push").
         :return: The newly created reminder.
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(REMINDERS_PATH)
 
+        due = kwargs_without_none(
+            string=due_string,
+            date=format_date(due_date)
+            if due_date is not None
+            else (format_datetime(due_datetime) if due_datetime is not None else None),
+            lang=due_lang,
+            timezone=due_timezone,
+        )
+
         data = kwargs_without_none(
             task_id=task_id,
             reminder_type=reminder_type,
             minute_offset=minute_offset,
-            due=due.to_dict() if due is not None else None,
+            due=due or None,
             service=service,
         )
 
@@ -1634,7 +1650,11 @@ class TodoistAPIAsync:
         reminder_id: str,
         *,
         minute_offset: int | None = None,
-        due: Due | None = None,
+        due_string: str | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
+        due_lang: LanguageCode | None = None,
+        due_timezone: str | None = None,
         service: Literal["email", "push"] | None = None,
     ) -> Reminder:
         """
@@ -1644,16 +1664,29 @@ class TodoistAPIAsync:
 
         :param reminder_id: The ID of the reminder to update.
         :param minute_offset: Minutes before the due date/time to trigger.
-        :param due: The absolute due date/time for the reminder.
+        :param due_string: The due date in natural language format.
+        :param due_date: The due date as a date object.
+        :param due_datetime: The due date and time as a datetime object.
+        :param due_lang: Language for parsing the due date.
+        :param due_timezone: Timezone for the due date.
         :param service: The notification service ("email" or "push").
         :return: The updated reminder.
         :raises httpx.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{REMINDERS_PATH}/{reminder_id}")
 
+        due = kwargs_without_none(
+            string=due_string,
+            date=format_date(due_date)
+            if due_date is not None
+            else (format_datetime(due_datetime) if due_datetime is not None else None),
+            lang=due_lang,
+            timezone=due_timezone,
+        )
+
         data = kwargs_without_none(
             minute_offset=minute_offset,
-            due=due.to_dict() if due is not None else None,
+            due=due or None,
             service=service,
         )
 
