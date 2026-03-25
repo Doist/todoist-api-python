@@ -11,6 +11,9 @@ from todoist_api_python._core.endpoints import INBOX_URL, get_project_url, get_t
 
 ViewStyle = Literal["list", "board", "calendar"]
 DurationUnit = Literal["minute", "day"]
+ReminderType = Literal["relative", "absolute"]
+ReminderService = Literal["email", "push"]
+LocationTrigger = Literal["on_enter", "on_leave"]
 ApiDate = UTCDateTimePattern["%FT%T.%fZ"]  # type: ignore[valid-type]
 ApiDue = Union[  # https://github.com/rnag/dataclass-wizard/issues/189
     DatePattern["%F"], DateTimePattern["%FT%T"], UTCDateTimePattern["%FT%TZ"]  # type: ignore[valid-type]  # noqa: F722
@@ -218,3 +221,38 @@ class Duration(JSONPyWizard):
 
     amount: int
     unit: DurationUnit
+
+
+@dataclass
+class Reminder(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
+    id: str
+    task_id: Annotated[str, Alias(load=("item_id", "task_id"))]
+    notify_uid: str
+    type: ReminderType
+    is_deleted: bool
+    is_urgent: bool
+
+    minute_offset: int | None = None
+    due: Due | None = None
+    service: ReminderService | None = None
+
+
+@dataclass
+class LocationReminder(JSONPyWizard):
+    class _(JSONPyWizard.Meta):  # noqa:N801
+        v1 = True
+
+    id: str
+    task_id: Annotated[str, Alias(load=("item_id", "task_id"))]
+    project_id: str
+    notify_uid: str
+    name: str
+    loc_lat: str
+    loc_long: str
+    loc_trigger: LocationTrigger
+    radius: int
+    type: str
+    is_deleted: bool

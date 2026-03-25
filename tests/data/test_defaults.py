@@ -268,6 +268,69 @@ DEFAULT_LABELS_RESPONSE: list[PaginatedResults] = [
     },
 ]
 
+DEFAULT_REMINDER_RESPONSE: dict[str, Any] = {
+    "id": "6X7rM8997g3RQmvh",
+    "item_id": "6Jf8VQXxpwv56VQ7",
+    "notify_uid": "34567",
+    "type": "relative",
+    "is_deleted": False,
+    "is_urgent": False,
+    "minute_offset": 30,
+    "due": DEFAULT_DUE_RESPONSE,
+    "service": "push",
+}
+
+DEFAULT_REMINDER_RESPONSE_2 = dict(DEFAULT_REMINDER_RESPONSE)
+DEFAULT_REMINDER_RESPONSE_2["id"] = "6X7rfFVPjhvv84XG"
+
+DEFAULT_REMINDER_RESPONSE_3 = dict(DEFAULT_REMINDER_RESPONSE)
+DEFAULT_REMINDER_RESPONSE_3["id"] = "6X7rfEVP8hvv25ZQ"
+
+DEFAULT_REMINDERS_RESPONSE: list[PaginatedResults] = [
+    {
+        "results": [DEFAULT_REMINDER_RESPONSE, DEFAULT_REMINDER_RESPONSE_2],
+        "next_cursor": "next",
+    },
+    {
+        "results": [DEFAULT_REMINDER_RESPONSE_3],
+        "next_cursor": None,
+    },
+]
+
+DEFAULT_LOCATION_REMINDER_RESPONSE: dict[str, Any] = {
+    "id": "6X7rM8997g3RQmvh",
+    "item_id": "6Jf8VQXxpwv56VQ7",
+    "project_id": "6Jf8VQXxpwv56VQ7",
+    "notify_uid": "34567",
+    "name": "Office",
+    "loc_lat": "51.5074",
+    "loc_long": "-0.1278",
+    "loc_trigger": "on_enter",
+    "radius": 100,
+    "type": "location",
+    "is_deleted": False,
+}
+
+DEFAULT_LOCATION_REMINDER_RESPONSE_2 = dict(DEFAULT_LOCATION_REMINDER_RESPONSE)
+DEFAULT_LOCATION_REMINDER_RESPONSE_2["id"] = "6X7rfFVPjhvv84XG"
+
+DEFAULT_LOCATION_REMINDER_RESPONSE_3 = dict(DEFAULT_LOCATION_REMINDER_RESPONSE)
+DEFAULT_LOCATION_REMINDER_RESPONSE_3["id"] = "6X7rfEVP8hvv25ZQ"
+
+DEFAULT_LOCATION_REMINDERS_RESPONSE: list[PaginatedResults] = [
+    {
+        "results": [
+            DEFAULT_LOCATION_REMINDER_RESPONSE,
+            DEFAULT_LOCATION_REMINDER_RESPONSE_2,
+        ],
+        "next_cursor": "next",
+    },
+    {
+        "results": [DEFAULT_LOCATION_REMINDER_RESPONSE_3],
+        "next_cursor": None,
+    },
+]
+
 DEFAULT_AUTH_RESPONSE = {
     "access_token": "123456789",
     "state": "somestate",

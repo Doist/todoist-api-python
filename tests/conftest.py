@@ -13,8 +13,12 @@ from tests.data.test_defaults import (
     DEFAULT_COMPLETED_TASKS_RESPONSE,
     DEFAULT_LABEL_RESPONSE,
     DEFAULT_LABELS_RESPONSE,
+    DEFAULT_LOCATION_REMINDER_RESPONSE,
+    DEFAULT_LOCATION_REMINDERS_RESPONSE,
     DEFAULT_PROJECT_RESPONSE,
     DEFAULT_PROJECTS_RESPONSE,
+    DEFAULT_REMINDER_RESPONSE,
+    DEFAULT_REMINDERS_RESPONSE,
     DEFAULT_REQUEST_ID,
     DEFAULT_SECTION_RESPONSE,
     DEFAULT_SECTIONS_RESPONSE,
@@ -32,7 +36,9 @@ from todoist_api_python.models import (
     Collaborator,
     Comment,
     Label,
+    LocationReminder,
     Project,
+    Reminder,
     Section,
     Task,
 )
@@ -207,6 +213,52 @@ def default_labels_list() -> list[list[Label]]:
     return [
         [Label.from_dict(result) for result in response["results"]]
         for response in DEFAULT_LABELS_RESPONSE
+    ]
+
+
+@pytest.fixture
+def default_reminder_response() -> dict[str, Any]:
+    return DEFAULT_REMINDER_RESPONSE
+
+
+@pytest.fixture
+def default_reminder() -> Reminder:
+    return Reminder.from_dict(DEFAULT_REMINDER_RESPONSE)
+
+
+@pytest.fixture
+def default_reminders_response() -> list[PaginatedResults]:
+    return DEFAULT_REMINDERS_RESPONSE
+
+
+@pytest.fixture
+def default_reminders_list() -> list[list[Reminder]]:
+    return [
+        [Reminder.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_REMINDERS_RESPONSE
+    ]
+
+
+@pytest.fixture
+def default_location_reminder_response() -> dict[str, Any]:
+    return DEFAULT_LOCATION_REMINDER_RESPONSE
+
+
+@pytest.fixture
+def default_location_reminder() -> LocationReminder:
+    return LocationReminder.from_dict(DEFAULT_LOCATION_REMINDER_RESPONSE)
+
+
+@pytest.fixture
+def default_location_reminders_response() -> list[PaginatedResults]:
+    return DEFAULT_LOCATION_REMINDERS_RESPONSE
+
+
+@pytest.fixture
+def default_location_reminders_list() -> list[list[LocationReminder]]:
+    return [
+        [LocationReminder.from_dict(result) for result in response["results"]]
+        for response in DEFAULT_LOCATION_REMINDERS_RESPONSE
     ]
 
 

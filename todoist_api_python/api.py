@@ -13,10 +13,12 @@ from todoist_api_python._core.endpoints import (
     COMMENTS_PATH,
     LABELS_PATH,
     LABELS_SEARCH_PATH_SUFFIX,
+    LOCATION_REMINDERS_PATH,
     PROJECT_ARCHIVE_PATH_SUFFIX,
     PROJECT_UNARCHIVE_PATH_SUFFIX,
     PROJECTS_PATH,
     PROJECTS_SEARCH_PATH_SUFFIX,
+    REMINDERS_PATH,
     SECTIONS_PATH,
     SECTIONS_SEARCH_PATH_SUFFIX,
     SHARED_LABELS_PATH,
@@ -46,7 +48,9 @@ from todoist_api_python.models import (
     Collaborator,
     Comment,
     Label,
+    LocationReminder,
     Project,
+    Reminder,
     Section,
     Task,
 )
@@ -1503,6 +1507,352 @@ class TodoistAPI:
             self._token,
             self._request_id_fn() if self._request_id_fn else None,
             data=data,
+        )
+        return response.is_success
+
+    # ── Reminders ──────────────────────────────────────────────────────
+
+    def get_reminder(self, reminder_id: str) -> Reminder:
+        """
+        Get a specific reminder by its ID.
+
+        :param reminder_id: The ID of the reminder to retrieve.
+        :return: The requested reminder.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{REMINDERS_PATH}/{reminder_id}")
+        response = get(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
+        data = response_json_dict(response)
+        return Reminder.from_dict(data)
+
+    def get_reminders(
+        self,
+        *,
+        task_id: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[Reminder]]:
+        """
+        Get an iterable of lists of reminders.
+
+        The response is an iterable of lists of reminders.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param task_id: Optional task ID to filter reminders by.
+        :param limit: Maximum number of reminders per page.
+        :return: An iterable of lists of reminders.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(REMINDERS_PATH)
+
+        params = kwargs_without_none(
+            task_id=task_id,
+            limit=limit,
+        )
+
+        return ResultsPaginator(
+            self._client,
+            endpoint,
+            "results",
+            Reminder.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
+        )
+
+    def add_reminder(
+        self,
+        task_id: str,
+        *,
+        reminder_type: Literal["relative", "absolute"] = "relative",
+        minute_offset: int | None = None,
+        due_string: str | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
+        due_lang: LanguageCode | None = None,
+        due_timezone: str | None = None,
+        service: Literal["email", "push"] | None = None,
+    ) -> Reminder:
+        """
+        Create a new reminder.
+
+        For relative reminders, provide `minute_offset`.
+        For absolute reminders, provide due date fields.
+
+        :param task_id: The ID of the task to add the reminder to.
+        :param reminder_type: The type of reminder ("relative" or "absolute").
+        :param minute_offset: Minutes before the due date/time to trigger (relative).
+        :param due_string: The due date in natural language format (absolute).
+        :param due_date: The due date as a date object (absolute).
+        :param due_datetime: The due date and time as a datetime object (absolute).
+        :param due_lang: Language for parsing the due date.
+        :param due_timezone: Timezone for the due date.
+        :param service: The notification service ("email" or "push").
+        :return: The newly created reminder.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(REMINDERS_PATH)
+
+        due = kwargs_without_none(
+            string=due_string,
+            date=format_date(due_date)
+            if due_date is not None
+            else (format_datetime(due_datetime) if due_datetime is not None else None),
+            lang=due_lang,
+            timezone=due_timezone,
+        )
+
+        data = kwargs_without_none(
+            task_id=task_id,
+            reminder_type=reminder_type,
+            minute_offset=minute_offset,
+            due=due or None,
+            service=service,
+        )
+
+        response = post(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
+        data = response_json_dict(response)
+        return Reminder.from_dict(data)
+
+    def update_reminder(
+        self,
+        reminder_id: str,
+        *,
+        minute_offset: int | None = None,
+        due_string: str | None = None,
+        due_date: date | None = None,
+        due_datetime: datetime | None = None,
+        due_lang: LanguageCode | None = None,
+        due_timezone: str | None = None,
+        service: Literal["email", "push"] | None = None,
+    ) -> Reminder:
+        """
+        Update an existing reminder.
+
+        Only the fields to be updated need to be provided as keyword arguments.
+
+        :param reminder_id: The ID of the reminder to update.
+        :param minute_offset: Minutes before the due date/time to trigger.
+        :param due_string: The due date in natural language format.
+        :param due_date: The due date as a date object.
+        :param due_datetime: The due date and time as a datetime object.
+        :param due_lang: Language for parsing the due date.
+        :param due_timezone: Timezone for the due date.
+        :param service: The notification service ("email" or "push").
+        :return: The updated reminder.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{REMINDERS_PATH}/{reminder_id}")
+
+        due = kwargs_without_none(
+            string=due_string,
+            date=format_date(due_date)
+            if due_date is not None
+            else (format_datetime(due_datetime) if due_datetime is not None else None),
+            lang=due_lang,
+            timezone=due_timezone,
+        )
+
+        data = kwargs_without_none(
+            minute_offset=minute_offset,
+            due=due or None,
+            service=service,
+        )
+
+        response = post(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
+        data = response_json_dict(response)
+        return Reminder.from_dict(data)
+
+    def delete_reminder(self, reminder_id: str) -> bool:
+        """
+        Delete a reminder.
+
+        :param reminder_id: The ID of the reminder to delete.
+        :return: True if the reminder was deleted successfully.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{REMINDERS_PATH}/{reminder_id}")
+        response = delete(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
+        return response.is_success
+
+    # ── Location Reminders ─────────────────────────────────────────────
+
+    def get_location_reminder(self, location_reminder_id: str) -> LocationReminder:
+        """
+        Get a specific location reminder by its ID.
+
+        :param location_reminder_id: The ID of the location reminder to retrieve.
+        :return: The requested location reminder.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{LOCATION_REMINDERS_PATH}/{location_reminder_id}")
+        response = get(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+        )
+        data = response_json_dict(response)
+        return LocationReminder.from_dict(data)
+
+    def get_location_reminders(
+        self,
+        *,
+        task_id: str | None = None,
+        limit: Annotated[int, Ge(1), Le(200)] | None = None,
+    ) -> Iterator[list[LocationReminder]]:
+        """
+        Get an iterable of lists of location reminders.
+
+        The response is an iterable of lists of location reminders.
+        Be aware that each iteration fires off a network request to the Todoist API,
+        and may result in rate limiting or other API restrictions.
+
+        :param task_id: Optional task ID to filter location reminders by.
+        :param limit: Maximum number of location reminders per page.
+        :return: An iterable of lists of location reminders.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(LOCATION_REMINDERS_PATH)
+
+        params = kwargs_without_none(
+            task_id=task_id,
+            limit=limit,
+        )
+
+        return ResultsPaginator(
+            self._client,
+            endpoint,
+            "results",
+            LocationReminder.from_dict,
+            self._token,
+            self._request_id_fn,
+            params,
+        )
+
+    def add_location_reminder(
+        self,
+        task_id: str,
+        name: str,
+        loc_lat: str,
+        loc_long: str,
+        loc_trigger: Literal["on_enter", "on_leave"],
+        *,
+        radius: int | None = None,
+    ) -> LocationReminder:
+        """
+        Create a new location reminder.
+
+        :param task_id: The ID of the task to add the reminder to.
+        :param name: The name of the location.
+        :param loc_lat: The latitude coordinate.
+        :param loc_long: The longitude coordinate.
+        :param loc_trigger: When to trigger ("on_enter" or "on_leave").
+        :param radius: The radius in meters (default: 100).
+        :return: The newly created location reminder.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(LOCATION_REMINDERS_PATH)
+
+        data = kwargs_without_none(
+            task_id=task_id,
+            name=name,
+            loc_lat=loc_lat,
+            loc_long=loc_long,
+            loc_trigger=loc_trigger,
+            radius=radius,
+        )
+
+        response = post(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
+        data = response_json_dict(response)
+        return LocationReminder.from_dict(data)
+
+    def update_location_reminder(
+        self,
+        location_reminder_id: str,
+        *,
+        name: str | None = None,
+        loc_lat: str | None = None,
+        loc_long: str | None = None,
+        loc_trigger: Literal["on_enter", "on_leave"] | None = None,
+        radius: int | None = None,
+    ) -> LocationReminder:
+        """
+        Update an existing location reminder.
+
+        Only the fields to be updated need to be provided as keyword arguments.
+
+        :param location_reminder_id: The ID of the location reminder to update.
+        :param name: The name of the location.
+        :param loc_lat: The latitude coordinate.
+        :param loc_long: The longitude coordinate.
+        :param loc_trigger: When to trigger ("on_enter" or "on_leave").
+        :param radius: The radius in meters.
+        :return: The updated location reminder.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{LOCATION_REMINDERS_PATH}/{location_reminder_id}")
+
+        data = kwargs_without_none(
+            name=name,
+            loc_lat=loc_lat,
+            loc_long=loc_long,
+            loc_trigger=loc_trigger,
+            radius=radius,
+        )
+
+        response = post(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
+            data=data,
+        )
+        data = response_json_dict(response)
+        return LocationReminder.from_dict(data)
+
+    def delete_location_reminder(self, location_reminder_id: str) -> bool:
+        """
+        Delete a location reminder.
+
+        :param location_reminder_id: The ID of the location reminder to delete.
+        :return: True if the location reminder was deleted successfully.
+        :raises httpx.HTTPStatusError: If the API request fails.
+        """
+        endpoint = get_api_url(f"{LOCATION_REMINDERS_PATH}/{location_reminder_id}")
+        response = delete(
+            self._client,
+            endpoint,
+            self._token,
+            self._request_id_fn() if self._request_id_fn else None,
         )
         return response.is_success
 
