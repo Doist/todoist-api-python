@@ -25,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking**: Authentication helpers now accept optional `httpx.Client` / `httpx.AsyncClient` instances instead of `session: requests.Session`.
 - **Breaking**: `update_section` now accepts only keyword arguments after `section_id`; any one of `name`, `order`, or `collapsed` can be updated in the same call.
 
+### Fixed
+
+- Label order arguments for `add_label` and `update_label` now use the `order` field. (#247)
+
 ## [3.2.1] - 2026-01-22
 
 ### Fixed

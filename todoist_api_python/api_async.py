@@ -1353,7 +1353,7 @@ class TodoistAPIAsync:
         name: Annotated[str, MinLen(1), MaxLen(60)],
         *,
         color: ColorString | None = None,
-        item_order: int | None = None,
+        order: int | None = None,
         is_favorite: bool | None = None,
     ) -> Label:
         """
@@ -1361,7 +1361,7 @@ class TodoistAPIAsync:
 
         :param name: The name of the label.
         :param color: The color of the label icon.
-        :param item_order: Label's order in the label list.
+        :param order: Label's order in the label list.
         :param is_favorite: Whether the label is a favorite.
         :return: The newly created label.
         :raises httpx.HTTPStatusError: If the API request fails.
@@ -1372,7 +1372,7 @@ class TodoistAPIAsync:
         data = kwargs_without_none(
             name=name,
             color=color,
-            item_order=item_order,
+            order=order,
             is_favorite=is_favorite,
         )
 
@@ -1392,7 +1392,7 @@ class TodoistAPIAsync:
         *,
         name: Annotated[str, MinLen(1), MaxLen(60)] | None = None,
         color: ColorString | None = None,
-        item_order: int | None = None,
+        order: int | None = None,
         is_favorite: bool | None = None,
     ) -> Label:
         """
@@ -1403,7 +1403,7 @@ class TodoistAPIAsync:
         :param label_id: The ID of the label.
         :param name: The name of the label.
         :param color: The color of the label icon.
-        :param item_order: Label's order in the label list.
+        :param order: Label's order in the label list.
         :param is_favorite: Whether the label is a favorite.
         :return: the updated Label.
         :raises httpx.HTTPStatusError: If the API request fails.
@@ -1413,7 +1413,7 @@ class TodoistAPIAsync:
         data = kwargs_without_none(
             name=name,
             color=color,
-            item_order=item_order,
+            order=order,
             is_favorite=is_favorite,
         )
 
