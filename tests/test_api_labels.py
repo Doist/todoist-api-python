@@ -169,7 +169,7 @@ async def test_add_label_full(
     label_name = "A Label"
     args: dict[str, Any] = {
         "color": "red",
-        "item_order": 3,
+        "order": 3,
         "is_favorite": True,
     }
 
@@ -203,6 +203,7 @@ async def test_update_label(
 ) -> None:
     args: dict[str, Any] = {
         "name": "An updated label",
+        "order": 3,
     }
     updated_label_dict = default_label.to_dict() | args
 
