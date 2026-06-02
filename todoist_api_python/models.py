@@ -142,7 +142,7 @@ class Collaborator(JSONPyWizard):
         v1 = True
 
     id: str
-    email: str
+    email: str | None
     name: str
 
 
