@@ -164,6 +164,9 @@ DEFAULT_COLLABORATOR_RESPONSE_2["id"] = "6X7rfFVPjhvv84XG"
 
 DEFAULT_COLLABORATOR_RESPONSE_3 = dict(DEFAULT_COLLABORATOR_RESPONSE)
 DEFAULT_COLLABORATOR_RESPONSE_3["id"] = "6X7rjKtP98vG84rK"
+# Forward-compat with Doist/Issues#20418: hidden collaborator emails are
+# currently sent as "hidden@todoist.com", but may become null.
+DEFAULT_COLLABORATOR_RESPONSE_3["email"] = None
 
 DEFAULT_COLLABORATORS_RESPONSE: list[PaginatedResults] = [
     {
