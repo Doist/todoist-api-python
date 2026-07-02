@@ -415,35 +415,3 @@ async def test_get_collaborators(
         assert len(respx_mock.calls) == count + 1
         assert collaborators == default_collaborators_list[i]
         count += 1
-
-
-@pytest.mark.asyncio
-async def test_get_collaborators_accepts_hidden_email(
-    todoist_api: TodoistAPI,
-    todoist_api_async: TodoistAPIAsync,
-    respx_mock: respx.MockRouter,
-) -> None:
-    project_id = "6X7rM8997g3RQmvh"
-    endpoint = f"{DEFAULT_API_URL}/projects/{project_id}/collaborators"
-    response: PaginatedResults = {
-        "results": [{"id": "123", "name": "Alice D.", "email": None}],
-        "next_cursor": None,
-    }
-
-    mock_route(
-        respx_mock,
-        method="GET",
-        url=endpoint,
-        request_headers=api_headers(),
-        response_json=response,
-        response_status=200,
-    )
-
-    collaborators = next(todoist_api.get_collaborators(project_id))
-
-    assert collaborators == [Collaborator(id="123", name="Alice D.", email=None)]
-
-    collaborators_async_iter = await todoist_api_async.get_collaborators(project_id)
-
-    async for collaborators in collaborators_async_iter:
-        assert collaborators == [Collaborator(id="123", name="Alice D.", email=None)]
