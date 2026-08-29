@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import httpx
+import httpx2
 import pytest
 
 from tests.data.test_defaults import DEFAULT_REQUEST_ID, DEFAULT_TOKEN
@@ -34,7 +34,7 @@ def test_get_with_params(respx_mock: respx.MockRouter) -> None:
         response_status=200,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         response = get(
             client=client,
             url=EXAMPLE_URL,
@@ -56,7 +56,7 @@ def test_get_raise_for_status(respx_mock: respx.MockRouter) -> None:
         response_status=500,
     )
 
-    with httpx.Client() as client, pytest.raises(httpx.HTTPStatusError) as error_info:
+    with httpx2.Client() as client, pytest.raises(httpx2.HTTPStatusError) as error_info:
         get(client, EXAMPLE_URL, DEFAULT_TOKEN)
 
     assert error_info.value.response.content == b'"<error description>"'
@@ -73,7 +73,7 @@ def test_post_with_data(respx_mock: respx.MockRouter) -> None:
         response_status=200,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         response = post(
             client=client,
             url=EXAMPLE_URL,
@@ -97,7 +97,7 @@ def test_post_with_empty_data(respx_mock: respx.MockRouter) -> None:
         response_status=200,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         response = post(
             client=client,
             url=EXAMPLE_URL,
@@ -118,7 +118,7 @@ def test_post_return_ok_when_no_response_body(respx_mock: respx.MockRouter) -> N
         response_status=204,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         response = post(client=client, url=EXAMPLE_URL, token=DEFAULT_TOKEN)
 
     assert response.is_success is True
@@ -132,7 +132,7 @@ def test_post_raise_for_status(respx_mock: respx.MockRouter) -> None:
         response_status=500,
     )
 
-    with httpx.Client() as client, pytest.raises(httpx.HTTPStatusError):
+    with httpx2.Client() as client, pytest.raises(httpx2.HTTPStatusError):
         post(client=client, url=EXAMPLE_URL, token=DEFAULT_TOKEN)
 
 
@@ -146,7 +146,7 @@ def test_delete_with_params(respx_mock: respx.MockRouter) -> None:
         response_status=204,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         response = delete(
             client=client,
             url=EXAMPLE_URL,
@@ -167,18 +167,18 @@ def test_delete_raise_for_status(respx_mock: respx.MockRouter) -> None:
         response_status=500,
     )
 
-    with httpx.Client() as client, pytest.raises(httpx.HTTPStatusError):
+    with httpx2.Client() as client, pytest.raises(httpx2.HTTPStatusError):
         delete(client=client, url=EXAMPLE_URL, token=DEFAULT_TOKEN)
 
 
 def test_response_json_dict_returns_dict() -> None:
-    response = httpx.Response(status_code=200, json={"result": "ok"})
+    response = httpx2.Response(status_code=200, json={"result": "ok"})
 
     assert response_json_dict(response) == {"result": "ok"}
 
 
 def test_response_json_dict_raises_for_non_dict() -> None:
-    response = httpx.Response(status_code=200, json=["not", "a", "dict"])
+    response = httpx2.Response(status_code=200, json=["not", "a", "dict"])
 
     with pytest.raises(TypeError, match="JSON object"):
         response_json_dict(response)

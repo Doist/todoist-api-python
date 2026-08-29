@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager, contextmanager
 from typing import TYPE_CHECKING, Literal
 from urllib.parse import urlencode
 
-import httpx
+import httpx2
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator
@@ -63,7 +63,7 @@ def get_auth_token(
     client_id: str,
     client_secret: str,
     code: str,
-    client: httpx.Client | None = None,
+    client: httpx2.Client | None = None,
 ) -> AuthResult:
     """Get access token using provided client ID, client secret, and auth code."""
     endpoint = _get_access_token_url()
@@ -84,7 +84,7 @@ async def get_auth_token_async(
     client_id: str,
     client_secret: str,
     code: str,
-    client: httpx.AsyncClient | None = None,
+    client: httpx2.AsyncClient | None = None,
 ) -> AuthResult:
     """Get access token asynchronously."""
     endpoint = _get_access_token_url()
@@ -105,7 +105,7 @@ def revoke_auth_token(
     client_id: str,
     client_secret: str,
     token: str,
-    client: httpx.Client | None = None,
+    client: httpx2.Client | None = None,
 ) -> bool:
     """Revoke an access token."""
     endpoint = _get_access_tokens_url()
@@ -121,7 +121,7 @@ async def revoke_auth_token_async(
     client_id: str,
     client_secret: str,
     token: str,
-    client: httpx.AsyncClient | None = None,
+    client: httpx2.AsyncClient | None = None,
 ) -> bool:
     """Revoke an access token asynchronously."""
     endpoint = _get_access_tokens_url()
@@ -136,24 +136,24 @@ async def revoke_auth_token_async(
 
 
 @contextmanager
-def _managed_client(client: httpx.Client | None) -> Iterator[httpx.Client]:
+def _managed_client(client: httpx2.Client | None) -> Iterator[httpx2.Client]:
     if client is not None:
         yield client
         return
 
-    with httpx.Client() as default_client:
+    with httpx2.Client() as default_client:
         yield default_client
 
 
 @asynccontextmanager
 async def _managed_async_client(
-    client: httpx.AsyncClient | None,
-) -> AsyncIterator[httpx.AsyncClient]:
+    client: httpx2.AsyncClient | None,
+) -> AsyncIterator[httpx2.AsyncClient]:
     if client is not None:
         yield client
         return
 
-    async with httpx.AsyncClient() as default_client:
+    async with httpx2.AsyncClient() as default_client:
         yield default_client
 
 

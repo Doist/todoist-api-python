@@ -13,7 +13,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "httpx>=0.28.1,<1",
+  "httpx2>=2.0.0,<3",
   "dataclass-wizard>=0.35.4,<1.0",
   "annotated-types",
 ]

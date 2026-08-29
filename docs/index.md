@@ -37,7 +37,7 @@ for comments in comments_iter:
 ### Async usage
 
 Use `TodoistAPIAsync` with `async with` (or call `await api.close()` manually)
-to ensure the underlying `httpx.AsyncClient` is closed.
+to ensure the underlying `httpx2.AsyncClient` is closed.
 
 ## Quick start
 

@@ -5,7 +5,7 @@ import warnings
 from collections.abc import AsyncIterator, Callable
 from typing import TYPE_CHECKING, Annotated, Any, Literal, TypeVar
 
-import httpx
+import httpx2
 from annotated_types import Ge, Le, MaxLen, MinLen
 
 from todoist_api_python._core.endpoints import (
@@ -77,7 +77,7 @@ class TodoistAPIAsync:
     Manages an HTTP client and handles authentication.
 
     Prefer using this class as an async context manager to ensure the underlying
-    `httpx.AsyncClient` is always closed. If you do not use `async with`, call
+    `httpx2.AsyncClient` is always closed. If you do not use `async with`, call
     `await close()` explicitly.
     """
 
@@ -85,19 +85,19 @@ class TodoistAPIAsync:
         self,
         token: str,
         request_id_fn: Callable[[], str] | None = default_request_id_fn,
-        client: httpx.AsyncClient | None = None,
+        client: httpx2.AsyncClient | None = None,
     ) -> None:
         """
         Initialize the TodoistAPIAsync client.
 
         :param token: Authentication token for the Todoist API.
         :param request_id_fn: Generator of request IDs for the `X-Request-ID` header.
-        :param client: An optional pre-configured `httpx.AsyncClient` object, to be
+        :param client: An optional pre-configured `httpx2.AsyncClient` object, to be
             fully managed by `TodoistAPIAsync`.
         """
         self._token = token
         self._request_id_fn = request_id_fn
-        self._client = client or httpx.AsyncClient()
+        self._client = client or httpx2.AsyncClient()
 
     async def __aenter__(self) -> Self:
         """
@@ -116,11 +116,11 @@ class TodoistAPIAsync:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        """Exit the async runtime context and close the underlying httpx client."""
+        """Exit the async runtime context and close the underlying httpx2 client."""
         await self.close()
 
     async def close(self) -> None:
-        """Close the underlying `httpx.AsyncClient`."""
+        """Close the underlying `httpx2.AsyncClient`."""
         await self._client.aclose()
 
     def __del__(self) -> None:
@@ -142,7 +142,7 @@ class TodoistAPIAsync:
 
         :param task_id: The ID of the task to retrieve.
         :return: The requested task.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Task dictionary.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
@@ -179,7 +179,7 @@ class TodoistAPIAsync:
         :param ids: A list of the IDs of the tasks to retrieve.
         :param limit: Maximum number of tasks per page.
         :return: An iterable of lists of tasks.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_PATH)
@@ -221,7 +221,7 @@ class TodoistAPIAsync:
         :param lang: Language for task content (e.g., 'en').
         :param limit: Maximum number of tasks per page.
         :return: An iterable of lists of tasks.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_FILTER_PATH)
@@ -284,7 +284,7 @@ class TodoistAPIAsync:
         :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: The newly created task.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Task dictionary.
         """
         endpoint = get_api_url(TASKS_PATH)
@@ -344,7 +344,7 @@ class TodoistAPIAsync:
         :param reminder: Optional reminder date in free form text.
         :param auto_reminder: Whether to add default reminder if date with time is set.
         :return: A result object containing the parsed task data and metadata.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response cannot be parsed into a QuickAddResult.
         """
         endpoint = get_api_url(TASKS_QUICK_ADD_PATH)
@@ -411,7 +411,7 @@ class TodoistAPIAsync:
         :param deadline_date: The deadline date as a date object.
         :param deadline_lang: Language for parsing the deadline date.
         :return: the updated Task.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
 
@@ -458,7 +458,7 @@ class TodoistAPIAsync:
         :param task_id: The ID of the task to close.
         :return: True if the task was closed successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/close")
         response = await post_async(
@@ -478,7 +478,7 @@ class TodoistAPIAsync:
         :param task_id: The ID of the task to reopen.
         :return: True if the task was uncompleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}/reopen")
         response = await post_async(
@@ -509,7 +509,7 @@ class TodoistAPIAsync:
         :param parent_id: The ID of the parent to move the task to.
         :return: True if the task was moved successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises ValueError: If neither `project_id`, `section_id`,
                 nor `parent_id` is provided.
         """
@@ -540,7 +540,7 @@ class TodoistAPIAsync:
         :param task_id: The ID of the task to delete.
         :return: True if the task was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{TASKS_PATH}/{task_id}")
         response = await delete_async(
@@ -584,7 +584,7 @@ class TodoistAPIAsync:
         :param filter_lang: Language for the filter query (e.g., 'en').
         :param limit: Maximum number of tasks per page (default 50).
         :return: An iterable of lists of completed tasks.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_COMPLETED_BY_DUE_DATE_PATH)
@@ -638,7 +638,7 @@ class TodoistAPIAsync:
         :param filter_lang: Language for the filter query (e.g., 'en').
         :param limit: Maximum number of tasks per page (default 50).
         :return: An iterable of lists of completed tasks.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(TASKS_COMPLETED_BY_COMPLETION_DATE_PATH)
@@ -668,7 +668,7 @@ class TodoistAPIAsync:
 
         :param project_id: The ID of the project to retrieve.
         :return: The requested project.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
@@ -694,7 +694,7 @@ class TodoistAPIAsync:
 
         :param limit: Maximum number of projects per page.
         :return: An iterable of lists of projects.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(PROJECTS_PATH)
@@ -725,7 +725,7 @@ class TodoistAPIAsync:
         :param query: Query string for project names.
         :param limit: Maximum number of projects per page.
         :return: An iterable of lists of projects.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{PROJECTS_SEARCH_PATH_SUFFIX}")
@@ -762,7 +762,7 @@ class TodoistAPIAsync:
         :param is_favorite: Whether the project is a favorite.
         :param view_style: A string value (either 'list' or 'board', default is 'list').
         :return: The newly created project.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(PROJECTS_PATH)
@@ -812,7 +812,7 @@ class TodoistAPIAsync:
         :param order: Position of the project among projects with the same parent.
         :param collapsed: Whether the project's sub-projects are collapsed.
         :return: the updated Project.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
 
@@ -845,7 +845,7 @@ class TodoistAPIAsync:
 
         :param project_id: The ID of the project to archive.
         :return: The archived project object.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(
@@ -868,7 +868,7 @@ class TodoistAPIAsync:
 
         :param project_id: The ID of the project to unarchive.
         :return: The unarchived project object.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
         """
         endpoint = get_api_url(
@@ -892,7 +892,7 @@ class TodoistAPIAsync:
         :param project_id: The ID of the project to delete.
         :return: True if the project was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}")
         response = await delete_async(
@@ -918,7 +918,7 @@ class TodoistAPIAsync:
         :param project_id: The ID of the project.
         :param limit: Maximum number of collaborators per page.
         :return: An iterable of lists of collaborators.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{PROJECTS_PATH}/{project_id}/{COLLABORATORS_PATH}")
@@ -939,7 +939,7 @@ class TodoistAPIAsync:
 
         :param section_id: The ID of the section to retrieve.
         :return: The requested section.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Section dictionary.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
@@ -970,7 +970,7 @@ class TodoistAPIAsync:
         :param project_id: Filter sections by project ID.
         :param limit: Maximum number of sections per page.
         :return: An iterable of lists of sections.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(SECTIONS_PATH)
@@ -1005,7 +1005,7 @@ class TodoistAPIAsync:
         :param project_id: If set, search sections within the given project only.
         :param limit: Maximum number of sections per page.
         :return: An iterable of lists of sections.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{SECTIONS_SEARCH_PATH_SUFFIX}")
@@ -1036,7 +1036,7 @@ class TodoistAPIAsync:
         :param project_id: The ID of the project to add the section to.
         :param order: The order of the section among all sections in the project.
         :return: The newly created section.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Section dictionary.
         """
         endpoint = get_api_url(SECTIONS_PATH)
@@ -1069,7 +1069,7 @@ class TodoistAPIAsync:
         :param order: Position of the section among sections in the project.
         :param collapsed: Whether the section's tasks are collapsed.
         :return: the updated Section.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
 
@@ -1098,7 +1098,7 @@ class TodoistAPIAsync:
         :param section_id: The ID of the section to delete.
         :return: True if the section was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{SECTIONS_PATH}/{section_id}")
         response = await delete_async(
@@ -1115,7 +1115,7 @@ class TodoistAPIAsync:
 
         :param comment_id: The ID of the comment to retrieve.
         :return: The requested comment.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Comment dictionary.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
@@ -1149,7 +1149,7 @@ class TodoistAPIAsync:
         :param limit: Maximum number of comments per page.
         :return: An iterable of lists of comments.
         :raises ValueError: If neither `project_id` nor `task_id` is provided.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         if project_id is None and task_id is None:
@@ -1195,7 +1195,7 @@ class TodoistAPIAsync:
         :param uids_to_notify: A list of user IDs to notify.
         :return: The newly created comment.
         :raises ValueError: If neither `project_id` nor `task_id` is provided.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Comment dictionary.
         """
         if project_id is None and task_id is None:
@@ -1232,7 +1232,7 @@ class TodoistAPIAsync:
         :param comment_id: The ID of the comment to update.
         :param content: The new text content for the comment.
         :return: the updated Comment.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
         response = await post_async(
@@ -1252,7 +1252,7 @@ class TodoistAPIAsync:
         :param comment_id: The ID of the comment to delete.
         :return: True if the comment was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{COMMENTS_PATH}/{comment_id}")
         response = await delete_async(
@@ -1269,7 +1269,7 @@ class TodoistAPIAsync:
 
         :param label_id: The ID of the label to retrieve.
         :return: The requested label.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Label dictionary.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
@@ -1298,7 +1298,7 @@ class TodoistAPIAsync:
 
         :param limit: Maximum number of labels per page.
         :return: An iterable of lists of personal labels.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(LABELS_PATH)
@@ -1331,7 +1331,7 @@ class TodoistAPIAsync:
         :param query: Query string for label names.
         :param limit: Maximum number of labels per page.
         :return: An iterable of lists of labels.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{LABELS_SEARCH_PATH_SUFFIX}")
@@ -1364,7 +1364,7 @@ class TodoistAPIAsync:
         :param order: Label's order in the label list.
         :param is_favorite: Whether the label is a favorite.
         :return: The newly created label.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Label dictionary.
         """
         endpoint = get_api_url(LABELS_PATH)
@@ -1406,7 +1406,7 @@ class TodoistAPIAsync:
         :param order: Label's order in the label list.
         :param is_favorite: Whether the label is a favorite.
         :return: the updated Label.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
 
@@ -1436,7 +1436,7 @@ class TodoistAPIAsync:
         :param label_id: The ID of the label to delete.
         :return: True if the label was deleted successfully,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LABELS_PATH}/{label_id}")
         response = await delete_async(
@@ -1467,7 +1467,7 @@ class TodoistAPIAsync:
         :param omit_personal: Optional boolean flag to omit personal label names.
         :param limit: Maximum number of labels per page.
         :return: An iterable of lists of shared label names (strings).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         endpoint = get_api_url(SHARED_LABELS_PATH)
@@ -1496,7 +1496,7 @@ class TodoistAPIAsync:
         :param new_name: The new name for the shared label.
         :return: True if the rename was successful,
                  False otherwise (possibly raise `HTTPError` instead).
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(SHARED_LABELS_RENAME_PATH)
         response = await post_async(
@@ -1517,7 +1517,7 @@ class TodoistAPIAsync:
 
         :param name: The name of the shared label to remove.
         :return: True if the removal was successful,
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(SHARED_LABELS_REMOVE_PATH)
         data = {"name": name}
@@ -1538,7 +1538,7 @@ class TodoistAPIAsync:
 
         :param reminder_id: The ID of the reminder to retrieve.
         :return: The requested reminder.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{REMINDERS_PATH}/{reminder_id}")
         response = await get_async(
@@ -1566,7 +1566,7 @@ class TodoistAPIAsync:
         :param task_id: Optional task ID to filter reminders by.
         :param limit: Maximum number of reminders per page.
         :return: An async iterable of lists of reminders.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(REMINDERS_PATH)
 
@@ -1614,7 +1614,7 @@ class TodoistAPIAsync:
         :param due_timezone: Timezone for the due date.
         :param service: The notification service ("email" or "push").
         :return: The newly created reminder.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(REMINDERS_PATH)
 
@@ -1671,7 +1671,7 @@ class TodoistAPIAsync:
         :param due_timezone: Timezone for the due date.
         :param service: The notification service ("email" or "push").
         :return: The updated reminder.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{REMINDERS_PATH}/{reminder_id}")
 
@@ -1706,7 +1706,7 @@ class TodoistAPIAsync:
 
         :param reminder_id: The ID of the reminder to delete.
         :return: True if the reminder was deleted successfully.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{REMINDERS_PATH}/{reminder_id}")
         response = await delete_async(
@@ -1727,7 +1727,7 @@ class TodoistAPIAsync:
 
         :param location_reminder_id: The ID of the location reminder to retrieve.
         :return: The requested location reminder.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LOCATION_REMINDERS_PATH}/{location_reminder_id}")
         response = await get_async(
@@ -1755,7 +1755,7 @@ class TodoistAPIAsync:
         :param task_id: Optional task ID to filter location reminders by.
         :param limit: Maximum number of location reminders per page.
         :return: An async iterable of lists of location reminders.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(LOCATION_REMINDERS_PATH)
 
@@ -1794,7 +1794,7 @@ class TodoistAPIAsync:
         :param loc_trigger: When to trigger ("on_enter" or "on_leave").
         :param radius: The radius in meters (default: 100).
         :return: The newly created location reminder.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(LOCATION_REMINDERS_PATH)
 
@@ -1839,7 +1839,7 @@ class TodoistAPIAsync:
         :param loc_trigger: When to trigger ("on_enter" or "on_leave").
         :param radius: The radius in meters.
         :return: The updated location reminder.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LOCATION_REMINDERS_PATH}/{location_reminder_id}")
 
@@ -1867,7 +1867,7 @@ class TodoistAPIAsync:
 
         :param location_reminder_id: The ID of the location reminder to delete.
         :return: True if the location reminder was deleted successfully.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         """
         endpoint = get_api_url(f"{LOCATION_REMINDERS_PATH}/{location_reminder_id}")
         response = await delete_async(
@@ -1891,7 +1891,7 @@ class AsyncResultsPaginator(AsyncIterator[list[T]]):
     requesting new pages as needed when iterating.
     """
 
-    _client: httpx.AsyncClient
+    _client: httpx2.AsyncClient
     _url: str
     _results_field: str
     _results_inst: Callable[[Any], T]
@@ -1900,7 +1900,7 @@ class AsyncResultsPaginator(AsyncIterator[list[T]]):
 
     def __init__(
         self,
-        client: httpx.AsyncClient,
+        client: httpx2.AsyncClient,
         url: str,
         results_field: str,
         results_inst: Callable[[Any], T],
@@ -1911,7 +1911,7 @@ class AsyncResultsPaginator(AsyncIterator[list[T]]):
         """
         Initialize the ResultsPaginator.
 
-        :param client: The httpx client to use for API calls.
+        :param client: The httpx2 client to use for API calls.
         :param url: The API endpoint URL to fetch results from.
         :param results_field: The key in the API response that contains the results.
         :param results_inst: A callable that converts result items to objects of type T.
@@ -1932,7 +1932,7 @@ class AsyncResultsPaginator(AsyncIterator[list[T]]):
         Fetch and return the next page of results from the Todoist API.
 
         :return: A list of results.
-        :raises httpx.HTTPStatusError: If the API request fails.
+        :raises httpx2.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response structure is unexpected.
         """
         if self._cursor is None:

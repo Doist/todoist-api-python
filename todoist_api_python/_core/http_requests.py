@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-import httpx
+import httpx2
 
 from todoist_api_python._core.http_headers import create_headers
 
@@ -13,16 +13,16 @@ from todoist_api_python._core.http_headers import create_headers
 #
 # 60 seconds for reading aligns with Todoist's own internal timeout. All requests
 # are forcefully terminated after this time, so there is no point waiting longer.
-TIMEOUT = httpx.Timeout(connect=10.0, read=60.0, write=60.0, pool=10.0)
+TIMEOUT = httpx2.Timeout(connect=10.0, read=60.0, write=60.0, pool=10.0)
 
 
 def get(
-    client: httpx.Client,
+    client: httpx2.Client,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-) -> httpx.Response:
+) -> httpx2.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = client.get(
@@ -36,12 +36,12 @@ def get(
 
 
 async def get_async(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-) -> httpx.Response:
+) -> httpx2.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = await client.get(
@@ -55,14 +55,14 @@ async def get_async(
 
 
 def post(
-    client: httpx.Client,
+    client: httpx2.Client,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     *,
     params: dict[str, Any] | None = None,
     data: dict[str, Any] | None = None,
-) -> httpx.Response:
+) -> httpx2.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = client.post(
@@ -77,14 +77,14 @@ def post(
 
 
 async def post_async(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     *,
     params: dict[str, Any] | None = None,
     data: dict[str, Any] | None = None,
-) -> httpx.Response:
+) -> httpx2.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = await client.post(
@@ -99,12 +99,12 @@ async def post_async(
 
 
 def delete(
-    client: httpx.Client,
+    client: httpx2.Client,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-) -> httpx.Response:
+) -> httpx2.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = client.delete(url, params=params, headers=headers, timeout=TIMEOUT)
@@ -113,12 +113,12 @@ def delete(
 
 
 async def delete_async(
-    client: httpx.AsyncClient,
+    client: httpx2.AsyncClient,
     url: str,
     token: str | None = None,
     request_id: str | None = None,
     params: dict[str, Any] | None = None,
-) -> httpx.Response:
+) -> httpx2.Response:
     headers = create_headers(token=token, request_id=request_id)
 
     response = await client.delete(url, params=params, headers=headers, timeout=TIMEOUT)
@@ -126,7 +126,7 @@ async def delete_async(
     return response
 
 
-def response_json_dict(response: httpx.Response) -> dict[str, Any]:
+def response_json_dict(response: httpx2.Response) -> dict[str, Any]:
     data = response.json()
     if not isinstance(data, dict):
         raise TypeError(
