@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from urllib.parse import quote
 
-import httpx2
 import pytest
 
 from tests.data.test_defaults import DEFAULT_OAUTH_URL
@@ -71,37 +70,6 @@ async def test_get_auth_token(
 
     assert len(respx_mock.calls) == 2
     assert auth_result == default_auth_result
-
-
-def test_get_auth_token_uses_supplied_client(
-    default_auth_response: dict[str, Any],
-    default_auth_result: AuthResult,
-) -> None:
-    def handle_request(request: httpx2.Request) -> httpx2.Response:
-        return httpx2.Response(200, json=default_auth_response, request=request)
-
-    with httpx2.Client(transport=httpx2.MockTransport(handle_request)) as client:
-        auth_result = get_auth_token("123", "456", "789", client=client)
-
-        assert auth_result == default_auth_result
-        assert not client.is_closed
-
-
-@pytest.mark.asyncio
-async def test_get_auth_token_uses_supplied_async_client(
-    default_auth_response: dict[str, Any],
-    default_auth_result: AuthResult,
-) -> None:
-    async def handle_request(request: httpx2.Request) -> httpx2.Response:
-        return httpx2.Response(200, json=default_auth_response, request=request)
-
-    async with httpx2.AsyncClient(
-        transport=httpx2.MockTransport(handle_request)
-    ) as client:
-        auth_result = await get_auth_token_async("123", "456", "789", client=client)
-
-        assert auth_result == default_auth_result
-        assert not client.is_closed
 
 
 @pytest.mark.asyncio

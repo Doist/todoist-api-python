@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import pytest_asyncio
-import respx
-from respx.mocks import HTTPCoreMocker
 
 from tests.data.test_defaults import (
     DEFAULT_AUTH_RESPONSE,
@@ -48,24 +46,12 @@ from todoist_api_python.models import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator
 
-
-# RESPX patches HTTP Core by default; register its extension hook for HTTP Core 2.
-class _HTTPCore2Mocker(HTTPCoreMocker):
-    name: ClassVar[str] = "httpcore2"
-    targets: ClassVar[list[str]] = [
-        "httpcore2._sync.connection.HTTPConnection",
-        "httpcore2._sync.connection_pool.ConnectionPool",
-        "httpcore2._sync.http_proxy.HTTPProxy",
-        "httpcore2._async.connection.AsyncHTTPConnection",
-        "httpcore2._async.connection_pool.AsyncConnectionPool",
-        "httpcore2._async.http_proxy.AsyncHTTPProxy",
-    ]
+    import respx
 
 
 @pytest.fixture
-def respx_mock() -> Iterator[respx.MockRouter]:
-    with respx.mock(using=_HTTPCore2Mocker.name) as router:
-        yield router
+def respx_mock(httpx2_mock: respx.MockRouter) -> respx.MockRouter:
+    return httpx2_mock
 
 
 @pytest.fixture
