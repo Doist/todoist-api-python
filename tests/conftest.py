@@ -46,6 +46,13 @@ from todoist_api_python.models import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Iterator
 
+    import respx
+
+
+@pytest.fixture
+def respx_mock(httpx2_mock: respx.MockRouter) -> respx.MockRouter:
+    return httpx2_mock
+
 
 @pytest.fixture
 def todoist_api() -> Iterator[TodoistAPI]:

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `TodoistAPIAsync` now performs true async HTTP I/O with `httpx.AsyncClient`.
+- `TodoistAPIAsync` now performs true async HTTP I/O with `httpx2.AsyncClient`.
 - Support for Python 3.14.
 
 ### Removed
@@ -18,11 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Breaking**: `TodoistAPI` now accepts an optional `client: httpx.Client` instead of `session: requests.Session`.
-- **Breaking**: `TodoistAPIAsync` now accepts an optional `client: httpx.AsyncClient` instead of `session: requests.Session`.
+- **Breaking**: Replaced the `httpx` runtime dependency with `httpx2`; caller-supplied clients and caught HTTP exceptions must now come from `httpx2`.
+- **Breaking**: `TodoistAPI` now accepts an optional `client: httpx2.Client` instead of `session: requests.Session`.
+- **Breaking**: `TodoistAPIAsync` now accepts an optional `client: httpx2.AsyncClient` instead of `session: requests.Session`.
 - **Breaking**: Async paginated return types now use `AsyncIterator[...]` instead of `AsyncGenerator[...]`.
-- **Breaking**: API errors now raise `httpx.HTTPStatusError` instead of `requests.exceptions.HTTPError`.
-- **Breaking**: Authentication helpers now accept optional `httpx.Client` / `httpx.AsyncClient` instances instead of `session: requests.Session`.
+- **Breaking**: API errors now raise `httpx2.HTTPStatusError` instead of `requests.exceptions.HTTPError`.
+- **Breaking**: Authentication helpers now accept optional `httpx2.Client` / `httpx2.AsyncClient` instances instead of `session: requests.Session`.
 - **Breaking**: `update_section` now accepts only keyword arguments after `section_id`; any one of `name`, `order`, or `collapsed` can be updated in the same call.
 - **Breaking**: `add_label` and `update_label` now accept `order` instead of `item_order` for label ordering. (#247)
 

@@ -56,11 +56,11 @@ For more detailed reference documentation, have a look at the [SDK documentation
 
 ## Migrating from 3.x
 
-Version `4.x` introduces a breaking HTTP stack migration from `requests` to `httpx`.
+Version `4.x` introduces a breaking HTTP stack migration from `requests` to `httpx2`.
 
-- `TodoistAPI(..., session=...)` is now `TodoistAPI(..., client=...)` with `httpx.Client`.
-- `TodoistAPIAsync(..., session=...)` is now `TodoistAPIAsync(..., client=...)` with `httpx.AsyncClient`.
-- Error handling should catch `httpx.HTTPStatusError` instead of `requests.exceptions.HTTPError`.
+- `TodoistAPI(..., session=...)` is now `TodoistAPI(..., client=...)` with `httpx2.Client`.
+- `TodoistAPIAsync(..., session=...)` is now `TodoistAPIAsync(..., client=...)` with `httpx2.AsyncClient`.
+- Error handling should catch `httpx2.HTTPStatusError` instead of `requests.exceptions.HTTPError`.
 
 ## Development
 
