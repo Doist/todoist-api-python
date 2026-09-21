@@ -14,7 +14,7 @@ classifiers = [
 
 dependencies = [
   "httpx2>=2.0.0,<3",
-  "dataclass-wizard>=0.35.4,<1.0",
+  "dataclass-wizard>=1,<1.1",
   "annotated-types",
 ]
 
