@@ -76,6 +76,15 @@ def test_project_from_dict() -> None:
     assert project.updated_at == parse_datetime(str(sample_data["updated_at"]))
 
 
+def test_project_with_unknown_view_style() -> None:
+    sample_data = dict(DEFAULT_PROJECT_RESPONSE)
+    sample_data["view_style"] = "table"
+
+    project = Project.from_dict(sample_data)
+
+    assert project.view_style == "table"
+
+
 def test_project_url() -> None:
     inbox = Project.from_dict(dict(DEFAULT_PROJECT_RESPONSE))
     assert inbox.url == "https://app.todoist.com/app/inbox"

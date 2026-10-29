@@ -35,7 +35,8 @@ class Project(JSONPyWizard):
     is_favorite: bool
     is_archived: bool
     can_assign_tasks: bool
-    view_style: ViewStyle
+    # Any string, so a style this version doesn't know yet doesn't fail loading
+    view_style: str
     created_at: ApiDate
     updated_at: ApiDate
 

@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for Python 3.9 (EOL).
 
+### Fixed
+
+- Loading a project no longer fails when its `view_style` is one this version doesn't know yet, like a newly added layout. Its value is kept as is.
+
 ### Changed
 
 - **Breaking**: Replaced the `httpx` runtime dependency with `httpx2`; caller-supplied clients and caught HTTP exceptions must now come from `httpx2`.
