@@ -35,7 +35,8 @@ class Project(JSONPyWizard):
     is_favorite: bool
     is_archived: bool
     can_assign_tasks: bool
-    view_style: ViewStyle
+    # Not `ViewStyle`: the API can add view styles, which a Literal would fail to load.
+    view_style: str
     created_at: ApiDate
     updated_at: ApiDate
 
