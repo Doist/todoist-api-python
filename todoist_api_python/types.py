@@ -35,7 +35,7 @@ ColorString = Annotated[
 ]
 ViewStyle = Annotated[
     str,
-    Predicate(lambda value: value in ("list", "board", "calendar")),
+    Predicate(lambda value: value in ("list", "board", "calendar", "table")),
 ]
 
 __all__ = ["ColorString", "LanguageCode", "ViewStyle"]

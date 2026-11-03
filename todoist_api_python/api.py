@@ -740,7 +740,7 @@ class TodoistAPI:
         :param parent_id: The ID of the parent project. Set to null for root projects.
         :param color: The color of the project icon.
         :param is_favorite: Whether the project is a favorite.
-        :param view_style: A string value (either 'list' or 'board', default is 'list').
+        :param view_style: 'list', 'board', 'calendar' or 'table' (default is 'list').
         :return: The newly created project.
         :raises httpx.HTTPStatusError: If the API request fails.
         :raises TypeError: If the API response is not a valid Project dictionary.
@@ -788,7 +788,7 @@ class TodoistAPI:
         :param description: Description for the project (up to 1024 characters).
         :param color: The color of the project icon.
         :param is_favorite: Whether the project is a favorite.
-        :param view_style: A string value (either 'list' or 'board').
+        :param view_style: 'list', 'board', 'calendar' or 'table'.
         :param order: Position of the project among projects with the same parent.
         :param collapsed: Whether the project's sub-projects are collapsed.
         :return: the updated Project.

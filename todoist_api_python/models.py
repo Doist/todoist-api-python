@@ -9,7 +9,7 @@ from dataclass_wizard.v1.models import Alias
 
 from todoist_api_python._core.endpoints import INBOX_URL, get_project_url, get_task_url
 
-ViewStyle = Literal["list", "board", "calendar"]
+ViewStyle = Literal["list", "board", "calendar", "table"]
 DurationUnit = Literal["minute", "day"]
 ReminderType = Literal["relative", "absolute"]
 ReminderService = Literal["email", "push"]
