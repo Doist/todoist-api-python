@@ -5,12 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.0.1] - 2026-11-03
+
+### Added
+
+- `add_project` and `update_project` accept the `table` view style.
+
+### Fixed
+
+- Projects with a view style this version doesn't know, such as `table`, load instead of failing with `ParseError`. `Project.view_style` is now a `str`.
+
+## [4.0.0] - 2026-03-25
 
 ### Added
 
 - `TodoistAPIAsync` now performs true async HTTP I/O with `httpx.AsyncClient`.
 - Support for Python 3.14.
+- `add_project` and `update_project` accept the `table` view style.
 
 ### Removed
 
@@ -24,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking**: API errors now raise `httpx.HTTPStatusError` instead of `requests.exceptions.HTTPError`.
 - **Breaking**: Authentication helpers now accept optional `httpx.Client` / `httpx.AsyncClient` instances instead of `session: requests.Session`.
 - **Breaking**: `update_section` now accepts only keyword arguments after `section_id`; any one of `name`, `order`, or `collapsed` can be updated in the same call.
+
+### Fixed
+
+- Loading a project no longer fails when its `view_style` is one the SDK doesn't know yet; `Project.view_style` is now typed as `str` and keeps the value as sent.
 
 ## [3.2.1] - 2026-01-22
 

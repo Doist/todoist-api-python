@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from tests.data.test_defaults import (
     DEFAULT_ATTACHMENT_RESPONSE,
     DEFAULT_COLLABORATOR_RESPONSE,
@@ -74,6 +76,16 @@ def test_project_from_dict() -> None:
     assert project.view_style == sample_data["view_style"]
     assert project.created_at == parse_datetime(str(sample_data["created_at"]))
     assert project.updated_at == parse_datetime(str(sample_data["updated_at"]))
+
+
+@pytest.mark.parametrize("view_style", ["table", "some_future_view_style"])
+def test_project_from_dict_with_unknown_view_style(view_style: str) -> None:
+    sample_data = dict(DEFAULT_PROJECT_RESPONSE)
+    sample_data["view_style"] = view_style
+
+    project = Project.from_dict(sample_data)
+
+    assert project.view_style == view_style
 
 
 def test_project_url() -> None:
