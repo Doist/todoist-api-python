@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking**: `update_section` now accepts only keyword arguments after `section_id`; any one of `name`, `order`, or `collapsed` can be updated in the same call.
 - **Breaking**: `add_label` and `update_label` now accept `order` instead of `item_order` for label ordering. (#247)
 
+### Fixed
+
+- Loading a project no longer fails when its `view_style` is one the SDK doesn't know yet; `Project.view_style` is now typed as `str` and keeps the value as sent.
+
 ## [3.2.1] - 2026-01-22
 
 ### Fixed
