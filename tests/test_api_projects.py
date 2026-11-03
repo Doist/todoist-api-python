@@ -160,12 +160,13 @@ async def test_add_project_minimal(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("view_style", ["board", "table"])
 async def test_add_project_full(
     todoist_api: TodoistAPI,
     todoist_api_async: TodoistAPIAsync,
     respx_mock: respx.MockRouter,
     default_project_response: dict[str, Any],
-    default_project: Project,
+    view_style: str,
 ) -> None:
     project_name = "A Project"
     args: dict[str, Any] = {
@@ -173,8 +174,9 @@ async def test_add_project_full(
         "parent_id": "3Ty8VQXxpwv28PK3",
         "color": "red",
         "is_favorite": True,
-        "view_style": "board",
+        "view_style": view_style,
     }
+    project_response = default_project_response | {"view_style": view_style}
 
     mock_route(
         respx_mock,
@@ -182,19 +184,19 @@ async def test_add_project_full(
         url=f"{DEFAULT_API_URL}/projects",
         request_headers=api_headers(),
         request_json={"name": project_name} | args,
-        response_json=default_project_response,
+        response_json=project_response,
         response_status=200,
     )
 
     new_project = todoist_api.add_project(name=project_name, **args)
 
     assert len(respx_mock.calls) == 1
-    assert new_project == default_project
+    assert new_project == Project.from_dict(project_response)
 
     new_project = await todoist_api_async.add_project(name=project_name, **args)
 
     assert len(respx_mock.calls) == 2
-    assert new_project == default_project
+    assert new_project == Project.from_dict(project_response)
 
 
 @pytest.mark.asyncio
