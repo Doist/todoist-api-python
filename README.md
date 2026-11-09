@@ -52,7 +52,7 @@ async with TodoistAPIAsync("YOUR_API_TOKEN") as api:
 
 ## Documentation
 
-For more detailed reference documentation, have a look at the [SDK documentation](https://doist.github.io/todoist-api-python/) and the [API documentation](https://developer.todoist.com).
+For more detailed reference documentation, have a look at the [SDK documentation](https://todoist.github.io/todoist-api-python/) and the [API documentation](https://developer.todoist.com).
 
 ## Migrating from 3.x
 
