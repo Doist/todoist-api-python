@@ -115,6 +115,7 @@ async def test_add_location_reminder(
             "loc_long": "-0.1278",
             "loc_trigger": "on_enter",
             "radius": 200,
+            "notify_uid": "34567",
         },
         response_json=default_location_reminder_response,
         response_status=200,
@@ -127,6 +128,7 @@ async def test_add_location_reminder(
         loc_long="-0.1278",
         loc_trigger="on_enter",
         radius=200,
+        notify_uid="34567",
     )
 
     assert len(respx_mock.calls) == 1
@@ -139,6 +141,7 @@ async def test_add_location_reminder(
         loc_long="-0.1278",
         loc_trigger="on_enter",
         radius=200,
+        notify_uid="34567",
     )
 
     assert len(respx_mock.calls) == 2
@@ -152,9 +155,10 @@ async def test_update_location_reminder(
     respx_mock: respx.MockRouter,
     default_location_reminder: LocationReminder,
 ) -> None:
-    args = {
+    args: dict[str, Any] = {
         "name": "Home Office",
         "radius": 150,
+        "notify_uid": "2671362",
     }
     updated_dict = default_location_reminder.to_dict() | args
 

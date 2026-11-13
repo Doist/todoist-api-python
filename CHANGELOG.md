@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `TodoistAPIAsync` now performs true async HTTP I/O with `httpx2.AsyncClient`.
 - Support for Python 3.14.
 - `add_project` and `update_project` accept the `table` view style.
+- `add_reminder`, `update_reminder`, `add_location_reminder`, and `update_location_reminder` accept `notify_uid` to choose which project collaborator receives the reminder.
 
 ### Removed
 
